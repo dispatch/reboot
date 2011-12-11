@@ -27,7 +27,5 @@ trait StringVerbs extends HandlerVerbs {
   def >- [T](f: String => T) = onCompleted { res =>
     f(res.getResponseBody("iso-8859-1"))
   }
-  def as_str = onCompleted { res =>
-    res.getResponseBody("iso-8859-1")
-  }
+  def as_str = >- (identity)
 }
