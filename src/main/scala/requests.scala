@@ -10,7 +10,7 @@ trait ImplicitRequestVerbs {
 }
 
 class RequestVerbs(val subject: RequestBuilder)
-extends MethodVerbs with PathVerbs with ParamVerbs
+extends MethodVerbs with UrlVerbs with ParamVerbs
 
 object :/ {
   def apply(host: String) =
@@ -28,11 +28,18 @@ trait MethodVerbs {
   def DELETE = subject.setMethod("DELETE")
 }
 
-trait PathVerbs {
+trait UrlVerbs {
+  import java.net.URI
   def subject: RequestBuilder
   def / (path: String) = subject.setUrl(
-    java.net.URI.create(subject.build.getUrl()).resolve(path).toString
+    URI.create(subject.build.getUrl).resolve(path).toString
   )
+  def secure (path: String) = {
+    val uri = URI.create(subject.build.getUrl)
+    subject.setUrl(new URI(
+      "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
+    ).toString)
+  }
 }
 
 trait ParamVerbs {
@@ -41,5 +48,10 @@ trait ParamVerbs {
     (subject.setMethod("POST") /: params) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
+    }
+  def <<? (params: Traversable[(String,String)]) =
+    (subject /: params) {
+      case (s, (key, value)) =>
+        s.addQueryParameter(key, value)
     }
 }
