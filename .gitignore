@@ -1,0 +1,9 @@
+.classpath
+.project
+.settings
+target
+scratch.scala
+src_managed
+*.test.properties
+.idea
+*.iml
