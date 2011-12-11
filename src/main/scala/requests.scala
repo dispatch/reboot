@@ -6,10 +6,10 @@ object ImplicitRequestVerbs extends ImplicitRequestVerbs
 
 trait ImplicitRequestVerbs {
   implicit def implyRequestVerbs(builder: RequestBuilder) =
-    new RequestVerbs(builder)
+    new DefaultRequestVerbs(builder)
 }
 
-class RequestVerbs(val subject: RequestBuilder)
+class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs
 
 object :/ {
@@ -19,8 +19,11 @@ object :/ {
     new RequestBuilder().setUrl("http://%s:%d/".format(host, port))
 }
 
-trait MethodVerbs {
+trait RequestVerbs {
   def subject: RequestBuilder
+}
+
+trait MethodVerbs extends RequestVerbs {
   def HEAD   = subject.setMethod("HEAD")
   def GET    = subject.setMethod("GET")
   def POST   = subject.setMethod("POST")
@@ -28,22 +31,22 @@ trait MethodVerbs {
   def DELETE = subject.setMethod("DELETE")
 }
 
-trait UrlVerbs {
+trait UrlVerbs extends RequestVerbs {
   import java.net.URI
-  def subject: RequestBuilder
-  def / (path: String) = subject.setUrl(
-    URI.create(subject.build.getUrl).resolve(path).toString
-  )
-  def secure (path: String) = {
-    val uri = URI.create(subject.build.getUrl)
+  def url = subject.build.getUrl // unfortunate
+  def / (path: String) = subject.setUrl(url match {
+    case u if u.endsWith("/") => u + path
+    case u => u + "/" + path
+  })
+  def secure = {
+    val uri = URI.create(url)
     subject.setUrl(new URI(
       "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
     ).toString)
   }
 }
 
-trait ParamVerbs {
-  def subject: RequestBuilder
+trait ParamVerbs extends RequestVerbs {
   def << (params: Traversable[(String,String)]) =
     (subject.setMethod("POST") /: params) {
       case (s, (key, value)) =>
