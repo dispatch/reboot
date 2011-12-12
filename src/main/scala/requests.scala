@@ -29,6 +29,7 @@ trait MethodVerbs extends RequestVerbs {
   def POST   = subject.setMethod("POST")
   def PUT    = subject.setMethod("PUT")
   def DELETE = subject.setMethod("DELETE")
+  def PATCH  = subject.setMethod("PATCH")
 }
 
 trait UrlVerbs extends RequestVerbs {
