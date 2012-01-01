@@ -3,16 +3,26 @@ package dispatch
 import com.ning.http.client.{
   AsyncHttpClient, Request, AsyncHandler
 }
+import java.util.{concurrent => juc}
 
-case class Executable[T](request: Request, handler: AsyncHandler[T])
+// "AsyncHandler aren't thread safe, hence you should avoid re-using the
+// same instance when doing concurrent requests."
+case class Executable[T](request: Request, handler: () => AsyncHandler[T])
 
-object Http extends Executor {
+abstract class Http extends Executor {
   lazy val client = new AsyncHttpClient
+}
+object Http extends Http {
+  val executor = juc.Executors.newCachedThreadPool
 }
 
 trait Executor {
   def client: AsyncHttpClient
+  implicit def executor: juc.ExecutorService
   def apply[T](exec: Executable[T]) =
-    client.executeRequest(exec.request, exec.handler)
-  def shutdown() { client.close() }
+    Promise.make(client.executeRequest(exec.request, exec.handler()))
+  def shutdown() {
+    client.close()
+    executor.shutdown()
+  }
 }

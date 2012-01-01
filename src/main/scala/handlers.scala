@@ -17,7 +17,7 @@ trait HandlerVerbs {
   def onCompleted[T](f: Response => T) =
     Executable(
       subject,
-      new AsyncCompletionHandler[T] {
+      () => new AsyncCompletionHandler[T] {
         def onCompleted(response: Response) = f(response)
       }
     )
