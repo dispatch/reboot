@@ -1,3 +1,3 @@
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.6.5"
+  "com.ning" % "async-http-client" % "1.7.0-RC1"
 )
