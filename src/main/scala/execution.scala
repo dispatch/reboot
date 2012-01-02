@@ -9,12 +9,12 @@ import java.util.{concurrent => juc}
 // same instance when doing concurrent requests."
 case class Executable[T](request: Request, handler: () => AsyncHandler[T])
 
-abstract class Http extends Executor {
+class Http extends Executor {
+  lazy val executor = juc.Executors.newCachedThreadPool
   lazy val client = new AsyncHttpClient
 }
-object Http extends Http {
-  val executor = juc.Executors.newCachedThreadPool
-}
+
+object Http extends Http
 
 trait Executor {
   def client: AsyncHttpClient

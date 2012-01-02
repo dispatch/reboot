@@ -25,14 +25,19 @@ trait Promise[A] { self =>
   def foreach(f: A => Unit)
 }
 
+class ListenableFuturePromise[A](
+  underlying: ListenableFuture[A],
+  executor: juc.Executor
+) extends Promise[A] {
+  def claim = underlying.get
+  def foreach(f: A => Unit) =
+    underlying.addListener(new Runnable {
+      def run { f(claim) }
+    }, executor)
+}
+
 object Promise {
   def make[A](underlying: ListenableFuture[A])
              (implicit executor: juc.Executor) =
-    new Promise[A] {
-      def claim = underlying.get
-      def foreach(f: A => Unit) =
-        underlying.addListener(new Runnable {
-          def run { f(claim) }
-        }, executor)
-    }
+    new ListenableFuturePromise(underlying, executor)
 }
