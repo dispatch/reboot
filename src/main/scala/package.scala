@@ -1,6 +1,5 @@
-package object dispatch
-
-extends ImplicitRequestVerbs {
-  def url(url: String) =
-    new com.ning.http.client.RequestBuilder().setUrl(url)
+package object dispatch {
+  import com.ning.http.client.RequestBuilder
+  implicit def implyRequestVerbs(builder: RequestBuilder) =
+    new DefaultRequestVerbs(builder)
 }

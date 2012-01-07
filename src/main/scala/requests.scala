@@ -2,15 +2,8 @@ package dispatch
 
 import com.ning.http.client.RequestBuilder
 
-object ImplicitRequestVerbs extends ImplicitRequestVerbs
-
-trait ImplicitRequestVerbs {
-  implicit def implyRequestVerbs(builder: RequestBuilder) =
-    new DefaultRequestVerbs(builder)
-}
-
 class DefaultRequestVerbs(val subject: RequestBuilder)
-extends MethodVerbs with UrlVerbs with ParamVerbs
+extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
 
 object :/ {
   def apply(host: String) =
@@ -19,6 +12,9 @@ object :/ {
     new RequestBuilder().setUrl("http://%s:%d/".format(host, port))
 }
 
+object url extends (String => RequestBuilder) {
+  def apply(url: String) = new RequestBuilder().setUrl(url)
+}
 trait RequestVerbs {
   def subject: RequestBuilder
 }
@@ -58,4 +54,13 @@ trait ParamVerbs extends RequestVerbs {
       case (s, (key, value)) =>
         s.addQueryParameter(key, value)
     }
+}
+
+trait AuthVerbs extends RequestVerbs {
+  import com.ning.http.client.Realm.RealmBuilder
+  def as (user: String, password: String) =
+    subject.setRealm(new RealmBuilder()
+                     .setPrincipal(user)
+                     .setPassword(password)
+                     .build())
 }
