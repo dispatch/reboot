@@ -4,17 +4,17 @@ import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
 
 trait Promise[A] { self =>
-  def claim: A
+  def get: A
   def map[B](f: A => B) =
     new Promise[B] {
-      def claim = f(self.claim)
+      def get = f(self.get)
       def foreach(f2: B => Unit) =
         for (a <- self)
           f2(f(a))
     }
   def flatMap[B](f: A => Promise[B]) =
     new Promise[B] {
-      def claim = f(self.claim).claim
+      def get = f(self.get).get
       def foreach(f2: B => Unit) =
         for {
           a <- self
@@ -29,10 +29,10 @@ class ListenableFuturePromise[A](
   underlying: ListenableFuture[A],
   executor: juc.Executor
 ) extends Promise[A] {
-  def claim = underlying.get
+  def get = underlying.get
   def foreach(f: A => Unit) =
     underlying.addListener(new Runnable {
-      def run { f(claim) }
+      def run { f(get) }
     }, executor)
 }
 
