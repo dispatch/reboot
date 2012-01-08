@@ -15,8 +15,9 @@ object Http extends Http
 trait Executor {
   def client: AsyncHttpClient
   implicit def executor: juc.ExecutorService
-  def apply[T](pair: (RequestBuilder, Response => T)): Promise[T] =
-    apply(pair._1.build(), new FunctionHandler(pair._2))
+
+  def apply[T](pair: (Request, AsyncHandler[T])): Promise[T] =
+    apply(pair._1, pair._2)
 
   def apply[T](request: Request, handler: AsyncHandler[T]): Promise[T] =
     Promise.make(client.executeRequest(request, handler))

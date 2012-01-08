@@ -5,6 +5,17 @@ import java.util.{concurrent => juc}
 
 trait Promise[A] { self =>
   def get: A
+  def filter(p: A => Boolean) =
+    new Promise[A] {
+      def get = {
+        val r = self.get
+        if (p(r)) r
+        else throw new java.util.NoSuchElementException("Empty Promise.get")
+      }
+      def foreach(f: A => Unit) =
+        for (a <- self)
+          if (p(a)) f(a)
+    }
   def map[B](f: A => B) =
     new Promise[B] {
       def get = f(self.get)
