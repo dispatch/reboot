@@ -10,7 +10,7 @@ Currently, you can do something like this:
 import dispatch._
 val raw = :/("raw.github.com").secure
 val readme = raw / "dispatch" / "reboot" / "master" / "README.markdown"
-val promise = Http(readme -> As.string)
+val promise = Http(readme > As.string)
 for (string <- promise) {
   println(string)
 }
