@@ -2,8 +2,10 @@ package dispatch
 
 import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
+import scala.util.control.Exception.allCatch
 
-trait Promise[A] { self =>
+trait Promise[+A] { self =>
+  def getEither = allCatch.either(get)
   def get: A
   def filter(p: A => Boolean) =
     new Promise[A] {
@@ -51,4 +53,15 @@ object Promise {
   def make[A](underlying: ListenableFuture[A])
              (implicit executor: juc.Executor) =
     new ListenableFuturePromise(underlying, executor)
+
+  def all[A](promises: Traversable[Promise[A]]) =
+    new Promise[Traversable[A]] { self =>
+      def get = promises.map { _.get }
+      def foreach(f: Traversable[A] => Unit) = {
+        val count = new juc.atomic.AtomicInteger(promises.size)
+        for (p <- promises; a <- p)
+          if (count.decrementAndGet == 0)
+            f(self.get)
+      }
+    }
 }
