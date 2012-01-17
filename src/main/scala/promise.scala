@@ -34,6 +34,16 @@ trait Promise[+A] { self =>
           b <- f(a)
         } f2(b)
     }
+  def flatMap[B,GA[_]](f: A => GA[Promise[B]])
+                    (implicit guarantor: Guarantor[GA]) =
+    new Promise[GA[B]] {
+      def get = guarantor.promise(f(self.get)).get
+      def foreach(f2: GA[B] => Unit) =
+        for {
+          a <- self
+          b <- guarantor.promise(f(a))
+        } f2(b)
+    }
   /** Promise to asynchronously cause some side effect */
   def foreach(f: A => Unit)
 }
@@ -64,4 +74,34 @@ object Promise {
             f(self.get)
       }
     }
+}
+
+trait Guarantor[A[_]] {
+  def promise[T](underlying: A[Promise[T]]): Promise[A[T]]
+}
+
+object Guarantor {
+  implicit val traversable =
+    new Guarantor[Traversable] {
+      def promise[T](underlying: Traversable[Promise[T]]) = sys.error("hi")
+    }
+}
+
+object Test {
+  import Guarantor.traversable
+  def test(p1: Promise[Int], sp2: Traversable[Promise[Int]])
+  :Promise[Traversable[Int]] =
+    p1.flatMap { i1: Int =>
+      sp2.map { p2 =>
+        p2.map { i2 =>
+          i1 + i2
+        }
+      }
+    }
+  def test2(p1: Promise[Int], sp2: Traversable[Promise[Int]])
+  :Promise[Traversable[Int]] =
+    for {
+      i1: Int <- p1
+      p2 <- sp2
+    } yield p2
 }
