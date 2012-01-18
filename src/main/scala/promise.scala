@@ -25,20 +25,11 @@ trait Promise[+A] { self =>
         for (a <- self)
           f2(f(a))
     }
-  def flatMap[B](f: A => Promise[B]) =
-    new Promise[B] {
-      def get = f(self.get).get
-      def foreach(f2: B => Unit) =
-        for {
-          a <- self
-          b <- f(a)
-        } f2(b)
-    }
-  def flatMap[B,GA[_]](f: A => GA[Promise[B]])
-                    (implicit guarantor: Guarantor[GA]) =
-    new Promise[GA[B]] {
+  def flatMap[B,C, That <: Promise[C]](f: A => B)
+                  (implicit guarantor: Guarantor[B,C,That]) =
+    new Promise[C] {
       def get = guarantor.promise(f(self.get)).get
-      def foreach(f2: GA[B] => Unit) =
+      def foreach(f2: C => Unit) =
         for {
           a <- self
           b <- guarantor.promise(f(a))
@@ -76,32 +67,36 @@ object Promise {
     }
 }
 
-trait Guarantor[A[_]] {
-  def promise[T](underlying: A[Promise[T]]): Promise[A[T]]
+trait Guarantor[A, B, That <: Promise[B]] {
+  def promise(collateral: A): That
 }
 
 object Guarantor {
-  implicit val traversable =
-    new Guarantor[Traversable] {
-      def promise[T](underlying: Traversable[Promise[T]]) = sys.error("hi")
+  implicit def traversable[T] =
+    new Guarantor[Traversable[Promise[T]],
+                  Traversable[T],
+                  Promise[Traversable[T]]] {
+      def promise(collateral: Traversable[Promise[T]]) =
+        Promise.all(collateral)
+    }
+  implicit def identity[T] =
+    new Guarantor[Promise[T],T,Promise[T]] {
+      def promise(collateral: Promise[T]) = collateral
     }
 }
 
 object Test {
-  import Guarantor.traversable
-  def test(p1: Promise[Int], sp2: Traversable[Promise[Int]])
-  :Promise[Traversable[Int]] =
-    p1.flatMap { i1: Int =>
-      sp2.map { p2 =>
-        p2.map { i2 =>
-          i1 + i2
-        }
-      }
-    }
+  import Guarantor._
+  def test(p1: Promise[Int], p2: Promise[Int])
+  :Promise[Int] =
+    for {
+      i1 <- p1
+      i2 <- p2
+    } yield i1 + i2
   def test2(p1: Promise[Int], sp2: Traversable[Promise[Int]])
   :Promise[Traversable[Int]] =
     for {
-      i1: Int <- p1
+      i1 <- p1
       p2 <- sp2
     } yield p2
 }
