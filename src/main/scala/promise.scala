@@ -66,28 +66,28 @@ object Promise {
             f(self.get)
       }
     }
+  implicit def traversable[T] = new TraversableGuarantor[T]
+  implicit def identity[T] = new IdentityGuarantor[T]
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
   def promise(collateral: A): That
 }
 
-object Guarantor {
-  implicit def traversable[T] =
-    new Guarantor[Traversable[Promise[T]],
-                  Traversable[T],
-                  Promise[Traversable[T]]] {
-      def promise(collateral: Traversable[Promise[T]]) =
-        Promise.all(collateral)
-    }
-  implicit def identity[T] =
-    new Guarantor[Promise[T],T,Promise[T]] {
-      def promise(collateral: Promise[T]) = collateral
-    }
+class TraversableGuarantor[T] extends Guarantor[
+  Traversable[Promise[T]],
+  Traversable[T],
+  Promise[Traversable[T]]
+] {
+  def promise(collateral: Traversable[Promise[T]]) =
+    Promise.all(collateral)
+}
+
+class IdentityGuarantor[T] extends Guarantor[Promise[T],T,Promise[T]] {
+  def promise(collateral: Promise[T]) = collateral
 }
 
 object Test {
-  import Guarantor._
   def test(p1: Promise[Int], p2: Promise[Int])
   :Promise[Int] =
     for {
@@ -99,5 +99,5 @@ object Test {
     for {
       i1 <- p1
       p2 <- sp2
-    } yield p2
+    } yield p2.map { _ + i1 }
 }
