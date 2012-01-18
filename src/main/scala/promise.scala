@@ -25,8 +25,9 @@ trait Promise[+A] { self =>
         for (a <- self)
           f2(f(a))
     }
-  def flatMap[B,C, That <: Promise[C]](f: A => B)
-                  (implicit guarantor: Guarantor[B,C,That]) =
+  def flatMap[B, C, That <: Promise[C]]
+             (f: A => B)
+             (implicit guarantor: Guarantor[B,C,That]) =
     new Promise[C] {
       def get = guarantor.promise(f(self.get)).get
       def foreach(f2: C => Unit) =
@@ -67,7 +68,7 @@ object Promise {
     }
 }
 
-trait Guarantor[A, B, That <: Promise[B]] {
+trait Guarantor[-A, B, That <: Promise[B]] {
   def promise(collateral: A): That
 }
 
@@ -93,7 +94,7 @@ object Test {
       i1 <- p1
       i2 <- p2
     } yield i1 + i2
-  def test2(p1: Promise[Int], sp2: Traversable[Promise[Int]])
+  def test2(p1: Promise[Int], sp2: Seq[Promise[Int]])
   :Promise[Traversable[Int]] =
     for {
       i1 <- p1
