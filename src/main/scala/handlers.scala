@@ -41,7 +41,7 @@ object As {
   val string = As { _.getResponseBody }
   val bytes = As { _.getResponseBodyAsBytes }
   def file(file: java.io.File) =
-    new client.resumable.ResumableAsyncHandler()
+    (new client.resumable.ResumableAsyncHandler with OkayHandler[Nothing])
       .setResumableListener(
         new client.extra.ResumableRandomAccessFileListener(
           new java.io.RandomAccessFile(file, "rw")
