@@ -2,7 +2,8 @@ package dispatch
 
 import com.ning.http.client
 import client.{
-  RequestBuilder, Request, Response, AsyncCompletionHandler, AsyncHandler
+  RequestBuilder, Request, Response, AsyncCompletionHandler, AsyncHandler,
+  HttpResponseStatus
 }
 
 /**
@@ -11,13 +12,28 @@ import client.{
  */
 class RequestHandlerTupleBuilder(builder: RequestBuilder) {
   def > [T](f: Response => T) =
-    (builder.build(), new FunctionHandler(f))
+    (builder.build(), new OkayFunctionHandler(f))
   def > [T](h: AsyncHandler[T]) =
     (builder.build(), h)
 }
 
+case class StatusCode(code: Int)
+extends Exception("Unexpected response status: %d".format(code))
+
 class FunctionHandler[T](f: Response => T) extends AsyncCompletionHandler[T] {
   def onCompleted(response: Response) = f(response)
+}
+
+class OkayFunctionHandler[T](f: Response => T)
+extends FunctionHandler[T](f) with OkayHandler[T]
+
+trait OkayHandler[T] extends AsyncHandler[T] {
+  abstract override def onStatusReceived(status: HttpResponseStatus) = {
+    if (status.getStatusCode / 100 == 2)
+      super.onStatusReceived(status)
+    else
+      throw StatusCode(status.getStatusCode)
+  }
 }
 
 object As {
