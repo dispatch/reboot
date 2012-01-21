@@ -4,8 +4,8 @@ import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
 import scala.util.control.Exception.allCatch
 
-trait Promise[+A] { self =>
-  def getEither = allCatch.either(get)
+trait Promise[+A] extends Function0[A] { self =>
+  def apply() = get
   def get: A
   def filter(p: A => Boolean) =
     new Promise[A] {
@@ -38,6 +38,20 @@ trait Promise[+A] { self =>
     }
   /** Promise to asynchronously cause some side effect */
   def foreach(f: A => Unit)
+
+  def either =
+    new Promise[Either[Throwable,A]] {
+      // retain this as the exception will not be thrown more than once
+      // by the underlying get
+      lazy val get = allCatch.either { self.get }
+
+      def foreach(f: Either[Throwable,A] => Unit) =
+        for ( a <- self)
+          f(allCatch.either { a })
+    }
+
+  def option: Promise[Option[A]] =
+    either.map { _.right.toOption }
 }
 
 class ListenableFuturePromise[A](
@@ -47,7 +61,11 @@ class ListenableFuturePromise[A](
   def get = underlying.get
   def foreach(f: A => Unit) =
     underlying.addListener(new Runnable {
-      def run { f(get) }
+      def run {
+        try {
+          f(get)
+        } catch { case _ => println("caught") }
+      }
     }, executor)
 }
 
@@ -85,19 +103,4 @@ class TraversableGuarantor[T] extends Guarantor[
 
 class IdentityGuarantor[T] extends Guarantor[Promise[T],T,Promise[T]] {
   def promise(collateral: Promise[T]) = collateral
-}
-
-object Test {
-  def test(p1: Promise[Int], p2: Promise[Int])
-  :Promise[Int] =
-    for {
-      i1 <- p1
-      i2 <- p2
-    } yield i1 + i2
-  def test2(p1: Promise[Int], sp2: Seq[Promise[Int]])
-  :Promise[Traversable[Int]] =
-    for {
-      i1 <- p1
-      p2 <- sp2
-    } yield p2.map { _ + i1 }
 }
