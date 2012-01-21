@@ -14,12 +14,10 @@ version := "0.9.0-alpha1"
 
 organization := "net.databinder.dispatch"
 
-publishTo :=
-  Some(Resolver.file("file", new File("/var/dbwww/maven")))
+publishTo := Some("Scala Tools Nexus" at
+  "http://nexus.scala-tools.org/content/repositories/releases/")
+
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
 homepage :=
   Some(new java.net.URL("http://dispatch.databinder.net/"))
-
-pomIncludeRepository := { (repo: MavenRepository) => 
-  false
-}
