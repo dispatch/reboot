@@ -14,14 +14,14 @@ trait Promise[+A] extends Function0[A] { self =>
         if (p(r)) r
         else throw new java.util.NoSuchElementException("Empty Promise.get")
       }
-      def foreach(f: A => Unit) =
+      def foreach(f: (=> A) => Unit) =
         for (a <- self)
           if (p(a)) f(a)
     }
   def map[B](f: A => B) =
     new Promise[B] {
       def get = f(self.get)
-      def foreach(f2: B => Unit) =
+      def foreach(f2: (=> B) => Unit) =
         for (a <- self)
           f2(f(a))
     }
@@ -30,24 +30,26 @@ trait Promise[+A] extends Function0[A] { self =>
              (implicit guarantor: Guarantor[B,C,That]) =
     new Promise[C] {
       def get = guarantor.promise(f(self.get)).get
-      def foreach(f2: C => Unit) =
+      def foreach(f2: (=> C) => Unit) =
         for {
           a <- self
           b <- guarantor.promise(f(a))
         } f2(b)
     }
-  /** Promise to asynchronously cause some side effect */
-  def foreach(f: A => Unit)
+  /** Promise to asynchronously cause some side effect, by-name of A so
+   *  that f can catch exceptions thrown while getting it */
+  def foreach(f: (=> A) => Unit)
 
   def either =
     new Promise[Either[Throwable,A]] {
-      // retain this as the exception will not be thrown more than once
-      // by the underlying get
+      // retain references to eithers since exceptions are only thrown once
       lazy val get = allCatch.either { self.get }
 
-      def foreach(f: Either[Throwable,A] => Unit) =
-        for ( a <- self)
-          f(allCatch.either { a })
+      def foreach(f: (=> Either[Throwable,A]) => Unit) =
+        for ( a <- self) {
+          val e = allCatch.either { a }
+          f(e)
+        }
     }
 
   def option: Promise[Option[A]] =
@@ -59,12 +61,10 @@ class ListenableFuturePromise[A](
   executor: juc.Executor
 ) extends Promise[A] {
   def get = underlying.get
-  def foreach(f: A => Unit) =
+  def foreach(f: (=> A) => Unit) =
     underlying.addListener(new Runnable {
       def run {
-        try {
-          f(get)
-        } catch { case _ => println("caught") }
+        f(get)
       }
     }, executor)
 }
@@ -77,7 +77,7 @@ object Promise {
   def all[A](promises: Traversable[Promise[A]]) =
     new Promise[Traversable[A]] { self =>
       def get = promises.map { _.get }
-      def foreach(f: Traversable[A] => Unit) = {
+      def foreach(f: (=> Traversable[A]) => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         for (p <- promises; a <- p)
           if (count.decrementAndGet == 0)
