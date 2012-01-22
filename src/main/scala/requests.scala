@@ -5,12 +5,14 @@ import com.ning.http.client.RequestBuilder
 class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
 
-object :/ {
+trait HostVerbs {
   def apply(host: String) =
     new RequestBuilder().setUrl("http://%s/".format(host))
   def apply(host: String, port: Int) =
     new RequestBuilder().setUrl("http://%s:%d/".format(host, port))
 }
+object :/ extends HostVerbs
+object host extends HostVerbs
 
 object url extends (String => RequestBuilder) {
   def apply(url: String) = new RequestBuilder().setUrl(url)
