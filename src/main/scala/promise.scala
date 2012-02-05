@@ -44,7 +44,7 @@ trait Promise[+A] extends Function0[A] with PromiseSIP[A] { self =>
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
    *  NoSuchElementException when the promise is empty. */
-  def filter(p: A => Boolean): Promise[A] =
+  def withFilter(p: A => Boolean): Promise[A] =
     new Promise[A] {
       def claim = {
         val r = self()
