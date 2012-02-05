@@ -103,12 +103,13 @@ trait PromiseSIP[+A] { self: Promise[A] =>
   }
 
   def recover[B >: A](f: PartialFunction[Throwable, B]): Promise[B] =
-    new SelfPromise[B] {
-      def claim = self.result.fold(
-        t => f.lift(t).getOrElse { throw t },
-        identity
-      )
-    }
+    for (e <- either) yield e.fold(
+      t => f.lift(t).getOrElse { throw t },
+      identity
+    )
+
+  def failed: Promise[Throwable] =
+    for (e <- either if e.isLeft) yield e.left.get
 }
 
 class ListenableFuturePromise[A](
