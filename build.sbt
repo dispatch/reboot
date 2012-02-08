@@ -1,10 +1,13 @@
+seq(lsSettings :_*)
+
 name := "core"
 
 description :=
   "Core Dispatch module wrapping sonatype/async-http-client"
 
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.7.0-RC1"
+  "com.ning" % "async-http-client" % "1.7.0-RC1",
+  "net.databinder" %% "unfiltered-spec" % "0.5.3" % "test"
 )
 
 crossScalaVersions :=
