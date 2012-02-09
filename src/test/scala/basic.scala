@@ -5,7 +5,7 @@ import org.scalacheck._
 object ResponseSpecification extends Properties("Response") {
   import Prop.forAll
 
-  property("equals") = forAll { (sample: String) =>
+  property("equals") = forAll(Gen.alphaStr) { (sample: String) =>
     import unfiltered.netty
     import unfiltered.response._
     import dispatch._

@@ -8,10 +8,10 @@ object Builds extends sbt.Build {
         unmanagedClasspath in (LocalProject("dispatch"), Test) <++=
           (fullClasspath in (scalacheck, Compile))
     )
-  ) aggregate (scalacheck)
+  ) delegateTo (scalacheck)
 
   lazy val scalacheck: ProjectReference =
-    uri("git://github.com/rickynils/scalacheck.git#cac828d224")
+    uri("git://github.com/n8han/scalacheck.git#1.8cc")
 }
 
 
