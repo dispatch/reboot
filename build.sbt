@@ -7,7 +7,7 @@ description :=
 
 libraryDependencies ++= Seq(
   "com.ning" % "async-http-client" % "1.7.0-RC1",
-  "net.databinder" %% "unfiltered-spec" % "0.5.3" % "test"
+  "net.databinder" %% "unfiltered-netty-server" % "0.5.3" % "test"
 )
 
 crossScalaVersions :=
