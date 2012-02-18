@@ -5,8 +5,8 @@ object Builds extends sbt.Build {
 
   lazy val root = Project(
     "dispatch", file("."), settings = Defaults.defaultSettings ++ Seq(
-        unmanagedClasspath in (LocalProject("dispatch"), Test) <++=
-          (fullClasspath in (scalacheck, Compile))
+      unmanagedClasspath in (LocalProject("dispatch"), Test) <++=
+        (fullClasspath in (scalacheck, Compile))
     )
   ) delegateTo (scalacheck)
 

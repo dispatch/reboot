@@ -10,6 +10,11 @@ libraryDependencies ++= Seq(
   "net.databinder" %% "unfiltered-netty-server" % "0.5.3" % "test"
 )
 
+testOptions in Test += Tests.Cleanup { loader =>
+  val c = loader.loadClass("unfiltered.spec.Cleanup$")
+  c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
+}
+
 crossScalaVersions :=
   Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1")
 
