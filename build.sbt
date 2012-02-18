@@ -7,7 +7,8 @@ description :=
 
 libraryDependencies ++= Seq(
   "com.ning" % "async-http-client" % "1.7.0-RC1",
-  "net.databinder" %% "unfiltered-netty-server" % "0.5.3" % "test"
+  "net.databinder" %% "unfiltered-netty-server" % "0.5.3" % "test",
+  "org.slf4j" % "slf4j-simple" % "1.6.4" % "test"
 )
 
 testOptions in Test += Tests.Cleanup { loader =>
