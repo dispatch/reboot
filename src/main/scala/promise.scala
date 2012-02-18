@@ -143,6 +143,13 @@ object Promise {
         }
       }
     }
+
+  def of[T](existing: T) =
+    new Promise[T] { self =>
+      def claim = existing
+      def addListener(f: () => Unit) = f()
+    }
+
   implicit def traversable[T] = new TraversableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
 }
