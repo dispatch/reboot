@@ -14,6 +14,9 @@ trait Promise[+A] extends Function0[A] with PromiseSIP[A] { self =>
   /** Listener to be called in an executor when promise is available */
   protected def addListener(f: () => Unit)
 
+  /** True if promised value is available */
+  def isComplete: Boolean
+
   // lazily assign result when available, e.g. to evaluate mapped function
   // that may kick off further promises
   addListener { () => result }
@@ -26,7 +29,8 @@ trait Promise[+A] extends Function0[A] with PromiseSIP[A] { self =>
   )
   /** Nested promise that delegates listening directly to this self */
   protected trait SelfPromise[+A] extends Promise[A] {
-      def addListener(f: () => Unit) { self.addListener(f) }
+    def addListener(f: () => Unit) { self.addListener(f) }
+    def isComplete = self.isComplete
   }
   /** Map the promised value to something else */
   def map[B](f: A => B): Promise[B] =
@@ -59,6 +63,7 @@ trait Promise[+A] extends Function0[A] with PromiseSIP[A] { self =>
             f()
         } 
       }
+      def isComplete = self.isComplete && p(self())
     }
   /** Cause some side effect with the promised value, if it is produced
    *  with no exception */
@@ -77,6 +82,14 @@ trait Promise[+A] extends Function0[A] with PromiseSIP[A] { self =>
    *  with no exception */
   def option: Promise[Option[A]] =
     either.map { _.right.toOption }
+
+  /** Some value if promise is complete, otherwise None */
+  def completeOption = 
+    if (isComplete) Some(self())
+    else None
+
+  override def toString =
+    "Promise(%s)".format(completeOption.getOrElse("-incomplete-"))
 }
 
 trait PromiseSIP[+A] { self: Promise[A] =>
@@ -117,6 +130,7 @@ class ListenableFuturePromise[A](
   executor: juc.Executor
 ) extends Promise[A] {
   def claim = underlying.get
+  def isComplete = underlying.isDone
   def addListener(f: () => Unit) =
     underlying.addListener(new Runnable {
       def run {
@@ -133,6 +147,7 @@ object Promise {
   def all[A](promises: Iterable[Promise[A]]) =
     new Promise[Iterable[A]] { self =>
       def claim = promises.map { _() }
+      def isComplete = promises.forall { _.isComplete }
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         promises.foreach { p =>
@@ -147,6 +162,7 @@ object Promise {
   def of[T](existing: T) =
     new Promise[T] { self =>
       def claim = existing
+      def isComplete = true
       def addListener(f: () => Unit) = f()
     }
 
