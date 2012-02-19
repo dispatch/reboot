@@ -22,9 +22,10 @@ with unfiltered.spec.ServerCleanup {
 
   def localhost = host("127.0.0.1", server.port)
 
-  property("yield a Left on not found") = forAll(Gen.alphaStr) {
-  (sample: String) =>
-    val res = Http(localhost / "some" / sample > As.string).either
+  property("yield a Left on not found") = forAll(
+    Gen.alphaStr.suchThat { _ != "foo"}
+  ) { sample =>
+    val res = Http(localhost / sample > As.string).either
     res() == Left(StatusCode(404))
   }
 }
