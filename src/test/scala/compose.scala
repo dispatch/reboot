@@ -25,22 +25,35 @@ with unfiltered.spec.ServerCleanup {
 
   def localhost = host("127.0.0.1", server.port)
 
-  val numList = listOf(chooseNum(-1000L, 1000L))
+  def sum(nums: Iterable[String]) =
+    Http(localhost / "sum" << nums.map { "num" -> _ } > As.string)
+
+  val numList = listOf1(chooseNum(-1000L, 1000L))
 
   property("sum in one request") = forAll(numList) { (sample: List[Long]) =>
-    val res = Http(
-      localhost / "sum" << sample.map { "num" -> _.toString } > As.string
-    )
+    sum(sample.map { _.toString })() == sample.sum.toString
+  }
+
+  property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
+    val res = (Promise.of("0") /: sample) { (p, num) =>
+      p.flatMap { cur => sum(Seq(cur, num.toString)) }
+    }
     res() == sample.sum.toString
   }
 
-  property("compose in sequence") = forAll(numList) { (sample: List[Long]) =>
-    val res = (Promise.of("0") /: sample) { (p, num) =>
-      p.flatMap { cur =>
-        Http(localhost / "sum" << Seq("num" -> cur,
-                                      "num" -> num.toString) > As.string)
-      }
+  property("recursive sum") = forAll(numList) { (sample: List[Long]) =>
+    @annotation.tailrec
+    def recur(nums: Iterable[Promise[String]]): Promise[String] = {
+      if (nums.size == 1) nums.head
+      else recur(
+        nums.grouped(2).map { twos =>
+          if (twos.size == 1) twos.head
+          else Promise.all(twos).flatMap(sum)
+        }.toIterable
+      )
     }
-    res() == sample.sum.toString
+    recur(
+      sample.map { i => Promise.of(i.toString) }
+    )() == sample.sum.toString
   }
 }

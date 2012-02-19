@@ -130,8 +130,8 @@ object Promise {
              (implicit executor: juc.Executor) =
     new ListenableFuturePromise(underlying, executor)
 
-  def all[A](promises: Traversable[Promise[A]]) =
-    new Promise[Traversable[A]] { self =>
+  def all[A](promises: Iterable[Promise[A]]) =
+    new Promise[Iterable[A]] { self =>
       def claim = promises.map { _() }
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
@@ -150,7 +150,7 @@ object Promise {
       def addListener(f: () => Unit) = f()
     }
 
-  implicit def traversable[T] = new TraversableGuarantor[T]
+  implicit def iterable[T] = new IterableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
 }
 
@@ -158,12 +158,12 @@ trait Guarantor[-A, B, That <: Promise[B]] {
   def promise(collateral: A): That
 }
 
-class TraversableGuarantor[T] extends Guarantor[
-  Traversable[Promise[T]],
-  Traversable[T],
-  Promise[Traversable[T]]
+class IterableGuarantor[T] extends Guarantor[
+  Iterable[Promise[T]],
+  Iterable[T],
+  Promise[Iterable[T]]
 ] {
-  def promise(collateral: Traversable[Promise[T]]) =
+  def promise(collateral: Iterable[Promise[T]]) =
     Promise.all(collateral)
 }
 
