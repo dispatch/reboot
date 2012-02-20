@@ -6,4 +6,8 @@ package object dispatch {
 
   implicit def implyRequestHandlerTuple(builder: RequestBuilder) =
     new RequestHandlerTupleBuilder(builder)
+
+  implicit val durationOrdering = Ordering.by[Duration,Long] {
+    _.millis
+  }
 }

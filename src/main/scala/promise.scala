@@ -9,7 +9,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Claim promise or throw exception, should only be called once */
   protected def claim: A
 
-  def timeout: Timeout
+  def timeout: Duration
 
   /** Internal cache of promised value or exception thrown */
   protected lazy val result = allCatch.either { claim }
@@ -26,8 +26,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
 
   /** Blocks until promised value is available, returns promised value or
    *  throws ExecutionException. */
-  def apply(timeout: Long = 0,
-            unit: juc.TimeUnit = juc.TimeUnit.MILLISECONDS) =
+  def apply() =
     result.fold(
       exc => throw(exc),
       identity
@@ -139,11 +138,11 @@ trait PromiseSIP[+A] { self: Promise[A] =>
 class ListenableFuturePromise[A](
   val underlying: ListenableFuture[A],
   val executor: juc.Executor,
-  val timeout: Timeout
+  val timeout: Duration
 ) extends Promise[A] {
   def claim = timeout match {
-    case Timeout.none => underlying.get
-    case Timeout(duration, unit) => underlying.get(duration, unit)
+    case Duration.Zero => underlying.get
+    case Duration(duration, unit) => underlying.get(duration, unit)
   }
   def isComplete = underlying.isDone
   def addListener(f: () => Unit) =
@@ -159,7 +158,7 @@ object Promise {
     new Promise[Iterable[A]] { self =>
       def claim = promises.map { _() }
       def isComplete = promises.forall { _.isComplete }
-      lazy val timeout = promises.maxBy { _.timeout.millis }.timeout
+      lazy val timeout = promises.map { _.timeout }.max
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         promises.foreach { p =>
@@ -175,7 +174,7 @@ object Promise {
     new Promise[T] { self =>
       def claim = existing
       def isComplete = true
-      val timeout: Timeout = Timeout.none
+      val timeout: Duration = Duration.Zero
       def addListener(f: () => Unit) = f()
     }
 
@@ -200,11 +199,11 @@ class IdentityGuarantor[T] extends Guarantor[Promise[T],T,Promise[T]] {
   def promise(collateral: Promise[T]) = collateral
 }
 
-case class Timeout(duration: Long, unit: TimeUnit) {
-  def millis = unit.toMillis(duration)
+case class Duration(length: Long, unit: TimeUnit) {
+  def millis = unit.toMillis(length)
 }
 
-object Timeout {
-  val none = Timeout(-1L, TimeUnit.MILLISECONDS)
-  def millis(duration: Long) = Timeout(duration, TimeUnit.MILLISECONDS)
+object Duration {
+  val Zero = Duration(-1L, TimeUnit.MILLISECONDS)
+  def millis(length: Long) = Duration(length, TimeUnit.MILLISECONDS)
 }
