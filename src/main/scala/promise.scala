@@ -153,6 +153,21 @@ class ListenableFuturePromise[A](
     }, executor)
 }
 
+trait PromiseEither[A,B] extends Promise[Either[A, B]] { self =>
+  def left = new {
+    def flatMap[BB >: B,X](f: A => Promise[Either[X,BB]]) =
+      self.flatMap {
+        case Left(a) => f(a)
+        case Right(b) => Promise.either(Right(b))
+      }(Promise.identity)
+    def map[X](f: A => X) =
+      self.map {
+        case Left(a) => Promise.either(Left(f(a)))
+        case Right(b) => Promise.either(Right(b))
+      }
+  }
+}
+
 object Promise {
   def all[A](promises: Iterable[Promise[A]]) =
     new Promise[Iterable[A]] { self =>
@@ -172,6 +187,14 @@ object Promise {
 
   def of[T](existing: T) =
     new Promise[T] { self =>
+      def claim = existing
+      def isComplete = true
+      val timeout: Duration = Duration.Zero
+      def addListener(f: () => Unit) = f()
+    }
+
+  def either[A,B](existing: Either[A,B]) =
+    new PromiseEither[A,B] { self =>
       def claim = existing
       def isComplete = true
       val timeout: Duration = Duration.Zero
