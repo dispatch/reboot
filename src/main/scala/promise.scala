@@ -102,6 +102,43 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
     "Promise(%s)".format(completeOption.getOrElse("-incomplete-"))
 }
 
+object Promise {
+  def all[A](promises: Iterable[Promise[A]]) =
+    new Promise[Iterable[A]] { self =>
+      def claim = promises.map { _() }
+      def isComplete = promises.forall { _.isComplete }
+      lazy val timeout = promises.map { _.timeout }.max
+      def addListener(f: () => Unit) = {
+        val count = new juc.atomic.AtomicInteger(promises.size)
+        promises.foreach { p =>
+          p.addListener { () =>
+            if (count.decrementAndGet == 0)
+              f()
+          }
+        }
+      }
+    }
+
+  def of[T](existing: T) =
+    new Promise[T] { self =>
+      def claim = existing
+      def isComplete = true
+      val timeout: Duration = Duration.Zero
+      def addListener(f: () => Unit) = f()
+    }
+
+  def either[A,B](existing: Either[A,B]) =
+    new PromiseEither[A,B] { self =>
+      def claim = existing
+      def isComplete = true
+      val timeout: Duration = Duration.Zero
+      def addListener(f: () => Unit) = f()
+    }
+
+  implicit def iterable[T] = new IterableGuarantor[T]
+  implicit def identity[T] = new IdentityGuarantor[T]
+}
+
 trait PromiseSIP[+A] { self: Promise[A] =>
   def onComplete[U](f: Either[Throwable, A] => U) = {
     for (e <- either) f(e)
@@ -159,50 +196,13 @@ trait PromiseEither[A,B] extends Promise[Either[A, B]] { self =>
       self.flatMap {
         case Left(a) => f(a)
         case Right(b) => Promise.either(Right(b))
-      }(Promise.identity)
+      }
     def map[X](f: A => X) =
       self.map {
-        case Left(a) => Promise.either(Left(f(a)))
-        case Right(b) => Promise.either(Right(b))
+        case Left(a) => Left(f(a))
+        case Right(b) => Right(b)
       }
   }
-}
-
-object Promise {
-  def all[A](promises: Iterable[Promise[A]]) =
-    new Promise[Iterable[A]] { self =>
-      def claim = promises.map { _() }
-      def isComplete = promises.forall { _.isComplete }
-      lazy val timeout = promises.map { _.timeout }.max
-      def addListener(f: () => Unit) = {
-        val count = new juc.atomic.AtomicInteger(promises.size)
-        promises.foreach { p =>
-          p.addListener { () =>
-            if (count.decrementAndGet == 0)
-              f()
-          }
-        }
-      }
-    }
-
-  def of[T](existing: T) =
-    new Promise[T] { self =>
-      def claim = existing
-      def isComplete = true
-      val timeout: Duration = Duration.Zero
-      def addListener(f: () => Unit) = f()
-    }
-
-  def either[A,B](existing: Either[A,B]) =
-    new PromiseEither[A,B] { self =>
-      def claim = existing
-      def isComplete = true
-      val timeout: Duration = Duration.Zero
-      def addListener(f: () => Unit) = f()
-    }
-
-  implicit def iterable[T] = new IterableGuarantor[T]
-  implicit def identity[T] = new IdentityGuarantor[T]
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
