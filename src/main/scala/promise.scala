@@ -127,13 +127,17 @@ object Promise {
       def addListener(f: () => Unit) { for (_ <- p) f() }
     }
 
-  def of[T](existing: T): Promise[T] =
+  /** Wraps a known value in a Promise. Useful in binidng
+   *  some value to other promises in for-expressions. */
+  def apply[T](existing: T): Promise[T] =
     new Promise[T] { self =>
       def claim = existing
       def isComplete = true
       val timeout: Duration = Duration.Zero
       def addListener(f: () => Unit) = f()
     }
+  @deprecated("Use Promise.apply")
+  def of[T](existing: T): Promise[T] = Promise(existing)
 
   implicit def iterable[T] = new IterableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
