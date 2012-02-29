@@ -80,8 +80,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Project promised value into an either containing the value or any
    *  exception thrown retrieving it. Unwraps `cause` of any top-level
    *  ExecutionException */
-  def either: Promise[Either[Throwable, A]] =
-    new SelfPromise[Either[Throwable, A]] {
+  def either =
+    new PromiseEither[Throwable, A] with SelfPromise[Either[Throwable, A]] {
       def claim = self.result.left.map { 
         case e: juc.ExecutionException => e.getCause
         case e => e
@@ -127,7 +127,7 @@ object Promise {
       def addListener(f: () => Unit) = f()
     }
 
-  def either[A,B](existing: Either[A,B]) =
+  def of[A,B](existing: Either[A,B]) =
     new PromiseEither[A,B] { self =>
       def claim = existing
       def isComplete = true
@@ -190,18 +190,32 @@ class ListenableFuturePromise[A](
     }, executor)
 }
 
-trait PromiseEither[A,B] extends Promise[Either[A, B]] { self =>
+trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
   def left = new {
-    def flatMap[BB >: B,X](f: A => Promise[Either[X,BB]]) =
-      self.flatMap {
-        case Left(a) => f(a)
-        case Right(b) => Promise.either(Right(b))
+    def flatMap[BB >: B,X](f: A => PromiseEither[X,BB]) =
+      new PromiseEither[X,BB] with SelfPromise[Either[X,BB]] {
+        def claim = self().left.flatMap { a => f(a)() }
       }
     def map[X](f: A => X) =
-      self.map {
-        case Left(a) => Left(f(a))
-        case Right(b) => Right(b)
+      new PromiseEither[X,B] with SelfPromise[Either[X,B]] {
+        def claim = self().left.map(f)
       }
+    def foreach(f: A => Unit) {
+      addListener { () => self().left.foreach(f) }
+    }
+  }
+  def right = new {
+    def flatMap[AA >: A,Y](f: B => PromiseEither[AA,Y]) =
+      new PromiseEither[AA,Y] with SelfPromise[Either[AA,Y]] {
+        def claim = self().right.flatMap { b => f(b)() }
+      }
+    def map[Y](f: B => Y) =
+      new PromiseEither[A,Y] with SelfPromise[Either[A,Y]] {
+        def claim = self().right.map(f)
+      }
+    def foreach(f: B => Unit) {
+      addListener { () => self().right.foreach(f) }
+    }
   }
 }
 

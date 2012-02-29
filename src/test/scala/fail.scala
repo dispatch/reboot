@@ -5,7 +5,7 @@ import org.scalacheck._
 object FailureSpecification
 extends Properties("Failure Handling")
 with unfiltered.spec.ServerCleanup {
-  import Prop.forAll
+  import Prop._
   import Gen._
 
   val server = { 
@@ -26,6 +26,39 @@ with unfiltered.spec.ServerCleanup {
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
     val res = Http(localhost / sample > As.string).either
-    res() == Left(StatusCode(404))
+    res() =? Left(StatusCode(404))
+  }
+
+  property("project left on failure") = forAll(
+    Gen.alphaStr.suchThat { _ != "foo"}
+  ) { sample =>
+    val res = Http(localhost / sample > As.string).either.right.map {
+      _ => "error"
+    }
+    res() =? Left(StatusCode(404))
+  }
+
+  property("project right on success2") = {
+    val path = Right("foo")
+    val eth = for {
+      p <- Promise.of(path).right
+      res <- Http(localhost / p > As.string).either.right
+      res2 <- Http(localhost / p > As.string).either.right
+    } yield res2.length
+    eth() =? Right(3)
+  }
+
+  property("project left on failure2") = forAll(
+    Gen.alphaStr.suchThat { _ != "foo"}
+  ){ sample =>
+    val good = Right("meh")
+    val bad = Right(sample)
+    val eth = for {
+      g <- Promise.of(good).right
+      b <- Promise.of(bad).right
+      res <- Http(localhost / g > As.string).either.right
+      res2 <- Http(localhost / b > As.string).either.right
+    } yield res2
+    eth() =? Left(StatusCode(404))
   }
 }
