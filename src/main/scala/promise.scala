@@ -81,7 +81,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
    *  exception thrown retrieving it. Unwraps `cause` of any top-level
    *  ExecutionException */
   def either =
-    new PromiseEither[Throwable, A] with SelfPromise[Either[Throwable, A]] {
+    new Promise[Either[Throwable, A]] with SelfPromise[Either[Throwable, A]] {
       def claim = self.result.left.map { 
         case e: juc.ExecutionException => e.getCause
         case e => e
@@ -119,16 +119,16 @@ object Promise {
       }
     }
 
-  def of[T](existing: T) =
-    new Promise[T] { self =>
-      def claim = existing
-      def isComplete = true
-      val timeout: Duration = Duration.Zero
-      def addListener(f: () => Unit) = f()
+  implicit def toPromiseEither[A,B](p: Promise[Either[A,B]]) =
+    new PromiseEither[A,B] {
+      def claim = p()
+      def isComplete = p.isComplete
+      val timeout = p.timeout
+      def addListener(f: () => Unit) { for (_ <- p) f() }
     }
 
-  def of[A,B](existing: Either[A,B]) =
-    new PromiseEither[A,B] { self =>
+  def of[T](existing: T): Promise[T] =
+    new Promise[T] { self =>
       def claim = existing
       def isComplete = true
       val timeout: Duration = Duration.Zero
