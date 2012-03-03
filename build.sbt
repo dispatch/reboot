@@ -19,7 +19,7 @@ testOptions in Test += Tests.Cleanup { loader =>
 crossScalaVersions :=
   Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1")
 
-version := "0.9.0-alpha2"
+version := "0.9.0-alpha3"
 
 organization := "net.databinder.dispatch"
 
