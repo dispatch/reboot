@@ -41,7 +41,7 @@ with unfiltered.spec.ServerCleanup {
   property("project right on success2") = {
     val path = Right("foo")
     val eth = for {
-      p <- Promise.of(path).right
+      p <- Promise(path).right
       res <- Http(localhost / p > As.string).either.right
       res2 <- Http(localhost / p > As.string).either.right
     } yield res2.length
@@ -54,8 +54,8 @@ with unfiltered.spec.ServerCleanup {
     val good = Right("meh")
     val bad = Right(sample)
     val eth = for {
-      g <- Promise.of(good).right
-      b <- Promise.of(bad).right
+      g <- Promise(good).right
+      b <- Promise(bad).right
       res <- Http(localhost / g > As.string).either.right
       res2 <- Http(localhost / b > As.string).either.right
     } yield res2

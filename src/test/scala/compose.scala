@@ -35,7 +35,7 @@ with unfiltered.spec.ServerCleanup {
   }
 
   property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
-    val res = (Promise.of("0") /: sample) { (p, num) =>
+    val res = (Promise("0") /: sample) { (p, num) =>
       p.flatMap { cur => sum(Seq(cur, num.toString)) }
     }
     res() == sample.sum.toString
@@ -53,7 +53,7 @@ with unfiltered.spec.ServerCleanup {
       )
     }
     recur(
-      sample.map { i => Promise.of(i.toString) }
+      sample.map { i => Promise(i.toString) }
     )() == sample.sum.toString
   }
 }
