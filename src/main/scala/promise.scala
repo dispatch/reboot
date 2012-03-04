@@ -73,7 +73,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
     }
   /** Cause some side effect with the promised value, if it is produced
    *  with no exception */
-  def foreach(f: A => Unit) {
+  def foreach[U](f: A => U) {
     addListener { () => f(self()) }
   }
 
@@ -204,7 +204,7 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
       new PromiseEither[X,B] with SelfPromise[Either[X,B]] {
         def claim = self().left.map(f)
       }
-    def foreach(f: A => Unit) {
+    def foreach[U](f: A => U) {
       addListener { () => self().left.foreach(f) }
     }
   }
