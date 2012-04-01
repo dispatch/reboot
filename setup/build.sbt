@@ -1,9 +1,4 @@
-seq(lsSettings :_*)
-
-name := "core"
-
-description :=
-  "Core Dispatch module wrapping sonatype/async-http-client"
+version := "0.9.0-alpha4-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   "com.ning" % "async-http-client" % "1.7.1",
@@ -18,8 +13,6 @@ testOptions in Test += Tests.Cleanup { loader =>
 
 crossScalaVersions :=
   Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1")
-
-version := "0.9.0-alpha3"
 
 organization := "net.databinder.dispatch"
 
@@ -52,3 +45,5 @@ pomExtra := (
       <url>http://twitter.com/n8han</url>
     </developer>
   </developers>)
+
+seq(lsSettings :_*)
