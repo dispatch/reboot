@@ -4,25 +4,22 @@ object Builds extends sbt.Build {
   import Keys._
 
   /** Defines common settings for all projects */
-  lazy val setup = Project(
-    "setup",
-    file("setup"),
-    settings = Defaults.defaultSettings ++ Seq(
-      unmanagedClasspath in (LocalProject("core"), Test) <++=
-        (fullClasspath in (scalacheck, Compile))
-    )
-  ) delegateTo(scalacheck)
+  lazy val setup = Project("setup", file("setup"))
+
   /** Aggregates tasks for all projects */
   lazy val root = Project(
     "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
       ls.Plugin.LsKeys.skipWrite := true,
-      name := "Dispatch"
-    )) aggregate(core)
+      testOptions in Test := Nil
+    )).aggregate(core).delegateTo(setup)
 
-  lazy val core = Project("core", file("core")) delegateTo (setup)
+  lazy val core = Project(
+    "core", file("core")
+  ).delegateTo(setup).dependsOn(scalacheck % "test->compile")
 
-  lazy val scalacheck: ProjectReference =
+  lazy val scalacheck = RootProject(
     uri("git://github.com/n8han/scalacheck.git#1.8cc")
+  )
 }
 
 
