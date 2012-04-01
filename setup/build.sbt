@@ -1,16 +1,5 @@
 version := "0.9.0-alpha4-SNAPSHOT"
 
-libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.7.1",
-  "net.databinder" %% "unfiltered-netty-server" % "0.6.1" % "test",
-  "org.slf4j" % "slf4j-simple" % "1.6.4" % "test"
-)
-
-testOptions in Test += Tests.Cleanup { loader =>
-  val c = loader.loadClass("unfiltered.spec.Cleanup$")
-  c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
-}
-
 crossScalaVersions :=
   Seq("2.8.0", "2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1")
 
