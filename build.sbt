@@ -6,7 +6,7 @@ description :=
   "Core Dispatch module wrapping sonatype/async-http-client"
 
 libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.7.0",
+  "com.ning" % "async-http-client" % "1.7.1",
   "net.databinder" %% "unfiltered-netty-server" % "0.6.1" % "test",
   "org.slf4j" % "slf4j-simple" % "1.6.4" % "test"
 )

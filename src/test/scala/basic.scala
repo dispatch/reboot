@@ -7,7 +7,7 @@ extends Properties("Basic")
 with unfiltered.spec.ServerCleanup {
   import Prop.forAll
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -28,10 +28,18 @@ with unfiltered.spec.ServerCleanup {
     )
     res() == ("POST" + sample)
   }
+
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample) > As.string
     )
     res() == ("GET" + sample)
+  }
+
+  property("GET and get response") = forAll(Gen.alphaStr) { (sample: String) =>
+    val res = Http(
+      localhost / "echo" <<? Map("echo" -> sample)
+    )
+    res().getResponseBody == ("GET" + sample)
   }
 }

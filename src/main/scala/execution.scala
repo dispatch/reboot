@@ -26,6 +26,9 @@ trait Executor {
   /** Timeout for promises made by this HTTP Executor */
   def timeout: Duration
 
+  def apply(builder: RequestBuilder): Promise[Response] =
+    apply(builder.build() -> new FunctionHandler(identity))
+
   def apply[T](pair: (Request, AsyncHandler[T])): Promise[T] =
     apply(pair._1, pair._2)
 
