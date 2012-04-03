@@ -46,11 +46,19 @@ trait UrlVerbs extends RequestVerbs {
 }
 
 trait ParamVerbs extends RequestVerbs {
-  def << (params: Traversable[(String,String)]) =
-    (subject.setMethod("POST") /: params) {
+  /** Adds `params` to the request body. Sets request method
+   *  to POST if it is currently GET. */
+  def << (params: Traversable[(String,String)]) = {
+    val subj =
+      if (subject.build.getMethod.toUpperCase == "GET")
+        subject.setMethod("POST")
+      else subject
+    (subj /: params) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
     }
+  }
+  /** Adds `params` as query parameters */
   def <<? (params: Traversable[(String,String)]) =
     (subject /: params) {
       case (s, (key, value)) =>
