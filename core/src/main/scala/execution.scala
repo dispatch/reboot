@@ -6,13 +6,11 @@ import com.ning.http.client.{
 import java.util.{concurrent => juc}
 
 class Http extends Executor { self =>
-  lazy val executor = juc.Executors.newCachedThreadPool
   lazy val client = new AsyncHttpClient
   val timeout = Duration.Zero
 
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = new Executor {
-    def executor = self.executor
     def client = self.client
     def timeout = t
   }
@@ -22,7 +20,6 @@ object Http extends Http
 
 trait Executor {
   def client: AsyncHttpClient
-  def executor: juc.ExecutorService
   /** Timeout for promises made by this HTTP Executor */
   def timeout: Duration
 
@@ -35,12 +32,11 @@ trait Executor {
   def apply[T](request: Request, handler: AsyncHandler[T]): Promise[T] =
     new ListenableFuturePromise(
       client.executeRequest(request, handler),
-      executor,
+      client.getConfig.executorService,
       timeout
     )
 
   def shutdown() {
     client.close()
-    executor.shutdown()
   }
 }
