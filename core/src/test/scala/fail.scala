@@ -25,14 +25,14 @@ with unfiltered.spec.ServerCleanup {
   property("yield a Left on not found") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
-    val res = Http(localhost / sample > As.string).either
+    val res = Http(localhost / sample OK As.string).either
     res() =? Left(StatusCode(404))
   }
 
   property("project left on failure") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
-    val res = Http(localhost / sample > As.string).either.right.map {
+    val res = Http(localhost / sample OK As.string).either.right.map {
       _ => "error"
     }
     res() =? Left(StatusCode(404))
@@ -42,8 +42,8 @@ with unfiltered.spec.ServerCleanup {
     val path = Right("foo")
     val eth = for {
       p <- Promise(path).right
-      res <- Http(localhost / p > As.string).either.right
-      res2 <- Http(localhost / p > As.string).either.right
+      res <- Http(localhost / p OK As.string).either.right
+      res2 <- Http(localhost / p OK As.string).either.right
     } yield res2.length
     eth() =? Right(3)
   }
@@ -56,8 +56,8 @@ with unfiltered.spec.ServerCleanup {
     val eth = for {
       g <- Promise(good).right
       b <- Promise(bad).right
-      res <- Http(localhost / g > As.string).either.right
-      res2 <- Http(localhost / b > As.string).either.right
+      res <- Http(localhost / g OK As.string).either.right
+      res2 <- Http(localhost / b OK As.string).either.right
     } yield res2
     eth() =? Left(StatusCode(404))
   }

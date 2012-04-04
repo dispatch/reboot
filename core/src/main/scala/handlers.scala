@@ -11,8 +11,10 @@ import client.{
  * Implied in dispatch package object
  */
 class RequestHandlerTupleBuilder(builder: RequestBuilder) {
+  def OK [T](f: Response => T) =
+    (builder.build(), new OkFunctionHandler(f))
   def > [T](f: Response => T) =
-    (builder.build(), new OkayFunctionHandler(f))
+    (builder.build(), new FunctionHandler(f))
   def > [T](h: AsyncHandler[T]) =
     (builder.build(), h)
 }
@@ -24,10 +26,10 @@ class FunctionHandler[T](f: Response => T) extends AsyncCompletionHandler[T] {
   def onCompleted(response: Response) = f(response)
 }
 
-class OkayFunctionHandler[T](f: Response => T)
-extends FunctionHandler[T](f) with OkayHandler[T]
+class OkFunctionHandler[T](f: Response => T)
+extends FunctionHandler[T](f) with OkHandler[T]
 
-trait OkayHandler[T] extends AsyncHandler[T] {
+trait OkHandler[T] extends AsyncHandler[T] {
   abstract override def onStatusReceived(status: HttpResponseStatus) = {
     if (status.getStatusCode / 100 == 2)
       super.onStatusReceived(status)
@@ -41,7 +43,7 @@ object As {
   val string = As { _.getResponseBody }
   val bytes = As { _.getResponseBodyAsBytes }
   def file(file: java.io.File) =
-    (new client.resumable.ResumableAsyncHandler with OkayHandler[Nothing])
+    (new client.resumable.ResumableAsyncHandler with OkHandler[Nothing])
       .setResumableListener(
         new client.extra.ResumableRandomAccessFileListener(
           new java.io.RandomAccessFile(file, "rw")
