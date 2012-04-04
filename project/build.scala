@@ -14,7 +14,7 @@ object Builds extends sbt.Build {
 
   def module(name: String) =
     Project(name, file(name))
-      .delegateTo(setup, ufcheck)
+      .delegateTo(ufcheck, setup)
       .dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core")
