@@ -120,12 +120,10 @@ object Promise {
     }
 
   implicit def toPromiseEither[A,B](p: Promise[Either[A,B]]) =
-    new PromiseEither[A,B] {
-      def claim = p()
-      def isComplete = p.isComplete
-      val timeout = p.timeout
-      def addListener(f: () => Unit) { for (_ <- p) f() }
-    }
+    new ClonePromise(p) with PromiseEither[A,B]
+
+  implicit def toPromiseIterable[A](p: Promise[Iterable[A]]) =
+    new ClonePromise(p) with PromiseIterable[A]
 
   /** Wraps a known value in a Promise. Useful in binidng
    *  some value to other promises in for-expressions. */
@@ -194,6 +192,13 @@ class ListenableFuturePromise[A](
     }, executor)
 }
 
+class ClonePromise[+A](underlying: Promise[A]) extends Promise[A] {
+  def claim = underlying()
+  def isComplete = underlying.isComplete
+  val timeout = underlying.timeout
+  def addListener(f: () => Unit) { for (_ <- underlying) f() }
+}
+
 trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
   def left = new {
     def flatMap[BB >: B,X](f: A => PromiseEither[X,BB]) =
@@ -219,6 +224,18 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
       }
     def foreach(f: B => Unit) {
       addListener { () => self().right.foreach(f) }
+    }
+  }
+}
+
+trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
+  def each = new {
+    def flatMap[B](f: A => Promise[B]): Promise[Iterable[B]] =
+      self.flatMap { _.map(f) }
+    def map[B](f: A => B): Promise[Iterable[B]] =
+      self.map { _.map(f) }
+    def foreach(f: A => Unit) {
+      self.foreach { _.foreach(f) }
     }
   }
 }
