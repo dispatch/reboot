@@ -232,19 +232,35 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
 
 trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
   /** Facilitates projection over promised iterables */
-  def unpack = new Unpack(self)
+  def values = new Values(self)
 
-  class Unpack(underlying: Promise[Iterable[A]]) {
-    def flatMap[B](f: A => Promise[Iterable[B]]): Promise[Iterable[B]] =
+  class Flatten(underlying: Promise[Iterable[A]]) {
+    def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]])
+    : Promise[Iterable[B]] =
       underlying.flatMap { iter => iter.map(f) }.map { _.flatten }
-    def map[B](f: A => Promise[B]): Promise[Iterable[B]] =
-      underlying.flatMap { _.map(f) }
+    def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
+    : Promise[Iterable[B]] =
+      underlying.map { _.map(f) }.map { _.flatten }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
-      new Unpack(underlying.map { _.filter(p) })
+      new Flatten(underlying.map { _.filter(p) })
     def filter(p: A => Boolean) = withFilter(p)
+  }
+  class Values(underlying: Promise[Iterable[A]]) {
+    def flatMap[B](f: A => Promise[B])
+    : Promise[Iterable[B]] =
+      underlying.flatMap { iter => iter.map(f) }
+    def map[B](f: A => B): Promise[Iterable[B]] =
+      underlying.map { _.map(f) }
+    def foreach(f: A => Unit) {
+      underlying.foreach { _.foreach(f) }
+    }
+    def withFilter(p: A => Boolean) =
+      new Values(underlying.map { _.filter(p) })
+    def filter(p: A => Boolean) = withFilter(p)
+    def flatten = new Flatten(underlying)
   }
 }
 

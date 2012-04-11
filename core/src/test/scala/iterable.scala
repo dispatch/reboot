@@ -2,10 +2,10 @@ package dispatch.spec
 
 import org.scalacheck._
 
-object IterableGuarantorSpecification
-extends Properties("Iterable Guarantor")
+object IterablePromiseSpecification
+extends Properties("Iterable Promise")
 with unfiltered.spec.ServerCleanup {
-  import Prop.forAll
+  import Prop._
   import Gen._
 
   val server = { 
@@ -44,11 +44,19 @@ with unfiltered.spec.ServerCleanup {
     values() == sample.map { _.toInt }
   }
 
-  property("iterable promise unpack") = forAll(Gen.alphaStr) {
-  (sample: String) =>
-    val values: Promise[Iterable[Int]] = for {
-      chr <- split(sample).unpack
-    } yield value(chr)
-    values() == sample.map { _.toInt }
+  property("iterable promise values") = forAll(Gen.alphaStr) {
+  (sampleL: String) =>
+    val sample = sampleL.take(10) // n^2 concurrent requests
+    val values: Promise[Iterable[(Int,Int)]] = for {
+      chr1 <- split(sample).values.flatten
+      chr2 <- split(sample.reverse).values
+      c1 <- value(chr1)
+      c2 <- value(chr2)
+    } yield (c1, c2)
+    values() =? (for {
+      c1 <- sample
+      c2 <- sample.reverse
+    } yield (c1.toInt, c2.toInt))
   }
+
 }
