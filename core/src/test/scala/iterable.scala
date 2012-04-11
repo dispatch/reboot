@@ -44,12 +44,11 @@ with unfiltered.spec.ServerCleanup {
     values() == sample.map { _.toInt }
   }
 
-  property("iterable promise each") = forAll(Gen.alphaStr) {
+  property("iterable promise unpack") = forAll(Gen.alphaStr) {
   (sample: String) =>
     val values: Promise[Iterable[Int]] = for {
-      chr <- split(sample).each
-      v <- value(chr)
-    } yield v
+      chr <- split(sample).unpack
+    } yield value(chr)
     values() == sample.map { _.toInt }
   }
 }

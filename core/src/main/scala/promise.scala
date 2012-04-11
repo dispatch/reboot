@@ -231,18 +231,19 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
 }
 
 trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
-  def each = new Each(self)
+  /** Facilitates projection over promised iterables */
+  def unpack = new Unpack(self)
 
-  class Each(underlying: Promise[Iterable[A]]) {
-    def flatMap[B](f: A => Promise[B]): Promise[Iterable[B]] =
+  class Unpack(underlying: Promise[Iterable[A]]) {
+    def flatMap[B](f: A => Promise[Iterable[B]]): Promise[Iterable[B]] =
+      underlying.flatMap { iter => iter.map(f) }.map { _.flatten }
+    def map[B](f: A => Promise[B]): Promise[Iterable[B]] =
       underlying.flatMap { _.map(f) }
-    def map[B](f: A => B): Promise[Iterable[B]] =
-      underlying.map { _.map(f) }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
-      new Each(underlying.map { _.filter(p) })
+      new Unpack(underlying.map { _.filter(p) })
     def filter(p: A => Boolean) = withFilter(p)
   }
 }
