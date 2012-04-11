@@ -47,14 +47,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def flatMap[B, C, That <: Promise[C]]
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
-    new Promise[C] {
-      lazy val guaranteed = guarantor.promise(f(self()))
-      def addListener(f: () => Unit) {
-        self.addListener { () => guaranteed.addListener(f) }
-      }
-      def isComplete = self.isComplete && guaranteed.isComplete
-      def timeout = self.timeout
-      def claim = guaranteed()
+    new ComposedPromise[A,C] {
+      def a = self
+      def b = guarantor.promise(f(self()))
     }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
@@ -115,7 +110,7 @@ object Promise {
     new Promise[Iterable[A]] { self =>
       def claim = promises.map { _() }
       def isComplete = promises.forall { _.isComplete }
-      lazy val timeout = promises.map { _.timeout }.max
+      val timeout = Duration.Zero // can't think of a sensible option
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         promises.foreach { p =>
@@ -203,7 +198,7 @@ class ListenableFuturePromise[A](
 class ClonePromise[+A](underlying: Promise[A]) extends Promise[A] {
   def claim = underlying()
   def isComplete = underlying.isComplete
-  val timeout = underlying.timeout
+  lazy val timeout = underlying.timeout
   def addListener(f: () => Unit) { for (_ <- underlying) f() }
 }
 
@@ -236,14 +231,30 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
   }
 }
 
+
+abstract class ComposedPromise[+A,+B] extends Promise[B] {
+  def a: Promise[A]
+  def b: Promise[B]
+  lazy val promiseA = a
+  lazy val promiseB = b
+  def addListener(f: () => Unit) {
+    for (_ <- promiseA; _ <- promiseB) f()
+  }
+  def isComplete = promiseA.isComplete && promiseB.isComplete
+  def timeout = promiseA.timeout
+  def claim = promiseB()
+}
+
 trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
   /** Facilitates projection over promised iterables */
   def values = new Values(self)
 
   class Flatten(underlying: Promise[Iterable[A]]) {
-    def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]])
-    : Promise[Iterable[B]] =
-      underlying.flatMap { iter => iter.map(f) }.map { _.flatten }
+    def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
+      new ComposedPromise[Iterable[A],Iterable[B]] {
+        def a = underlying
+        def b = Promise.all(underlying().map(f)).map { _.flatten }
+      }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
     : Promise[Iterable[B]] =
       underlying.map { _.map(f) }.map { _.flatten }
@@ -255,9 +266,11 @@ trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
     def filter(p: A => Boolean) = withFilter(p)
   }
   class Values(underlying: Promise[Iterable[A]]) {
-    def flatMap[B](f: A => Promise[B])
-    : Promise[Iterable[B]] =
-      underlying.flatMap { iter => iter.map(f) }
+    def flatMap[B](f: A => Promise[B]) =
+      new ComposedPromise[Iterable[A],Iterable[B]] {
+        def a = underlying
+        def b = Promise.all(underlying().map(f))
+      }
     def map[B](f: A => B): Promise[Iterable[B]] =
       underlying.map { _.map(f) }
     def foreach(f: A => Unit) {
