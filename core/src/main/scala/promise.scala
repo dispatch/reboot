@@ -71,6 +71,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       def isComplete = self.isComplete && p(self())
       def timeout = self.timeout
     }
+  /** filter still used for certain cases in for expressions */
+  def filter(p: A => Boolean): Promise[A] = withFilter(p)
   /** Cause some side effect with the promised value, if it is produced
    *  with no exception */
   def foreach[U](f: A => U) {
@@ -229,14 +231,19 @@ trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
 }
 
 trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
-  def each = new {
+  def each = new Each(self)
+
+  class Each(underlying: Promise[Iterable[A]]) {
     def flatMap[B](f: A => Promise[B]): Promise[Iterable[B]] =
-      self.flatMap { _.map(f) }
+      underlying.flatMap { _.map(f) }
     def map[B](f: A => B): Promise[Iterable[B]] =
-      self.map { _.map(f) }
+      underlying.map { _.map(f) }
     def foreach(f: A => Unit) {
-      self.foreach { _.foreach(f) }
+      underlying.foreach { _.foreach(f) }
     }
+    def withFilter(p: A => Boolean) =
+      new Each(underlying.map { _.filter(p) })
+    def filter(p: A => Boolean) = withFilter(p)
   }
 }
 
