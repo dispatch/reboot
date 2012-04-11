@@ -15,7 +15,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   protected lazy val result = allCatch.either { claim }
 
   /** Listener to be called in an executor when promise is available */
-  protected def addListener(f: () => Unit)
+  protected [dispatch] def addListener(f: () => Unit)
 
   // lazily assign result when available, e.g. to evaluate mapped function
   // that may kick off further promises
@@ -32,10 +32,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       identity
     )
   /** Nested promise that delegates listening directly to this self */
-  protected trait SelfPromise[+A] extends Promise[A] {
-    def addListener(f: () => Unit) { self.addListener(f) }
-    def isComplete = self.isComplete
-    def timeout = self.timeout
+  protected trait SelfPromise[+B] extends DelegatePromise[A] with Promise[B] {
+    def delegate = self
   }
   /** Map the promised value to something else */
   def map[B](f: A => B): Promise[B] =
@@ -104,6 +102,12 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   override def toString =
     "Promise(%s)".format(completeOption.getOrElse("-incomplete-"))
 }
+trait DelegatePromise[+D] {
+  def delegate: Promise[D]
+  def addListener(f: () => Unit) { delegate.addListener(f) }
+  def isComplete = delegate.isComplete
+  def timeout = delegate.timeout
+}
 
 object Promise {
   def all[A](promises: Iterable[Promise[A]]) =
@@ -123,10 +127,10 @@ object Promise {
     }
 
   implicit def toPromiseEither[A,B](p: Promise[Either[A,B]]) =
-    new ClonePromise(p) with PromiseEither[A,B]
+    PromiseEither(p)
 
   implicit def toPromiseIterable[A](p: Promise[Iterable[A]]) =
-    new ClonePromise(p) with PromiseIterable[A]
+    PromiseIterable(p)
 
   /** Wraps a known value in a Promise. Useful in binidng
    *  some value to other promises in for-expressions. */
@@ -195,43 +199,6 @@ class ListenableFuturePromise[A](
     }, executor)
 }
 
-class ClonePromise[+A](underlying: Promise[A]) extends Promise[A] {
-  def claim = underlying()
-  def isComplete = underlying.isComplete
-  lazy val timeout = underlying.timeout
-  def addListener(f: () => Unit) { for (_ <- underlying) f() }
-}
-
-trait PromiseEither[+A,+B] extends Promise[Either[A, B]] { self =>
-  def left = new {
-    def flatMap[BB >: B,X](f: A => PromiseEither[X,BB]) =
-      new PromiseEither[X,BB] with SelfPromise[Either[X,BB]] {
-        def claim = self().left.flatMap { a => f(a)() }
-      }
-    def map[X](f: A => X) =
-      new PromiseEither[X,B] with SelfPromise[Either[X,B]] {
-        def claim = self().left.map(f)
-      }
-    def foreach[U](f: A => U) {
-      addListener { () => self().left.foreach(f) }
-    }
-  }
-  def right = new {
-    def flatMap[AA >: A,Y](f: B => PromiseEither[AA,Y]) =
-      new PromiseEither[AA,Y] with SelfPromise[Either[AA,Y]] {
-        def claim = self().right.flatMap { b => f(b)() }
-      }
-    def map[Y](f: B => Y) =
-      new PromiseEither[A,Y] with SelfPromise[Either[A,Y]] {
-        def claim = self().right.map(f)
-      }
-    def foreach(f: B => Unit) {
-      addListener { () => self().right.foreach(f) }
-    }
-  }
-}
-
-
 abstract class ComposedPromise[+A,+B] extends Promise[B] {
   def a: Promise[A]
   def b: Promise[B]
@@ -243,44 +210,6 @@ abstract class ComposedPromise[+A,+B] extends Promise[B] {
   def isComplete = promiseA.isComplete && promiseB.isComplete
   def timeout = promiseA.timeout
   def claim = promiseB()
-}
-
-trait PromiseIterable[+A] extends Promise[Iterable[A]] { self =>
-  /** Facilitates projection over promised iterables */
-  def values = new Values(self)
-
-  class Flatten(underlying: Promise[Iterable[A]]) {
-    def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
-      new ComposedPromise[Iterable[A],Iterable[B]] {
-        def a = underlying
-        def b = Promise.all(underlying().map(f)).map { _.flatten }
-      }
-    def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
-    : Promise[Iterable[B]] =
-      underlying.map { _.map(f) }.map { _.flatten }
-    def foreach(f: A => Unit) {
-      underlying.foreach { _.foreach(f) }
-    }
-    def withFilter(p: A => Boolean) =
-      new Flatten(underlying.map { _.filter(p) })
-    def filter(p: A => Boolean) = withFilter(p)
-  }
-  class Values(underlying: Promise[Iterable[A]]) {
-    def flatMap[B](f: A => Promise[B]) =
-      new ComposedPromise[Iterable[A],Iterable[B]] {
-        def a = underlying
-        def b = Promise.all(underlying().map(f))
-      }
-    def map[B](f: A => B): Promise[Iterable[B]] =
-      underlying.map { _.map(f) }
-    def foreach(f: A => Unit) {
-      underlying.foreach { _.foreach(f) }
-    }
-    def withFilter(p: A => Boolean) =
-      new Values(underlying.map { _.filter(p) })
-    def filter(p: A => Boolean) = withFilter(p)
-    def flatten = new Flatten(underlying)
-  }
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
