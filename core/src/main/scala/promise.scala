@@ -17,12 +17,12 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Listener to be called in an executor when promise is available */
   protected def addListener(f: () => Unit)
 
-  /** True if promised value is available */
-  def isComplete: Boolean
-
   // lazily assign result when available, e.g. to evaluate mapped function
   // that may kick off further promises
-  addListener { () => result }
+  self.addListener { () => result }
+
+  /** True if promised value is available */
+  def isComplete: Boolean
 
   /** Blocks until promised value is available, returns promised value or
    *  throws ExecutionException. */
@@ -47,8 +47,14 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def flatMap[B, C, That <: Promise[C]]
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
-    new SelfPromise[C] {
-      def claim = guarantor.promise(f(self()))()
+    new Promise[C] {
+      lazy val guaranteed = guarantor.promise(f(self()))
+      def addListener(f: () => Unit) {
+        self.addListener { () => guaranteed.addListener(f) }
+      }
+      def isComplete = self.isComplete && guaranteed.isComplete
+      def timeout = self.timeout
+      def claim = guaranteed()
     }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
