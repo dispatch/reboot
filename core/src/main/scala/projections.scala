@@ -39,6 +39,12 @@ object PromiseEither {
       underlying.addListener { () => underlying().right.foreach(f) }
     }
   }
+
+  object RightProjection {
+    implicit def rightToPromiseIterable[E,A]
+    (p: PromiseEither.RightProjection[E,Iterable[A]]) =
+      PromiseRightIterable(p)
+  }
 }
 
 object PromiseIterable {
@@ -49,9 +55,8 @@ object PromiseIterable {
 
   class Flatten[A](underlying: Promise[Iterable[A]]) {
     def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
-      new ComposedPromise[Iterable[A],Iterable[B]] {
-        def a = underlying
-        def b = Promise.all(underlying().map(f)).map { _.flatten }
+      underlying.flatMap { iter =>
+        Promise.all(iter.map(f)).map { _.flatten }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
     : Promise[Iterable[B]] =
@@ -65,9 +70,8 @@ object PromiseIterable {
   }
   class Values[A](underlying: Promise[Iterable[A]]) {
     def flatMap[B](f: A => Promise[B]) =
-      new ComposedPromise[Iterable[A],Iterable[B]] {
-        def a = underlying
-        def b = Promise.all(underlying().map(f))
+      underlying.flatMap { iter =>
+        Promise.all(iter.map(f))
       }
     def map[B](f: A => B): Promise[Iterable[B]] =
       underlying.map { _.map(f) }
@@ -78,5 +82,58 @@ object PromiseIterable {
       new Values(underlying.map { _.filter(p) })
     def filter(p: A => Boolean) = withFilter(p)
     def flatten = new Flatten(underlying)
+  }
+}
+
+object PromiseRightIterable {
+  import PromiseEither.RightProjection
+  type RightIter[E,A] = RightProjection[E,Iterable[A]]
+  def apply[E,A](underlying: RightIter[E,A]) = new {
+    def values = new Values(underlying)
+  }
+  def flatRight[L,R](eithers: Iterable[Either[L,R]]) = {
+    val start: Either[L,Seq[R]] = Right(Seq.empty)
+    (start /: eithers) { (a, e) =>
+      for {
+        seq <- a.right
+        cur <- e.right
+      } yield (seq :+ cur)
+    }
+  }
+  class Flatten[E,A](underlying: RightIter[E,A]) {
+    def flatMap[Iter[B] <: Iterable[B], B]
+    (f: A => Promise[Either[E,Iter[B]]]) =
+      underlying.flatMap { iter =>
+        Promise.all(iter.map(f)).map { eths =>
+          flatRight(eths).right.map { _.flatten }
+        }
+      }
+    def map[Iter[B] <: Iterable[B], B](f: A => Iter[B]) =
+      underlying.flatMap { iter =>
+        Promise(Right(iter.map(f).flatten))
+      }
+    def foreach(f: A => Unit) {
+      underlying.foreach { _.foreach(f) }
+    }
+    def withFilter(p: A => Boolean) =
+      new Values(underlying.map { _.filter(p) }.right)
+    def filter(p: A => Boolean) = withFilter(p)
+  }
+  class Values[E,A](underlying: RightIter[E,A]) {
+    def flatMap[B](f: A => Promise[Either[E,B]]) =
+      underlying.flatMap { iter =>
+        Promise.all(iter.map(f)).map(flatRight)
+      }
+    def map[B](f: A => B) =
+      underlying.flatMap { iter =>
+        Promise(Right(iter.map(f)))
+    }
+    def foreach(f: A => Unit) {
+      underlying.foreach { _.foreach(f) }
+    }
+    def flatten = new Flatten(underlying)
+    def withFilter(p: A => Boolean) =
+      new Values(underlying.map { _.filter(p) }.right)
+    def filter(p: A => Boolean) = withFilter(p)
   }
 }
