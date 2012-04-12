@@ -45,9 +45,14 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def flatMap[B, C, That <: Promise[C]]
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
-    new ComposedPromise[A,C] {
-      def a = self
-      def b = guarantor.promise(f(self()))
+    new Promise[C] {
+      lazy val other = guarantor.promise(f(self()))
+      def addListener(f: () => Unit) {
+        for (_ <- self; _ <- other) f()
+      }
+      def isComplete = self.isComplete && other.isComplete
+      def timeout = self.timeout
+      def claim = other()
     }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
@@ -197,19 +202,6 @@ class ListenableFuturePromise[A](
         f()
       }
     }, executor)
-}
-
-abstract class ComposedPromise[+A,+B] extends Promise[B] {
-  def a: Promise[A]
-  def b: Promise[B]
-  lazy val promiseA = a
-  lazy val promiseB = b
-  def addListener(f: () => Unit) {
-    for (_ <- promiseA; _ <- promiseB) f()
-  }
-  def isComplete = promiseA.isComplete && promiseB.isComplete
-  def timeout = promiseA.timeout
-  def claim = promiseB()
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
