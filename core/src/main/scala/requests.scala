@@ -67,10 +67,17 @@ trait ParamVerbs extends RequestVerbs {
 }
 
 trait AuthVerbs extends RequestVerbs {
-  import com.ning.http.client.Realm.RealmBuilder
-  def as (user: String, password: String) =
+  import com.ning.http.client.Realm.{RealmBuilder,AuthScheme}
+  def as(user: String, password: String) =
     subject.setRealm(new RealmBuilder()
                      .setPrincipal(user)
                      .setPassword(password)
+                     .build())
+  def as_!(user: String, password: String) =
+    subject.setRealm(new RealmBuilder()
+                     .setPrincipal(user)
+                     .setPassword(password)
+                     .setUsePreemptiveAuth(true)
+                     .setScheme(AuthScheme.BASIC)
                      .build())
 }
