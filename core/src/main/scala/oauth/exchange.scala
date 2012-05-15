@@ -4,29 +4,29 @@ import dispatch._
 
 import com.ning.http.client.oauth._
 
-trait AnHttp {
+trait SomeHttp {
   def http: Executor
 }
 
-trait AConsumer {
+trait SomeConsumer {
   def consumer: ConsumerKey
 }
 
-trait Endpoints {
+trait SomeEndpoints {
   def requestToken: String
   def accessToken: String
   def authorize: String
 }
 
-trait ACallback {
+trait SomeCallback {
   def callback: String
 }
 
 trait Exchange {
-  self: AnHttp
-    with AConsumer
-    with ACallback
-    with Endpoints =>
+  self: SomeHttp
+    with SomeConsumer
+    with SomeCallback
+    with SomeEndpoints =>
   private val random = new java.util.Random(System.identityHashCode(this) +
                                             System.currentTimeMillis)
   private val nonceBuffer = Array.fill[Byte](16)(0)
