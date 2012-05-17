@@ -3,11 +3,6 @@ package dispatch
 // handy projections
 
 object PromiseEither {
-  def apply[A,B](underlying: Promise[Either[A,B]]) = new {
-    def left = new LeftProjection(underlying)
-    def right = new RightProjection(underlying)
-  }
-
   class EitherDelegate[+A,+B](underlying: Promise[Either[A,B]])
   extends DelegatePromise[Either[A,B]] {
     def delegate = underlying
@@ -38,20 +33,15 @@ object PromiseEither {
     def foreach(f: B => Unit) {
       underlying.addListener { () => underlying().right.foreach(f) }
     }
+    def values[A1 >: A, C]
+    (implicit ev: RightProjection[A, B] <:<
+                  RightProjection[A1, Iterable[C]]) =
+      new PromiseRightIterable.Values(this)
   }
 
-  object RightProjection {
-    implicit def rightToPromiseIterable[E,A]
-    (p: PromiseEither.RightProjection[E,Iterable[A]]) =
-      PromiseRightIterable(p)
-  }
 }
 
 object PromiseIterable {
-  def apply[A](underlying: Promise[Iterable[A]]) = new {
-    /** Facilitates projection over promised iterables */
-    def values = new Values(underlying)
-  }
 
   class Flatten[A](underlying: Promise[Iterable[A]]) {
     def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
@@ -88,10 +78,8 @@ object PromiseIterable {
 object PromiseRightIterable {
   import PromiseEither.RightProjection
   type RightIter[E,A] = RightProjection[E,Iterable[A]]
-  def apply[E,A](underlying: RightIter[E,A]) = new {
-    def values = new Values(underlying)
-  }
-  def flatRight[L,R](eithers: Iterable[Either[L,R]]) = {
+
+  private def flatRight[L,R](eithers: Iterable[Either[L,R]]) = {
     val start: Either[L,Seq[R]] = Right(Seq.empty)
     (start /: eithers) { (a, e) =>
       for {

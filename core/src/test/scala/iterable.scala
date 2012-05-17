@@ -59,4 +59,16 @@ with unfiltered.spec.ServerCleanup {
     } yield (c1.toInt, c2.toInt))
   }
 
+  property("iterable promise values on either") = forAll(Gen.alphaStr) {
+  (sampleL: String) =>
+    val sample = sampleL.take(10) // n^2 concurrent requests
+    val values: Promise[Either[Throwable,Iterable[Int]]] = for {
+      chr1 <- split(sample).either.right.values
+      c1 <- value(chr1)
+    } yield Right(c1)
+    values().right.get =? (for {
+      c1 <- sample
+    } yield c1.toInt)
+  }
+
 }

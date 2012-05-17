@@ -94,6 +94,16 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       }
     }
 
+  def left[B,C](implicit ev: Promise[A] <:< Promise[Either[B, C]]) =
+    new PromiseEither.LeftProjection(this)
+
+  def right[B,C](implicit ev: Promise[A] <:< Promise[Either[B, C]]) =
+    new PromiseEither.RightProjection(this)
+
+  /** Facilitates projection over promised iterables */
+  def values[B](implicit ev: Promise[A] <:< Promise[Iterable[B]]) =
+    new PromiseIterable.Values(this)
+
   /** Project promised value into an Option containing the value if retrived
    *  with no exception */
   def option: Promise[Option[A]] =
@@ -130,12 +140,6 @@ object Promise {
         }
       }
     }
-
-  implicit def toPromiseEither[A,B](p: Promise[Either[A,B]]) =
-    PromiseEither(p)
-
-  implicit def toPromiseIterable[A](p: Promise[Iterable[A]]) =
-    PromiseIterable(p)
 
   /** Wraps a known value in a Promise. Useful in binidng
    *  some value to other promises in for-expressions. */
