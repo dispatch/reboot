@@ -25,7 +25,7 @@ And here is a very simple example to get you started:
 import dispatch._
 val raw = :/("raw.github.com").secure
 val readme = raw / "dispatch" / "reboot" / "master" / "README.markdown"
-val promise = Http(readme > As.string)
+val promise = Http(readme OK As.string)
 for (string <- promise) {
   println(string)
 }
