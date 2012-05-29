@@ -47,8 +47,8 @@ it in a general shutdown routine.
 ### Promises
 
 Dispatch's promises are a rich interface to the underlying client's
-[ListenableFuture][lf] interface. They're designed to make it as easy
-and elegant as possible to work with expected responses and the errors
+[ListenableFuture][lf]. They are designed to make it as easy and
+elegant as possible to work with expected responses and the errors
 that might occur, to avoid blocking operations while promoting
 composability. For example, two functions that perform network
 operations might both yield a Promise to avoid blocking, and these
@@ -64,7 +64,7 @@ def add(p1: Promise[Int], p2: Promise[Int]): Promise[Int] =
   } yield i1 + i2
 ```
 
-Since errors are known to occur, we might be wise to deal in a
+Since errors are known to occur, we might want to work with a
 different type of Promise:
 
 ```scala
@@ -77,7 +77,9 @@ def add(p1: Promise[Either[String,Int]],
   } yield i1 + i2
 ```
 
-The forthcoming Scala 2.10 defines a Future/Promise type and Dispatch
-will bind to it after its release. We also support Scala 2.8.x and
-2.9.x; the aim is to create an interface that works well with
-existing infrastructure and with all that is coming down the pike.
+### The Future
+
+The forthcoming **Scala 2.10** defines a Future/Promise type and
+Dispatch will bind to it once it's available. Dispatch also supports
+Scala 2.8.x and 2.9.x; its aim is to create an interface that works
+well with existing software and with what's coming down the pike.
