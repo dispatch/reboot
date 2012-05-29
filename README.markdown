@@ -49,8 +49,10 @@ it in a general shutdown routine.
 Dispatch's Promise is a rich interface to the underlying client's
 [ListenableFuture][lf]. It is designed to make it as easy and elegant
 as possible to work with expected responses and the errors that might
-occur, to avoid blocking operations while promoting composability. For
-example, two functions that perform network operations might both
+occur, and to avoid blocking operations while promoting
+composability.
+
+For example, two functions that perform network operations might both
 yield a Promise to avoid blocking, and these could be composed in a
 third trivial function:
 
