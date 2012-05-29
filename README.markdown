@@ -92,3 +92,10 @@ The forthcoming **Scala 2.10** defines a Future/Promise type and
 Dispatch will bind to it once it's available. Dispatch also supports
 Scala 2.8.x and 2.9.x; its aim is to create an interface that works
 well with existing software and with what's coming down the pike.
+
+### OAuth
+
+OAuth is built into reboot just like in the original Dispatch. See
+Herald for an implementation that is [configured for Tumblr][herald].
+
+[herald]: https://github.com/n8han/herald/blob/master/src/main/scala/auth.scala
