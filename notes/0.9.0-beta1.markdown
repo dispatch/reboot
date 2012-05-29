@@ -1,11 +1,14 @@
-The Dispatch "reboot" library has stabilized enough to enter its beta
-cycle. For general information, see the [readme][readme]. For
-background on the project, see this [series of blog posts][blog].
+The "reboot" of Dispatch has stabilized enough to enter its beta
+cycle. For general information on the new library, see its
+[readme][readme]. For background on the project, read this
+[series of blog posts][blog].
 
 [readme]: https://github.com/dispatch/reboot#readme
 [blog]: http://code.technically.us/post/16344288811/fables-of-the-reconstruction-part-1-losing-the-thread
 
-OAuth support was added in the later alphas. See herald for an
-implementation [configured for Tumblr][herald].
+If you haven't been following the reboot alphas, everything in this
+release is new to you. OAuth support was the last feature added to the
+alphas; see Herald for an implementation that is
+[configured for Tumblr][herald].
 
 [herald]: https://github.com/n8han/herald/blob/master/src/main/scala/auth.scala
