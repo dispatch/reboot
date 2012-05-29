@@ -6,3 +6,5 @@ description :=
 libraryDependencies ++= Seq(
   "com.ning" % "async-http-client" % "1.7.4"
 )
+
+seq(lsSettings :_*)

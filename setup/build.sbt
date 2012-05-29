@@ -1,7 +1,7 @@
-version := "0.9.0-alpha6"
+version := "0.9.0-beta1"
 
 crossScalaVersions :=
-  Seq("2.8.1", "2.8.2", "2.9.0", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2")
+  Seq("2.8.1", "2.8.2", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2")
 
 organization := "net.databinder.dispatch"
 
@@ -34,5 +34,3 @@ pomExtra := (
       <url>http://twitter.com/n8han</url>
     </developer>
   </developers>)
-
-seq(lsSettings :_*)

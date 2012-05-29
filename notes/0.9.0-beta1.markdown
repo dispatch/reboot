@@ -1,0 +1,11 @@
+The Dispatch "reboot" library has stabilized enough to enter its beta
+cycle. For general information, see the [readme][readme]. For
+background on the project, see this [series of blog posts][blog].
+
+[readme]: https://github.com/dispatch/reboot#readme
+[blog]: http://code.technically.us/post/16344288811/fables-of-the-reconstruction-part-1-losing-the-thread
+
+OAuth support was added in the later alphas. See herald for an
+implementation [configured for Tumblr][herald].
+
+[herald]: https://github.com/n8han/herald/blob/master/src/main/scala/auth.scala
