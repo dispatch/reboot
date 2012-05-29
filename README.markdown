@@ -3,10 +3,17 @@ Dispatch Reboot
 
 Dispatch reboot is a rewrite of the [Dispatch][dispatch] library for
 HTTP interaction in Scala, using [sonatype/async-http-client][async]
-as its underlying transport.
+as its underlying transport. For background on the project, read this
+[series of blog posts][blog].
 
 [async]: https://github.com/sonatype/async-http-client
 [dispatch]: http://dispatch.databinder.net/Dispatch.html
+[blog]: http://code.technically.us/post/16344288811/fables-of-the-reconstruction-part-1-losing-the-thread
+
+The Scala project listing site *ls* tracks reboot's Maven [artifact IDs
+and the latest release numbers][ls].
+
+[ls]: http://ls.implicit.ly/dispatch/reboot#core
 
 ### Example Usage
 
