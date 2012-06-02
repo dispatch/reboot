@@ -14,7 +14,7 @@ with unfiltered.spec.ServerCleanup {
     object EchoIn extends StringHeader("echo")
     object EchoOut extends HeaderName("echo")
     netty.Http.anylocal.handler(netty.cycle.Planify {
-      case req @ EchoIn(echo) => EchoOut(echo)
+      case EchoIn(echo) => EchoOut(echo)
     }).start()
   }
 
