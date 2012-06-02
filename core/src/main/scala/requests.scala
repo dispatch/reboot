@@ -4,6 +4,7 @@ import com.ning.http.client.RequestBuilder
 
 class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
+  with HeaderVerbs
 
 trait HostVerbs {
   def apply(host: String) =
@@ -65,6 +66,19 @@ trait ParamVerbs extends RequestVerbs {
         s.addQueryParameter(key, value)
     }
 }
+
+trait HeaderVerbs extends RequestVerbs {
+  /** Adds key-value pairs in `hs` as headers to the request */
+  def headers(hs: Traversable[(String, String)]) =
+    (subject /: hs) {
+      case (s, (key, value)) =>
+        s.addHeader(key, value)
+    }
+  /** Symbolic alias for headers method */
+  def <:< (hs: Traversable[(String, String)]) =
+    headers(hs)
+}
+
 
 trait AuthVerbs extends RequestVerbs {
   import com.ning.http.client.Realm.{RealmBuilder,AuthScheme}
