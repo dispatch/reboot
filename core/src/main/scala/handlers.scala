@@ -42,6 +42,15 @@ object As {
   def apply[T](f: Response => T) = f
   val string = As { _.getResponseBody }
   val bytes = As { _.getResponseBodyAsBytes }
+  def headers = As { r =>
+    import collection.JavaConversions.{mapAsScalaMap, asScalaBuffer}
+    (Map.empty[String, Set[String]].withDefaultValue(Set.empty) /:
+      mapAsScalaMap(r.getHeaders)) {
+      case (a,e) => a + (e match {
+        case (k, v) => (k -> Set(asScalaBuffer(v):_*))
+      })
+    }
+  }
   def file(file: java.io.File) =
     (new client.resumable.ResumableAsyncHandler with OkHandler[Nothing])
       .setResumableListener(
