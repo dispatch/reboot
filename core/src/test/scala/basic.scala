@@ -24,7 +24,7 @@ with unfiltered.spec.ServerCleanup {
 
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
-      localhost / "echo" << Map("echo" -> sample) > As.string
+      localhost / "echo" << Map("echo" -> sample) > as.String
     )
     res() == ("POST" + sample)
   }

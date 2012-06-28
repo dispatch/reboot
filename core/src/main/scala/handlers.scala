@@ -38,15 +38,9 @@ trait OkHandler[T] extends AsyncHandler[T] {
   }
 }
 
-object As {
+@deprecated("use objects in dispatch.as package") object As {
   def apply[T](f: Response => T) = f
-  val string = As { _.getResponseBody }
-  val bytes = As { _.getResponseBodyAsBytes }
-  def file(file: java.io.File) =
-    (new client.resumable.ResumableAsyncHandler with OkHandler[Nothing])
-      .setResumableListener(
-        new client.extra.ResumableRandomAccessFileListener(
-          new java.io.RandomAccessFile(file, "rw")
-        )
-      )
+  val string = as.String
+  val bytes = as.Bytes
+  val file = as.File
 }

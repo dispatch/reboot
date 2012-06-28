@@ -1,10 +1,21 @@
-package dispatch
+package dispatch.as.stream
 
 import util.control.Exception._
 
 import scala.collection.JavaConverters._
 import com.ning.http.client._
 import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
+
+object Lines {
+  def apply[T](f: String => T) =
+    new StreamStringByLine[T] {
+      @volatile private var last: T = _
+      def onStringBy(string: String) {
+        last = f(string)
+      }
+      def onCompleted = last
+    }
+}
 
 trait StreamString[T] extends AsyncHandler[T] {
   private var charset = "utf-8"
@@ -44,13 +55,3 @@ trait StreamStringByLine[T] extends StreamStringBy[T] {
   def divider = "[\n\r]+"
 }
 
-object AsStream {
-  def lines[T](f: String => T) =
-    new StreamStringByLine[T] {
-      @volatile private var last: T = _
-      def onStringBy(string: String) {
-        last = f(string)
-      }
-      def onCompleted = last
-    }
-}
