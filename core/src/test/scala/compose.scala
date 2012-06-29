@@ -26,7 +26,7 @@ with unfiltered.spec.ServerCleanup {
   def localhost = host("127.0.0.1", server.port)
 
   def sum(nums: Iterable[String]) =
-    Http(localhost / "sum" << nums.map { "num" -> _ } > As.string)
+    Http(localhost / "sum" << nums.map { "num" -> _ } > as.String)
 
   val numList = listOf1(chooseNum(-1000L, 1000L))
 

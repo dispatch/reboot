@@ -31,7 +31,7 @@ with unfiltered.spec.ServerCleanup {
 
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
-      localhost / "echo" <<? Map("echo" -> sample) > As.string
+      localhost / "echo" <<? Map("echo" -> sample) > as.String
     )
     res() == ("GET" + sample)
   }

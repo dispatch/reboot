@@ -22,7 +22,7 @@ with unfiltered.spec.ServerCleanup {
         case req @ Path("/ask") & Params(Echo(echo) & What(what)) =>
           for {
             e <- Http(
-              localhost / what << Map("echo" -> echo) OK As.string
+              localhost / what << Map("echo" -> echo) OK as.String
             ).either
           } yield {
             e.fold(
@@ -40,7 +40,7 @@ with unfiltered.spec.ServerCleanup {
     forAll(Gen.alphaStr) { sample =>
       val res = Http(
         localhost / "ask" << Map("what" -> "echo",
-                                 "echo" -> sample) > As.string
+                                 "echo" -> sample) > as.String
       )
       res() ?= sample
     }
@@ -49,7 +49,7 @@ with unfiltered.spec.ServerCleanup {
       (sample1, sample2) =>
         val res = Http(
           localhost / "ask" << Map("what" -> sample1,
-                                   "echo" -> sample2) OK As.string
+                                   "echo" -> sample2) OK as.String
         ).either
         res() ?= Left(StatusCode(500))
     }

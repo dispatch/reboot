@@ -28,11 +28,11 @@ with unfiltered.spec.ServerCleanup {
   def localhost = host("127.0.0.1", server.port)
 
   def split(str: String): Promise[Seq[String]] =
-    for (csv <- Http(localhost / "split" << Seq("str" -> str) > As.string))
+    for (csv <- Http(localhost / "split" << Seq("str" -> str) > as.String))
       yield csv.split(",")
 
   def value(str: String): Promise[Int] =
-    for (v <- Http(localhost / "value" << Seq("chr" -> str) > As.string))
+    for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
 
   property("iterable promise guarantor") = forAll(Gen.alphaStr) {
