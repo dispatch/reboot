@@ -7,8 +7,8 @@ import com.ning.http.client._
 import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
 
 object Lines {
-  def apply[T](f: String => T) =
-    new StreamStringByLine[(String => T)] {
+  def apply[U,F <: (String => U)](f: F) =
+    new StreamStringByLine[F] {
       def onStringBy(string: String) {
         f(string)
       }
