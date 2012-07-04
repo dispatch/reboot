@@ -5,7 +5,6 @@ import scala.collection.JavaConverters._
 import com.ning.http.client._
 import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
 
-
 trait Strings[T] extends AsyncHandler[T] {
   import AsyncHandler.STATE._
 
