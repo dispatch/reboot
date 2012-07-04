@@ -18,7 +18,7 @@ object Lines {
 }
 
 trait StreamString[T] extends AsyncHandler[T] {
-  private var charset = "utf-8"
+  private var charset = "iso-8859-1"
   def onThrowable(t: Throwable) { }
   def onCompleted(): T
   def onStatusReceived(status: HttpResponseStatus) =
