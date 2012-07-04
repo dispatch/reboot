@@ -17,7 +17,7 @@ trait Strings[T] extends AsyncHandler[T] {
   def onHeadersReceived(headers: HttpResponseHeaders) = {
     for {
       ct <- headers.getHeaders.get("content-type").asScala.headOption
-      cs <- Option(parseCharset("charset"))
+      cs <- Option(parseCharset(ct))
     } charset = cs
     state
   }
