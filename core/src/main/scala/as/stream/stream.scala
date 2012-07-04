@@ -8,32 +8,39 @@ import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
 
 object Lines {
   def apply[T](f: String => T) =
-    new StreamStringByLine[T] {
-      @volatile private var last: T = _
+    new StreamStringByLine[(String => T)] {
       def onStringBy(string: String) {
-        last = f(string)
+        f(string)
       }
-      def onCompleted = last
+      def onCompleted = f
     }
 }
 
 trait StreamString[T] extends AsyncHandler[T] {
-  private var charset = "iso-8859-1"
+  import AsyncHandler.STATE._
+
+  @volatile private var charset = "iso-8859-1"
+  @volatile private var state = CONTINUE
+
   def onThrowable(t: Throwable) { }
   def onCompleted(): T
-  def onStatusReceived(status: HttpResponseStatus) =
-    AsyncHandler.STATE.CONTINUE
+  def onStatusReceived(status: HttpResponseStatus) = state
   def onHeadersReceived(headers: HttpResponseHeaders) = {
     for {
       ct <- headers.getHeaders.get("content-type").asScala.headOption
       cs <- Option(parseCharset("charset"))
     } charset = cs
-    AsyncHandler.STATE.CONTINUE
+    state
   }
   def onString(str: String)
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-    onString(new String(bodyPart.getBodyPartBytes, charset))
-    AsyncHandler.STATE.CONTINUE
+    if (state == CONTINUE) {
+      onString(new String(bodyPart.getBodyPartBytes, charset))
+    }
+    state
+  }
+  def abort() {
+    state = ABORT
   }
 }
 
