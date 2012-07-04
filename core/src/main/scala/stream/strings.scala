@@ -1,22 +1,12 @@
-package dispatch.as.stream
-
-import util.control.Exception._
+package dispatch.stream
 
 import scala.collection.JavaConverters._
+
 import com.ning.http.client._
 import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
 
-object Lines {
-  def apply[U,F <: (String => U)](f: F) =
-    new StreamStringByLine[F] {
-      def onStringBy(string: String) {
-        f(string)
-      }
-      def onCompleted = f
-    }
-}
 
-trait StreamString[T] extends AsyncHandler[T] {
+trait Strings[T] extends AsyncHandler[T] {
   import AsyncHandler.STATE._
 
   @volatile private var charset = "iso-8859-1"
@@ -39,12 +29,12 @@ trait StreamString[T] extends AsyncHandler[T] {
     }
     state
   }
-  def abort() {
+  def stop() {
     state = ABORT
   }
 }
 
-trait StreamStringBy[T] extends StreamString[T] {
+trait StringsBy[T] extends Strings[T] {
   @volatile private var buffer = ""
 
   def divider: String
@@ -58,7 +48,7 @@ trait StreamStringBy[T] extends StreamString[T] {
   }
 }
 
-trait StreamStringByLine[T] extends StreamStringBy[T] {
+trait StringsByLine[T] extends StringsBy[T] {
   def divider = "[\n\r]+"
 }
 
