@@ -1,5 +1,5 @@
 This release includes convenience methods for working with streaming
-APIs as well as a package refactoring of handlers in general.
+APIs as well as a package-refactoring of handlers in general.
 
 ### Stream Consumption
 
@@ -20,18 +20,18 @@ invokes a callback function for every line of text received.
 ### Handler Package Re-org
 
 Previously we had basic handler builders in the object `dispatch.As`,
-which allowed for readable use:
+which looked like this:
 
     val str = Http(url("http://example.com/") > As.string)
 
-But it doesn't allow for easy expansion, since nothing outside that
-source can be nested in `dispatch.As`. When internal or external
-Dispatch modules want to add handlers, where should they go? It was
-evident in the oauth interface that we didn't have a good answer.
+But it didn't allow for simple extension, since nothing external could
+be nested in `dispatch.As`. When non-core Dispatch modules want to add
+handlers, where should they go? It was evident in the oauth interface
+that we didn't have a good answer.
 
-The solution is simple. Instead of a `dispatch.As` object, we have a
-`dispatch.as` package. The basic handler builders that were methods of
-that object are now function-objects in the package.
+The solution is simple enough. Instead of a `dispatch.As` object, we
+have a `dispatch.as` package. The handler builders that were methods
+of that object are now function-objects in the package.
 
 For example, `As.string` becomes `as.String`. What might look like a
 persnickety capitalization change is in fact an important functional
@@ -40,5 +40,5 @@ following conventions. For the basic oauth handler is now
 `as.oauth.Token`, since you've already got `dispatch._` in scope. And
 the stream handler describe above has of course already adapted.
 
-The `As._` methods are now deprecated with messages directing you to
-their new, improved names.
+The `As._` builders are now deprecated, with messages directing you to
+their new and improved names.
