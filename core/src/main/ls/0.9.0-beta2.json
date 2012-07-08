@@ -1,0 +1,22 @@
+
+{
+ "organization":"net.databinder.dispatch",
+ "name":"core",
+ "version":"0.9.0-beta2",
+ "description":"Core Dispatch module wrapping sonatype/async-http-client",
+ "site":"http://dispatch.databinder.net/",
+ "tags":[],
+ "docs":"",
+ "licenses": [{
+   "name": "LGPL v3",
+   "url": "http://www.gnu.org/licenses/lgpl.txt"
+  }],
+ "resolvers": ["https://oss.sonatype.org/content/repositories/releases"],
+ "dependencies": [{
+   "organization":"com.ning",
+   "name": "async-http-client",
+   "version": "1.7.5"
+  }],
+ "scalas": ["2.8.1","2.8.2","2.9.0-1","2.9.1","2.9.1-1","2.9.2"],
+ "sbt": false
+}
