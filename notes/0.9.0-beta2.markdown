@@ -1,0 +1,44 @@
+This release includes convenience methods for working with streaming
+APIs as well as a package refactoring of handlers in general.
+
+### Stream Consumption
+
+Classes in the package `dispatch.stream` provide basic support for
+working with textual chunked HTTP streams. These can be combined and
+build upon to flexibly create `AsyncHandler` instances.
+
+A higher level interface, `dispatch.as.stream.Lines` provides
+functionality similar to the `^--` verb in Dispatch 0.8.x, which
+invokes a callback function for every line of text received.
+
+    import dispatch._
+    val printer = as.stream.Lines(println)
+    Http(host("stream.meetup.com") / "2" / "rsvps" > printer)
+    // enjoy the output...
+    printer.stop()
+
+### Handler Package Re-org
+
+Previously we had basic handler builders in the object `dispatch.As`,
+which allowed for readable use:
+
+    val str = Http(url("http://example.com/") > As.string)
+
+But it doesn't allow for easy expansion, since nothing outside that
+source can be nested in `dispatch.As`. When internal or external
+Dispatch modules want to add handlers, where should they go? It was
+evident in the oauth interface that we didn't have a good answer.
+
+The solution is simple. Instead of a `dispatch.As` object, we have a
+`dispatch.as` package. The basic handler builders that were methods of
+that object are now function-objects in the package.
+
+For example, `As.string` becomes `as.String`. What might look like a
+persnickety capitalization change is in fact an important functional
+change, which allows us to extend the library logically and while
+following conventions. For the basic oauth handler is now
+`as.oauth.Token`, since you've already got `dispatch._` in scope. And
+the stream handler describe above has of course already adapted.
+
+The `As._` methods are now deprecated with messages directing you to
+their new, improved names.
