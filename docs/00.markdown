@@ -1,0 +1,48 @@
+Dispatch
+========
+
+*Dispatch* is a library for asynchronous HTTP interaction. It provides
+a Scala vocabulary for Java's [async-http-client][ahc].
+
+```scala
+import dispatch._
+val doc = Http(host("ls.implicit.ly") OK as.String)
+```
+
+Because Dispatch is fully asynchronous, `doc` represents a *promise*
+of the response as a string rather than the string itself. You can act
+on the response once it's available with a *for-expression*.
+
+```scala
+for (docstr <- doc)
+  println(doc)
+```
+
+This for-expression applies to any *successful* response that is
+eventually produced. If no successful response is produced, nothing is
+printed. This is how for-expressions work in general. Consider a more
+familiar example:
+
+```scala
+val opt: Option[String] = None
+for (optstr <- opt)
+  println(optstr)
+```
+
+An *option* may or may not contain a value, just like a promise may or
+may not produce a successful response. But while any given option
+already knows what it is, a promise may not. So the promise behaves
+asynchronously in for-expressions, to avoid holding up operations
+subsequent that do not depend on its value.
+
+[ahc]: https://github.com/sonatype/async-http-client
+
+As with options, you can assert that a promised value be available at
+any time with the use of `apply`:
+
+```scala
+val docstr = doc()
+```
+
+But the wise use of promises defers this operation as long as is
+practical, or doesn't perform it at all. To see how, keep reading.
