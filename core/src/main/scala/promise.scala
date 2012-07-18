@@ -72,7 +72,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
             f()
         } 
       }
-      def isComplete = self.isComplete && p(self())
+      def isComplete = self.isComplete
       def timeout = self.timeout
     }
   /** filter still used for certain cases in for expressions */
@@ -115,7 +115,10 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
     else None
 
   override def toString =
-    "Promise(%s)".format(completeOption.getOrElse("-incomplete-"))
+    "Promise(%s)".format(either.completeOption.map {
+      case Left(exc) => "!%s!".format(exc.getMessage)
+      case Right(value) => value.toString
+    }.getOrElse("-incomplete-"))
 }
 trait DelegatePromise[+D] {
   def delegate: Promise[D]
@@ -199,7 +202,7 @@ class ListenableFuturePromise[A](
     case Duration.Zero => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
   }
-  def isComplete = underlying.isDone
+  def isComplete = underlying.isDone || underlying.isCancelled
   def addListener(f: () => Unit) =
     underlying.addListener(new Runnable {
       def run {
