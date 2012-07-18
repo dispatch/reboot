@@ -4,6 +4,8 @@ Arbitrarily many promises
 The last page dealt with fixed numbers of promises. In the real world,
 we often have to work with unknown quantities.
 
+### Iterables of promises
+
 Once again using the `temperature` method defined before, we'll create
 a higher-level method to work with its promised values. First, we can
 work with Scala collections in familiar ways.
@@ -19,25 +21,28 @@ val temps =
 
 Now we have a list of promised city names and temperatures:
 `List[Promise[(Int, String)]]`. But if we want to compare them
-together, again without blocking, we want a single promise of all
-values. This is easily obtained.
+together, again without blocking, we want a combined promise of all
+temps.
+
+### Promise.all
 
 ```scala
 val hottest =
-  for (ts <- temps.values)
+  for (ts <- Promise.all(temps))
     yield ts.max
 ```
 
-`ts` is the promised value of `Iterable[(Int, String)]`, meaning that
-this operation is deferred until all promised values are
-available. The `values` method is only available on promises of some
-iterables.
+The value `ts` is a promise of `Iterable[(Int, String)]`; it is not
+available until all the component promises have completed.
 
-In the body of the for expression we're using `max`, which has similar
-characteristics: it is available for collections that have a default
-(implicit) ordering in scope. Tuples derive thir orderings from their
-component parts, so the max of our tuple `(Int, String)` will be the
-pair with the highest temperature.
+### Implicit ordering
+
+In the body of the for expression we're using `max` on this iterable
+of pairs. Tuples derive thir orderings from their component parts,
+so the max of our tuple `(Int, String)` will be a pair with the
+highest temperature.
+
+### Promising to report the hottest
 
 We can generalize this now into a single method which promises to
 return the name of the hottest city that you give it.
@@ -47,7 +52,7 @@ def hottest(locs: String*) =
   val temps =
     for(loc <- locs)
       yield (temperature(loc) -> loc)
-  for (ts <- temps.values)
+  for (ts <- Promise.all(temps))
     yield ts.max._2
 }
 ```

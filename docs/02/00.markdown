@@ -1,0 +1,76 @@
+Promising success and failure
+-----------------------------
+
+So far we've made a lot of promises depending on network operations
+that might fail, and remote services that may not care for our
+input. If things don't go as planned, the promises are broken.
+
+### Broken promises
+
+Breaking promises is messy. You may have already seen the mess created
+in playing around with the previous examples. Here we'll make a big
+mess to see happens, and how bad it can get.
+
+```scala
+import dispatch._
+val str = Http(host("example.com") OK as.String)
+```
+
+So far, so good? We've made a request that will fail the *OK* test
+with a redirect status code, but it hasn't completed yet so we don't
+know that it failed:
+
+    str: dispatch.Promise[String] = Promise(-incomplete-)
+
+### Promise#toString for broken promises
+
+If we have the console print its string representation a moment later,
+we'll get a different result:
+
+    scala> str
+    res0: dispatch.Promise[String] = Promise(!Unexpected response status: 302!)
+
+### Applying broken promises
+
+But we still have a promise of string. So what happens if we demand
+the string?
+
+    scala> str()
+    dispatch.StatusCode: Unexpected response status: 302
+        at dispatch.OkHandler$class.onStatusReceived(handlers.scala:37)
+        at dispatch.OkFunctionHandler.onStatusReceived(handlers.scala:29)
+        ...
+
+The exception was thrown in the thread that demanded the value, since
+there is no way to supply it.
+
+### Transforming broken promises
+
+Broken promises carry their exceptions through transformations:
+
+    scala> for (s <- str) yield s.length
+    res7: dispatch.Promise[Int] = Promise(!Unexpected response status: 302!)
+
+Applying it would yield the same result as before.
+
+### Deferred broken promises
+
+And if you ask for operations on the completed promise, the exception
+will be thrown into the background thread assigned to it.
+
+    scala> for (s <- str) println(s)
+
+    scala> [error] (AsyncHttpClient-Callback) java.lang.Error: 
+      java.util.concurrent.ExecutionException: dispatch.StatusCode:
+      Unexpected response status: 302
+      ...
+
+Broken promises must throw exceptions, but exceptions in asynchronous
+programming are worse than ugly: they are unmanageable. How can we
+safely build on promises that depend on uncertain network operations?
+
+### Planning for failure
+
+The solution is to avoid breaking promises and throwing exceptions by
+planning for failure. In the next pages we'll see very simple and very
+rich ways of doing that.

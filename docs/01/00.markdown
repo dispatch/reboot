@@ -1,16 +1,17 @@
-Bargaining with Promises
+Bargaining with promises
 ------------------------
 
 Applying a promise is like taking a hostage. Your demands might be met
-in time, but until they are you're sitting around doing nothing but
-guarding a prisoner.
+in time, but until they are you're sitting around doing nothing other
+than guarding a prisoner.
 
-What good is a promise if you can't do anything with it? Luckily, you
-can do plenty. You just have to be flexible about when things happen.
+So we don't like to take hostages or apply promises, but what good is
+a promise if you can't do anything with its value? Luckily, you can do
+plenty. You just have to be flexible about when things happen.
 
 ### Transformations
 
-A promise is like an option that doesn't know what it is yet, but that
+A promise is like an option that doesn't know what it is yet; that
 doesn't stop it from promising to transform into something else. We
 could map an option of a string into an option of its length. Same
 goes for promises.
@@ -23,7 +24,7 @@ val length = for (d <- doc) yield d.length
 
 The `length` value is a promise of integer.
 
-### Promise.toString
+### Promise#toString
 
 If you pasted the above into a console, you probably saw this in the
 output:
@@ -41,13 +42,16 @@ similar to the option subtype *some*.
 
 `Promise.toString` represents the value if it's available.
 
-### Promise.completeOption
+### Promise#completeOption
 
 How does `toString` work on unknown values? It uses an option. You can
-use it to access the integer value *now*, if it's available.
+use the same technique to access the integer value, *if it's
+available*.
 
 ```scala
 val lengthNow = length.completeOption.getOrElse(-1)
 ```
 
-In the next section we'll see how to work with multiple promises.
+But most of the time, you want to operate on values that are known to
+be available. In the next pages we'll see how far we can go by
+transforming promises.

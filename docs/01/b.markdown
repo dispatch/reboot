@@ -31,7 +31,7 @@ for them to do:
 
 ```scala
 for {
-  n <- newyrok
+  n <- newyork
   m <- madrid
 } {
   if (n > m) println("It's hotter in New York")
@@ -50,8 +50,8 @@ yielding a promised value.
 
 ```scala
 def tempCompare(locA: String, locB:String) = {
-  val pa = temperature(a)
-  val pb = temperature(b)
+  val pa = temperature(locA)
+  val pb = temperature(locB)
   for {
     a <- pa
     b <- pb
@@ -85,5 +85,5 @@ future: we must be in deferred code.
 
 And that's exactly the case. Each clause of the for-expression on a
 promise represents a promise callback. This is necessary for cases
-where one promised value depends on another, but independent promises
+where one promised value depends on another. Independent promises
 should be assigned outside for-expressions to maximize concurrency.

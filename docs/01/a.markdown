@@ -1,9 +1,9 @@
 Abstraction over promised information
 -------------------------------------
 
-Often, can you can the utility of promises with simple abstraction. In
-this example we'll leverage a web service to write an internal API
-that promises to tell us the temperature.
+Often, can you can the extend utility of promises with simple
+abstraction. In this example we'll leverage a web service to write an
+internal API that promises to tell us the temperature.
 
 ### Googling the weather
 
@@ -67,9 +67,11 @@ def extractTemp(xml: scala.xml.Elem) = {
     elem <- xml \\ "temp_c"
     attr <- elem.attribute("data") 
   } yield attr.toString.toInt
-  seq(0)
+  seq.head
 }
 ```
+
+### Promising the temperature
 
 With this we can create another high-level access method:
 
@@ -88,5 +90,4 @@ for (t <- temperature("New York, USA")) println(t)
 ```
 
 The information gathering is now fully abstracted without blocking,
-but what happens if we want to know the temperature in more than one
-place?
+but what happens if we want to compare several temperatures?

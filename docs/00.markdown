@@ -9,9 +9,11 @@ import dispatch._
 val doc = Http(host("ls.implicit.ly") OK as.String)
 ```
 
-Because Dispatch is fully asynchronous, `doc` represents a *promise*
-of the response as a string rather than the string itself. You can act
-on the response once it's available with a *for-expression*.
+The above defines a request from the given host where 2xx responses
+are handled as a string. Since Dispatch is fully asynchronous, `doc`
+represents a *promise* of the string rather than the string
+itself. You can act on the response once it's available with a
+*for-expression*.
 
 ```scala
 for (docstr <- doc)
