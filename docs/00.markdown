@@ -2,7 +2,13 @@ Dispatch
 ========
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
-a Scala vocabulary for Java's [async-http-client][ahc].
+ a Scala vocabulary for Java's [async-http-client][ahc]. The latest
+ release version is **0.9.0**. For information on Dispatch 0.8.x, see
+ [dispatch-classic][classic].
+
+[classic]: http://dispatch-classic.databinder.net/
+
+### Diving in
 
 ```scala
 import dispatch._
@@ -12,7 +18,11 @@ val doc = Http(host("ls.implicit.ly") OK as.String)
 The above defines a request from the given host where 2xx responses
 are handled as a string. Since Dispatch is fully asynchronous, `doc`
 represents a *promise* of the string rather than the string
-itself. You can act on the response once it's available with a
+itself.
+
+### Deferring action
+
+You can act on the response once it's available with a
 *for-expression*.
 
 ```scala
@@ -36,6 +46,8 @@ may not produce a successful response. But while any given option
 already knows what it is, a promise may not. So the promise behaves
 asynchronously in for-expressions, to avoid holding up operations
 subsequent that do not depend on its value.
+
+### Demanding answers
 
 [ahc]: https://github.com/sonatype/async-http-client
 
