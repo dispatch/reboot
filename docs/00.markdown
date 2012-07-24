@@ -32,10 +32,10 @@ val svc = url("http://api.hostip.info/country.php")
 val country = Http(svc OK as.String)
 ```
 
-The above defines and initiates a request to the given host where
-2xx responses are handled as a string. Since Dispatch is fully
-asynchronous, `doc` represents a *promise* of the string rather than
-the string itself.
+The above defines and initiates a request to the given host where 2xx
+responses are handled as a string. Since Dispatch is fully
+asynchronous, `country` represents a *promise* of the string rather
+than the string itself.
 
 ##### Console tip 
 
