@@ -13,8 +13,8 @@ plenty. You just have to be flexible about when things happen.
 
 A promise is like an option that doesn't know what it is yet; that
 doesn't stop it from promising to transform into something else. We
-could map an option of a string into an option of its length. Same
-goes for promises.
+could transform an option of a string into an option of its
+length. Same goes for promises.
 
 ```scala
 import dispatch._

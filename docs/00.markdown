@@ -6,6 +6,7 @@ Dispatch
  release version is **$version$**. For information on Dispatch 0.8.x, see
  [dispatch-classic][classic].
 
+[ahc]: https://github.com/sonatype/async-http-client
 [classic]: http://dispatch-classic.databinder.net/
 
 ### Diving in
@@ -38,8 +39,8 @@ the string itself.
 ##### Console tip 
 
 Since Dispatch uses background threads, you should ask it to shutdown
-before trying to exit a Scala console. Otherwise, the console may
-appear to hang on exit. Use `Http.shutdown()` to exit cleanly.
+before trying to quit a Scala console. Otherwise, the console may
+appear to hang on exit. Use `Http.shutdown()` before you `:quit`.
 
 ### Deferring action
 
@@ -69,8 +70,6 @@ asynchronously in for-expressions, to avoid holding up operations
 subsequent that do not depend on its value.
 
 ### Demanding answers
-
-[ahc]: https://github.com/sonatype/async-http-client
 
 As with options, you can assert that a promised value be available at
 any time with the use of `apply`:
