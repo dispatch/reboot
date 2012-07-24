@@ -16,7 +16,8 @@ val locs = List("New York, USA",
                 "Seoul, Korea")
 val temps =
   for(loc <- locs)
-    yield (temperature(loc) -> loc)
+    yield for (t <- temperature(loc))
+      yield (t -> loc)
 ```
 
 Now we have a list of promised city names and temperatures:
@@ -48,10 +49,11 @@ We can generalize this now into a single method which promises to
 return the name of the hottest city that you give it.
 
 ```scala
-def hottest(locs: String*) =
+def hottest(locs: String*) = {
   val temps =
     for(loc <- locs)
-      yield (temperature(loc) -> loc)
+      yield for (t <- temperature(loc))
+       yield (t -> loc)
   for (ts <- Promise.all(temps))
     yield ts.max._2
 }

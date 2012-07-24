@@ -18,29 +18,30 @@ goes for promises.
 
 ```scala
 import dispatch._
-val doc = Http(host("ls.implicit.ly") OK as.String)
-val length = for (d <- doc) yield d.length
+val svc = url("http://api.hostip.info/country.php")
+val country = Http(svc OK as.String)
+val length = for (c <- country) yield c.length
 ```
-
 The `length` value is a promise of integer.
 
 ### Promise#toString
 
-If you pasted the above into a console, you probably saw this in the
-output:
+If you pasted the above into a console, you probably saw something
+like this in the output:
 
-    doc: dispatch.Promise[String] = Promise(-incomplete-)
-    length: dispatch.Promise[Int] = Promise(-incomplete-)
+    country: dispatch.Promise[String] = Promise(-incomplete-)
+    length: dispatch.Promise[Int] = Promise(2)
 
-The two promises, which depend on the same network operation, do not
-complete before the console asks them to print themselves. But if you
-try a moment or two later, you'll see that promises print their values
-similar to the option subtype *some*.
+Both promises depend on the same network operation. By the time the
+second is evealuated by the console, its underlying value may or may
+not be available.  But if you try a moment or two later, you'll see
+that both promises print their values.
 
-    scala> length
-    length: dispatch.Promise[Int] = Promise(3892)
+    scala> country
+    res2: dispatch.Promise[String] = Promise(US)
 
-`Promise.toString` represents the value if it's available.
+`Promise.toString` represents promised values only if they are already
+available.
 
 ### Promise#completeOption
 
@@ -53,5 +54,5 @@ val lengthNow = length.completeOption.getOrElse(-1)
 ```
 
 But most of the time, you want to operate on values that are known to
-be available. In the next pages we'll see how far we can go by
-transforming promises.
+be available. In the next pages we'll see how far we can go in this
+direction by transforming promises.

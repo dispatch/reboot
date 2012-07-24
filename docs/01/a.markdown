@@ -59,12 +59,12 @@ for (xml <- weatherXml("New York, USA"))
 
 Looking at the structure of the document, we can extract the
 temperature of the location in degrees Celsius by searching for the
-element "temp_c" using the `\\` method of `xml.Elem`.
+element "temp_c" using the `\\\\` method of `xml.Elem`.
 
 ```scala
 def extractTemp(xml: scala.xml.Elem) = {
   val seq = for {
-    elem <- xml \\ "temp_c"
+    elem <- xml \\\\ "temp_c"
     attr <- elem.attribute("data") 
   } yield attr.toString.toInt
   seq.head

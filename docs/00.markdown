@@ -3,22 +3,43 @@ Dispatch
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
- release version is **0.9.0**. For information on Dispatch 0.8.x, see
+ release version is **$version$**. For information on Dispatch 0.8.x, see
  [dispatch-classic][classic].
 
 [classic]: http://dispatch-classic.databinder.net/
 
 ### Diving in
 
+If you have [sbt][sbt] installed, Dispatch is two steps away.
+
+[sbt]: https://github.com/harrah/xsbt/wiki/
+
+    echo 'libraryDependencies += 
+      "net.databinder.dispatch" %% "core" % "$version$"' > build.sbt
+    sbt console
+
+After "the internet" has downloaded, you're good to go.
+
+### Defining requests
+
+We'll start with a very simple request.
+
 ```scala
 import dispatch._
-val doc = Http(host("ls.implicit.ly") OK as.String)
+val svc = url("http://api.hostip.info/country.php")
+val country = Http(svc OK as.String)
 ```
 
-The above defines a request from the given host where 2xx responses
-are handled as a string. Since Dispatch is fully asynchronous, `doc`
-represents a *promise* of the string rather than the string
-itself.
+The above defines and initiates a request to the given host where
+2xx responses are handled as a string. Since Dispatch is fully
+asynchronous, `doc` represents a *promise* of the string rather than
+the string itself.
+
+##### Note
+
+Since Dispatch uses background threads, you should ask it to shutdown
+before trying to exit a Scala console. Otherwise, the console may
+appear to hang on exit. Use `Http.shutdown()` to exit cleanly.
 
 ### Deferring action
 
@@ -26,8 +47,8 @@ You can act on the response once it's available with a
 *for-expression*.
 
 ```scala
-for (docstr <- doc)
-  println(doc)
+for (c <- country)
+  println(c)
 ```
 
 This for-expression applies to any *successful* response that is
@@ -37,8 +58,8 @@ familiar example:
 
 ```scala
 val opt: Option[String] = None
-for (optstr <- opt)
-  println(optstr)
+for (o <- opt)
+  println(o)
 ```
 
 An *option* may or may not contain a value, just like a promise may or
@@ -55,7 +76,7 @@ As with options, you can assert that a promised value be available at
 any time with the use of `apply`:
 
 ```scala
-val docstr = doc()
+val c = country()
 ```
 
 But the wise use of promises defers this operation as long as is

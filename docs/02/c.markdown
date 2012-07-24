@@ -59,7 +59,7 @@ expected temperature element.
 def extractTemp(xml: scala.xml.Elem):
   Promise[Either[String,Int]] = {
   val seq = for {
-    elem <- xml \\ "temp_c"
+    elem <- xml \\\\ "temp_c"
     attr <- elem.attribute("data") 
   } yield attr.toString.toInt
   seq.headOption.toRight {

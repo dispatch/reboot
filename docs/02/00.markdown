@@ -37,7 +37,7 @@ the string?
 
     scala> str()
     dispatch.StatusCode: Unexpected response status: 302
-        at dispatch.OkHandler$class.onStatusReceived(handlers.scala:37)
+        at dispatch.OkHandler\$class.onStatusReceived(handlers.scala:37)
         at dispatch.OkFunctionHandler.onStatusReceived(handlers.scala:29)
         ...
 

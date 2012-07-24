@@ -47,7 +47,7 @@ We'll make a slight change to the extraction method.
 ```scala
 def extractTemp(xml: scala.xml.Elem) = {
   val seq = for {
-    elem <- xml \\ "temp_c"
+    elem <- xml \\\\ "temp_c"
     attr <- elem.attribute("data") 
   } yield attr.toString.toInt
   seq.headOption
