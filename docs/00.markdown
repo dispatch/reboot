@@ -35,7 +35,7 @@ The above defines and initiates a request to the given host where
 asynchronous, `doc` represents a *promise* of the string rather than
 the string itself.
 
-##### Console tip
+##### Console tip 
 
 Since Dispatch uses background threads, you should ask it to shutdown
 before trying to exit a Scala console. Otherwise, the console may
