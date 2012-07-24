@@ -53,6 +53,8 @@ projection on each either) in order to yield a right result. Since
 Billy's average results in a *left*, the entire expression evaluates
 to that error.
 
+    res0: Either[java.lang.String,Int] = Left(Can't average emptiness)
+
 ### Why not eject?
 
 Of course, exceptions have the same ability demonstrated here: you
