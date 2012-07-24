@@ -11,7 +11,8 @@ Dispatch
 
 ### Diving in
 
-If you have [sbt][sbt] installed, Dispatch is two steps away.
+If you have [sbt][sbt] installed, Dispatch is two steps away. Open a
+shell and change to an empty or unimportant directory, then paste.
 
 [sbt]: https://github.com/harrah/xsbt/wiki/
 

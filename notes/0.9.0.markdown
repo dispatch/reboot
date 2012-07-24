@@ -1,0 +1,32 @@
+"Dispatch reboot" is now Dispatch. Please enjoy its NIO-based
+asynchrony-by-default and English-language request handlers.
+
+[ahc]: https://github.com/sonatype/async-http-client
+
+### Changes
+
+There are only minor changes since 0.9.0-beta2:
+
+* The addition of an `as.xml.Elem` handler.
+* Promises are considered complete when they error out, and their
+  `toString` method references thrown exceptions.
+
+The library has been rewritten since 0.8.0 to use a different
+underlying Java-based HTTP client, [async-http-client][ahc]. The best
+way to understand the changes is to read and follow along with [the new
+documentation][doc].
+
+### Documentation
+
+The project's main documentation site [dispatch.databinder.net][doc]
+is fully rewritten and the old documentation is relocated to the
+[dispatch-classic][classic] subdomain.
+
+[doc]: http://dispatch.databinder.net/
+[classic]: http://dispatch-classic.databinder.net/Dispatch.html
+
+### Extension modules
+
+Extension modules in general have not be ported yet. The module "core"
+includes OAuth interfaces since these are now handled by the
+underlying library.
