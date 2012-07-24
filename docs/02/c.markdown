@@ -27,13 +27,15 @@ def weatherSvc(loc: String) =
 
 A promise of either doesn't know whether it's a *left* or *right*
 until it is completed, so it can't have methods like `isLeft` and
-`isRight`. What you can do is project against eventual leftness and
-rightness.
+`isRight`.
 
+What you can do is project against eventual leftness and rightness.
 All promises of either have methods `left` and `right` which act much
 the same as those methods on either itself. They return a projection
-which you then use to transform one side of the either. *Type
-annotations are included for clarity.*
+which you then use to transform one side of the either.
+
+The example below uses a left projection. Bulky type annotations are
+included in this text for clarity.
 
 ```scala
 def weatherXml(loc: String):
