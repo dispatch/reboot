@@ -75,12 +75,12 @@ def sequentialTempCompare(locA: String, locB:String) =
   } yield a.compare(b)
 ```
 
-It's still non-blocking, but it's *doesn't perform the two requests in
+It's still non-blocking, but it *doesn't perform the two requests in
 parallel*. To understand why, think about the bindings of the values
 *a* and *b*. They both represent promised values.
 
-Although the expression `temperature(locB)` doesn't reference the
-value of *a*, **it could**. Since *a* is known we must be in the
+Although the above expression `temperature(locB)` doesn't reference
+the value of *a*, **it could**. Since *a* is known we must be in the
 future: we must be in deferred code.
 
 And that's exactly the case. Each clause of the for-expression on a

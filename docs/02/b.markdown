@@ -53,12 +53,14 @@ projection on each either) in order to yield a right result. Since
 Billy's average results in a *left*, the entire expression evaluates
 to that error.
 
+    res0: Either[java.lang.String,Int] = Left(Can't average emptiness)
+
 ### Why not eject?
 
-Of course, exceptions have the same ability demonstrated here: you
-can embed information in them and act on it when they're caught. But
-exceptions assume you have a straightforward thread of computation. In
-asynchronous programming, you don't.
+Of course, exceptions have the same ability demonstrated here: you can
+embed information in them and act on it when they're
+caught. Exceptions are easy to handle when you have a straightforward
+thread of computation. In asynchronous programming, you don't.
 
 Think of exceptions as an ejection seat. They allow you to escape from
 failure without planning ahead. On the downside, somebody's got to
