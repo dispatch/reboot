@@ -4,6 +4,7 @@ import com.ning.http.client.RequestBuilder
 
 class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
+with HeaderVerbs
 
 trait HostVerbs {
   def apply(host: String) =
@@ -22,12 +23,14 @@ trait RequestVerbs {
 }
 
 trait MethodVerbs extends RequestVerbs {
-  def HEAD   = subject.setMethod("HEAD")
-  def GET    = subject.setMethod("GET")
-  def POST   = subject.setMethod("POST")
-  def PUT    = subject.setMethod("PUT")
-  def DELETE = subject.setMethod("DELETE")
-  def PATCH  = subject.setMethod("PATCH")
+  def HEAD    = subject.setMethod("HEAD")
+  def GET     = subject.setMethod("GET")
+  def POST    = subject.setMethod("POST")
+  def PUT     = subject.setMethod("PUT")
+  def DELETE  = subject.setMethod("DELETE")
+  def PATCH   = subject.setMethod("PATCH")
+  def TRACE   = subject.setMethod("TRACE")
+  def OPTIONS = subject.setMethod("OPTIONS")
 }
 
 trait UrlVerbs extends RequestVerbs {
@@ -43,6 +46,14 @@ trait UrlVerbs extends RequestVerbs {
       "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
     ).toString)
   }
+}
+
+trait HeaderVerbs extends RequestVerbs {
+  def <:< (hs: Traversable[(String,String)]) =
+    (subject /: hs) {
+      case (s, (key, value)) =>
+        s.addHeader(key, value)
+    }
 }
 
 trait ParamVerbs extends RequestVerbs {
