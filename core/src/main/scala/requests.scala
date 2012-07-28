@@ -46,26 +46,28 @@ trait UrlVerbs extends RequestVerbs {
 }
 
 trait ParamVerbs extends RequestVerbs {
+  private def defaultMethod(method: String) = {
+    if (subject.build.getMethod.toUpperCase == "GET")
+      subject.setMethod(method)
+    else subject
+  }
   /** Adds `params` to the request body. Sets request method
    *  to POST if it is currently GET. */
   def << (params: Traversable[(String,String)]) = {
-    val subj =
-      if (subject.build.getMethod.toUpperCase == "GET")
-        subject.setMethod("POST")
-      else subject
-    (subj /: params) {
+    (defaultMethod("POST") /: params) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
     }
   }
+  /** Set request body to a given string, set method to POST
+   * if currently GET. */
+  def << (body: String) = {
+    defaultMethod("POST").setBody(body)
+  }
   /** Set a file as the request body and set method to PUT if it's
     * currently GET. */
   def <<< (file: java.io.File) = {
-    val subj =
-      if (subject.build.getMethod.toUpperCase == "GET")
-        subject.setMethod("PUT")
-      else subject
-    subj.setBody(file)
+    defaultMethod("PUT").setBody(file)
   }
   /** Adds `params` as query parameters */
   def <<? (params: Traversable[(String,String)]) =
