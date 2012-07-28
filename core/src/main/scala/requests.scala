@@ -58,6 +58,15 @@ trait ParamVerbs extends RequestVerbs {
         s.addParameter(key, value)
     }
   }
+  /** Set a file as the request body and set method to PUT if it's
+    * currently GET. */
+  def <<< (file: java.io.File) = {
+    val subj =
+      if (subject.build.getMethod.toUpperCase == "GET")
+        subject.setMethod("PUT")
+      else subject
+    subj.setBody(file)
+  }
   /** Adds `params` as query parameters */
   def <<? (params: Traversable[(String,String)]) =
     (subject /: params) {
