@@ -4,6 +4,7 @@ import com.ning.http.client.RequestBuilder
 
 class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
+with HeaderVerbs
 
 trait HostVerbs {
   def apply(host: String) =
@@ -43,6 +44,14 @@ trait UrlVerbs extends RequestVerbs {
       "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
     ).toString)
   }
+}
+
+trait HeaderVerbs extends RequestVerbs {
+  def <:< (hs: Traversable[(String,String)]) =
+    (subject /: hs) {
+      case (s, (key, value)) =>
+        s.addHeader(key, value)
+    }
 }
 
 trait ParamVerbs extends RequestVerbs {
