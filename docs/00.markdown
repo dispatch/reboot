@@ -39,11 +39,10 @@ responses are handled as a string. Since Dispatch is fully
 asynchronous, `country` represents a *promise* of the string rather
 than the string itself.
 
-#### Console tip 
-
-Since Dispatch uses background threads, you should ask it to shutdown
-before trying to quit a Scala console. Otherwise, the console may
-appear to hang on exit. Use `Http.shutdown()` before you `:quit`.
+> Since Dispatch uses background threads, you should **tell it to
+  shutdown** before trying to quit a Scala console. Otherwise, the
+  console may appear to hang on exit. Always call `Http.shutdown()`
+  before you `:quit`.
 
 ### Deferring action
 
