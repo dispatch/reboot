@@ -42,4 +42,11 @@ with unfiltered.spec.ServerCleanup {
     )
     res().getResponseBody == ("GET" + sample)
   }
+
+  property("OPTIONS and handle") = forAll(Gen.alphaStr) { (sample: String) =>
+    val res = Http(
+      localhost.OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
+    )
+    res() == ("OPTIONS" + sample)
+  }
 }

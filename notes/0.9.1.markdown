@@ -1,0 +1,15 @@
+### Changes
+
+* Added [TRACE][trace] and [OPTIONS][options] HTTP request methods [issue 11][11]
+* Added `<:<` request header verb for appending a scala collection of header names and values [issue 10][10]
+
+Below is an example of sending a `key` header with a value of `value` to `host`
+
+    import dispatch._
+    Http(url(host) <:< Map(key <- value) Ok as.String)
+
+[11]: https://github.com/dispatch/reboot/pull/11
+[10]: https://github.com/dispatch/reboot/pull/10
+[options]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.2
+[trace]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.8
+
