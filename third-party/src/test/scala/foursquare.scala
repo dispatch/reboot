@@ -1,34 +1,42 @@
 package dispatch.clients
 
 import dispatch._
-import org.specs._
+import org.specs2.mutable.Specification
+import org.specs2.specification.Scope
 
 object FoursquareSpec extends Specification {
-  "A basic foursquare request that requires auth" should {
-    "be able to be formed normally" in new context {
-      val builtReq = Auth(("key", "secret"))(req).to_uri.toString
 
-      builtReq.contains("api.foursquare.com/v2/venues/search") must_== true
-      builtReq.contains("client_id=key") must_== true
-      builtReq.contains("client_secret=secret") must_== true
-      builtReq.contains("ll=123.123%2C456.456") must_== true
-      builtReq.contains("v=19700101") must_== true
-      builtReq.contains("https://") must_== true
+  "A basic foursquare request that requires auth" should {
+    "be able to be formed normally" in new foursquareContext {
+      val request = fsq.buildUri("/venues/search", Map("q" -> "drinks"))
+      val builtReq = request.build().getUrl()
+      println(builtReq)
+
+      builtReq.contains("https://") must beTrue
+      builtReq.contains("api.foursquare.com/v2") must beTrue
+      builtReq.contains("/venues/search") must beTrue
+      builtReq.contains("client_id=aa") must beTrue
+      builtReq.contains("client_secret=bb") must beTrue
+      builtReq.contains("q=drinks") must beTrue
     }
 
-    "be able to be formed normally through other apply" in new context {
-      val builtReq = Auth("key", "secret")(req).to_uri.toString
+    "executing a request should give us back a standard http code" in new foursquareContext {
+      val request = for {
+        req <- fsq.call("/venues/search", Map("q" -> "drinks"))
+      } yield (req)
 
-      builtReq.contains("api.foursquare.com/v2/venues/search") must_== true
-      builtReq.contains("client_id=key") must_== true
-      builtReq.contains("client_secret=secret") must_== true
-      builtReq.contains("ll=123.123%2C456.456") must_== true
-      builtReq.contains("v=19700101") must_== true
-      builtReq.contains("https://") must_== true
+      request onComplete {
+        case ret =>
+          isInstanceOf[Some[_]] must beTrue.eventually
+      }
     }
   }
+
 }
 
-trait context {
-  val req = /\ / "v2" / "venues" / "search" <<? Map("ll" -> "123.123,456.456", "v" -> "19700101")
+trait foursquareContext extends Scope {
+  val creds = OAuth2Creds("aa", "bb")
+  val fsq = Foursquare(creds)
+  fsq.setVersion("v2")
 }
+
