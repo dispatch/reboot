@@ -13,11 +13,14 @@ object Builds extends sbt.Build {
     )).delegateTo(setup).aggregate(core)
 
   def module(name: String) =
-    Project(name, file(name))
+    Project(name, file(name.replace("-", "")))
       .delegateTo(ufcheck, setup)
       .dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core")
+
+  lazy val liftjson = module("lift-json")
+    .dependsOn(core)
 
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
