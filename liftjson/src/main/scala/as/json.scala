@@ -1,10 +1,9 @@
 package dispatch.as.lift
 
-import net.liftweb.json._
-import JsonDSL._
+import net.liftweb.json.{ JsonParser, JValue }
+import com.ning.http.client.Response
 
-import com.ning.http.client
-
-object Json extends (client.Response => JValue) {
-  def apply(r: client.Response) = JsonParser.parse(dispatch.as.String(r))
+object Json extends (Response => JValue) {
+  def apply(r: Response) =
+    (dispatch.as.String andThen JsonParser.parse)(r)
 }
