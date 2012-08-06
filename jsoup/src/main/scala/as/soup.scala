@@ -11,6 +11,6 @@ object Document extends (Response => nodes.Document) {
 
 object Query {
   import org.jsoup.select.Elements
-  def apply(query: String)(r: Response): Elements =
-    Document(r).select(query)
+  def apply(query: String): Response => Elements =
+    Document(_).select(query)
 } 
