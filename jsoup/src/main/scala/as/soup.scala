@@ -15,7 +15,6 @@ object Query {
     Document(_).select(query)
 } 
 
-
 object Clean {
   import org.jsoup.safety.Whitelist
   def apply(wl: Whitelist): Response => String =
