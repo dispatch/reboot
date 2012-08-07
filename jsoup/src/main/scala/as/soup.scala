@@ -14,3 +14,10 @@ object Query {
   def apply(query: String): Response => Elements =
     Document(_).select(query)
 } 
+
+
+object Clean {
+  import org.jsoup.safety.Whitelist
+  def apply(wl: Whitelist): Response => String =
+    { r => Jsoup.clean(dispatch.as.String(r), wl) }
+}
