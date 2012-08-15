@@ -100,6 +100,10 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def right[B,C](implicit ev: Promise[A] <:< Promise[Either[B, C]]) =
     new PromiseEither.RightProjection(this)
 
+  /** Fold with any resulting exception */
+  def fold[X](fa: Throwable => X, fb: A => X): Promise[X] =
+    for (eth <- either) yield eth.fold(fa, fb)
+
   /** Facilitates projection over promised iterables */
   def values[B](implicit ev: Promise[A] <:< Promise[Iterable[B]]) =
     new PromiseIterable.Values(this)
