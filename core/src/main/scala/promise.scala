@@ -94,13 +94,15 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       }
     }
 
+  /** Create a left projection of a contained either */
   def left[B,C](implicit ev: Promise[A] <:< Promise[Either[B, C]]) =
     new PromiseEither.LeftProjection(this)
 
+  /** Create a right projection of a contained either */
   def right[B,C](implicit ev: Promise[A] <:< Promise[Either[B, C]]) =
     new PromiseEither.RightProjection(this)
 
-  /** Fold with any resulting exception */
+  /** Project any resulting exception or result into a unified type X */
   def fold[X](fa: Throwable => X, fb: A => X): Promise[X] =
     for (eth <- either) yield eth.fold(fa, fb)
 
