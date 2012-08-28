@@ -14,4 +14,4 @@ as its underlying transport. For more info, see the
 There's a [mailing list for Dispatch][mail]. Please mail the list **before opening 
 github issues** for problems that are not obvious, reproducable bugs.
 
-[mail]: https://groups.google.com/forum/?fromgroups#!forum/asynchttpclient
+[mail]: https://groups.google.com/forum/?fromgroups#!forum/dispatch-scala
