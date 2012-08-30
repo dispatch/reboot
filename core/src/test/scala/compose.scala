@@ -4,7 +4,7 @@ import org.scalacheck._
 
 object ComposeSpecification
 extends Properties("Compose")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import Prop.forAll
   import Gen._
 

@@ -5,7 +5,7 @@ import org.jsoup.safety.Whitelist
 
 object JsoupSpecification
 extends Properties("Basic")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import Prop.forAll
 
   val UnsafeFormat =

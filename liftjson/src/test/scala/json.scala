@@ -4,7 +4,7 @@ import org.scalacheck._
 
 object BasicSpecification
 extends Properties("Lift Json")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import Prop.forAll
 
   import net.liftweb.json._

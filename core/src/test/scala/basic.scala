@@ -4,7 +4,7 @@ import org.scalacheck._
 
 object BasicSpecification
 extends Properties("Basic")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import java.net.{URLEncoder,URLDecoder}
   import Prop._
 

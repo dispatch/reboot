@@ -4,7 +4,7 @@ import org.scalacheck._
 
 object IterablePromiseSpecification
 extends Properties("Iterable Promise")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import Prop._
   import Gen._
 

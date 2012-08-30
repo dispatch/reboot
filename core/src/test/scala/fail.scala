@@ -4,7 +4,7 @@ import org.scalacheck._
 
 object FailureSpecification
 extends Properties("Failure Handling")
-with unfiltered.spec.ServerCleanup {
+with DispatchCleanup {
   import Prop._
   import Gen._
 

@@ -21,9 +21,11 @@ object Builds extends sbt.Build {
 
   lazy val liftjson = module("lift-json")
     .dependsOn(core)
+    .dependsOn(core % "test->test")
 
   lazy val jsoup = module("jsoup")
     .dependsOn(core)
+    .dependsOn(core % "test->test")
 
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
