@@ -1,6 +1,7 @@
 package dispatch
 
 import com.ning.http.client.RequestBuilder
+import java.net.{URLDecoder, URLEncoder}
 
 class DefaultRequestVerbs(val subject: RequestBuilder)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
@@ -34,12 +35,15 @@ trait MethodVerbs extends RequestVerbs {
 }
 
 trait UrlVerbs extends RequestVerbs {
+  private val encode = URLEncoder.encode(_: String, "utf-8")
   import java.net.URI
   def url = subject.build.getUrl // unfortunate
-  def / (path: String) = subject.setUrl(url match {
-    case u if u.endsWith("/") => u + path
-    case u => u + "/" + path
-  })
+  def / (path: String) = {
+    subject.setUrl(url match {
+      case u if u.endsWith("/") => u + encode(path)
+      case u => u + "/" + encode(path)
+    })
+  }
   def secure = {
     val uri = URI.create(url)
     subject.setUrl(new URI(
