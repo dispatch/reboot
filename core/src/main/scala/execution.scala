@@ -8,24 +8,34 @@ import java.util.{concurrent => juc}
 
 object Http extends Http
 
-/** Defaults to no timeout value and a fixed thread pool */
-class Http extends ConfiguredExecutor {
+/** Defaults to no timeout value and a fixed thread pool (256) for promises */
+class Http extends FixedThreadPoolExecutor { self =>
+  lazy val client = new AsyncHttpClient
   val timeout = Duration.Zero
-  val configure = new AsyncHttpClientConfig.Builder()
-    .setExecutorService(juc.Executors.newFixedThreadPool(256))
-}
+  def threadPoolSize = 256
 
-trait ConfiguredExecutor extends Executor {
-  lazy val client = new AsyncHttpClient(configure.build)
-  def configure: AsyncHttpClientConfig.Builder
-}
-
-trait Executor { self =>
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = new Executor {
     def client = self.client
-    def timeout = t
+    val timeout = t
+    lazy val promiseExecutor = self.promiseExecutor
   }
+  /** Convenience method for an executor with a fixed thread pool of
+      the given size */
+  def threads(promiseThreadPoolSize: Int) = new FixedThreadPoolExecutor {
+    def client = self.client
+    val timeout = self.timeout
+    def threadPoolSize = promiseThreadPoolSize
+  }
+}
+
+trait FixedThreadPoolExecutor extends Executor {
+  def threadPoolSize: Int
+  lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize)
+}
+
+trait Executor { self =>
+  def promiseExecutor: juc.Executor
 
   def client: AsyncHttpClient
   /** Timeout for promises made by this HTTP Executor */
@@ -40,11 +50,15 @@ trait Executor { self =>
   def apply[T](request: Request, handler: AsyncHandler[T]): Promise[T] =
     new ListenableFuturePromise(
       client.executeRequest(request, handler),
-      client.getConfig.executorService,
+      promiseExecutor,
       timeout
     )
 
   def shutdown() {
     client.close()
+    promiseExecutor match {
+      case service: juc.ExecutorService => service.shutdown()
+      case _ => ()
+    }
   }
 }
