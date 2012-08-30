@@ -1,24 +1,32 @@
 package dispatch
 
 import com.ning.http.client.{
-  AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler
+  AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
+  AsyncHttpClientConfig
 }
 import java.util.{concurrent => juc}
 
-class Http extends Executor { self =>
-  lazy val client = new AsyncHttpClient
-  val timeout = Duration.Zero
+object Http extends Http
 
+/** Defaults to no timeout value and a fixed thread pool */
+class Http extends ConfiguredExecutor {
+  val timeout = Duration.Zero
+  val configure = new AsyncHttpClientConfig.Builder()
+    .setExecutorService(juc.Executors.newFixedThreadPool(256))
+}
+
+trait ConfiguredExecutor extends Executor {
+  lazy val client = new AsyncHttpClient(configure.build)
+  def configure: AsyncHttpClientConfig.Builder
+}
+
+trait Executor { self =>
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = new Executor {
     def client = self.client
     def timeout = t
   }
-}
 
-object Http extends Http
-
-trait Executor {
   def client: AsyncHttpClient
   /** Timeout for promises made by this HTTP Executor */
   def timeout: Duration
