@@ -10,13 +10,13 @@ with partially constructed paths.
 
     val r = host("example.com") / "no/bad"
 
-Since all characters are encoded to create a *single* path element,
-the slash can not function as a path divider. If you are constructing
-paths outside of Dispatch, it's better not to use the path
-builder. Construct the URL according to your own specifications, and
-pass it into the `url` builder.
+Since all characters are encoded to create a *single path element*,
+the encoded slash will not function as a path divider. If you are
+constructing paths outside of Dispatch, it's better not to use the
+path builder. Construct the URL according to your own specifications,
+and pass it into the `url` builder.
 
-    val r = url("http://example.com/%s".format("okay/fine))
+    val r = url("http://example.com/%s".format("okay/fine"))
 
 ### Promise executor
 
@@ -35,12 +35,16 @@ larger pool than the default.
 
 ### Exception handling
 
-A new method `Promise#fold` is a convenience for the following:
+A new method `Promise#fold` can facilitate error handling. Given
+functions `a` and `b` which respectively handle `Throwable` and the
+return type of the response handler, these are equivalent:
 
-    myPromise.either.map { _.fold(...
+    myPromise.either.map { _.fold(a, b) }
+    
+    myPromise.fold(a, b)
     
 This makes it easier to handle both connection exceptions and
-unexpected response statuses from the outset.
+unexpected response statuses at the outset of response handling.
 
 ### Additions
 
@@ -49,6 +53,7 @@ unexpected response statuses from the outset.
 * Added [TRACE][trace] and [OPTIONS][options] HTTP request methods
   [issue 11][11]
 * PUT request verb `<<<`
+* POST request verb `<<` now supports `String` request bodies
 * Added `<:<` request header verb for appending a scala collection of
   header names and values [issue 10][10]
 
