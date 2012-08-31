@@ -1,9 +1,59 @@
-### Changes
+### API Changes
 
-* Added [TRACE][trace] and [OPTIONS][options] HTTP request methods [issue 11][11]
-* Added `<:<` request header verb for appending a scala collection of header names and values [issue 10][10]
+The `/` path builder now url-encodes provided paths.
 
-Below is an example of sending a `key` header with a value of `value` to `host`
+    val r = host("example.com") / "génial"
+
+This means that any single path element may be appended without
+concern, bit it also necessarily renders the path builder incompatible
+with partially constructed paths.
+
+    val r = host("example.com") / "no/bad"
+
+Since all characters are encoded to create a *single* path element,
+the slash can not function as a path divider. If you are constructing
+paths outside of Dispatch, it's better not to use the path
+builder. Construct the URL according to your own specifications, and
+pass it into the `url` builder.
+
+    val r = url("http://example.com/%s".format("okay/fine))
+
+### Promise executor
+
+In this Dispatch version the configured `AsyncHttpClient` executor is
+no longer used for Promise compositions, as it defaults to a cached
+thread pool of unbounded size.
+
+Instead, promises will default to a fixed thread pool executor of size
+256 . Applications that contain no blocking I/O may configure a
+smaller pool for less overhead.
+
+    val http = Http.threads(16)
+
+Applications that do perform blocking I/O may wish to configure a
+larger pool than the default.
+
+### Exception handling
+
+A new method `Promise#fold` is a convenience for the following:
+
+    myPromise.either.map { _.fold(...
+    
+This makes it easier to handle both connection exceptions and
+unexpected response statuses from the outset.
+
+### Additions
+
+* Scala 2.10.0-M7 artifact for the core module
+* JSoup integration module for HTML parsing
+* Added [TRACE][trace] and [OPTIONS][options] HTTP request methods
+  [issue 11][11]
+* PUT request verb `<<<`
+* Added `<:<` request header verb for appending a scala collection of
+  header names and values [issue 10][10]
+
+Below is an example of sending a `key` header with a value of `value`
+to `host`
 
     import dispatch._
     Http(url(host) <:< Map(key <- value) Ok as.String)
