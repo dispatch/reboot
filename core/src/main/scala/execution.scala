@@ -6,31 +6,31 @@ import com.ning.http.client.{
 }
 import java.util.{concurrent => juc}
 
-object Http extends Http
+// Module extending companion class cannot use default arguments. :/
+object Http extends Http(new AsyncHttpClientConfig.Builder().build(), 256, Duration.Zero)
 
 /** Defaults to no timeout value and a fixed thread pool (256) for promises */
-class Http extends FixedThreadPoolExecutor { self =>
-  lazy val client = new AsyncHttpClient
-  val timeout = Duration.Zero
-  def threadPoolSize = 256
+class Http(
+    config: AsyncHttpClientConfig = new AsyncHttpClientConfig.Builder().build(),
+    val threadPoolSize: Int = 256,
+    val timeout: Duration = Duration.Zero
+    ) extends FixedThreadPoolExecutor { self =>
+  lazy val client = new AsyncHttpClient(config)
 
-  /** Convenience method for an Executor with the given timeout */
-  def waiting(t: Duration) = new Executor {
-    def client = self.client
-    val timeout = t
-    lazy val promiseExecutor = self.promiseExecutor
+  def copy(
+    threadPoolSize: Int = self.threadPoolSize,
+    timeout: Duration = self.timeout
+    ): Http = new Http(self.config, threadPoolSize, timeout) {
+      override lazy val client = self.client
   }
-  /** Convenience method for an executor with a fixed thread pool of
-      the given size */
-  def threads(promiseThreadPoolSize: Int) = new FixedThreadPoolExecutor {
-    def client = self.client
-    val timeout = self.timeout
-    def threadPoolSize = promiseThreadPoolSize
-  }
+
+  def waiting(t: Duration) = copy(timeout = t)
+
+  def threads(promiseThreadPoolSize: Int) = copy(threadPoolSize = promiseThreadPoolSize)
 }
 
 trait FixedThreadPoolExecutor extends Executor {
-  def threadPoolSize: Int
+  val threadPoolSize: Int
   lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize)
 }
 
