@@ -1,48 +1,69 @@
-Unraveling for-expressions
---------------------------
+Defining requests
+-----------------
 
-So far, this documentation has relied exclusively on for-expressions
-for transforming promises, composing promises, and deferring side
-effects. These provide a compact syntax that smooths the rough edges
-of dense, nested function literals. Dispatch is mostly coded, tested,
-and documented with for-expressions to ensure that everything can be
-expressed neatly.
+Dispatch requests are defined using the [RequestBuilder][rb] class of
+the underlying library. Everything that can be expressed with
+Dispatch's builders and "verbs" can be performed directly on that
+lower level interface.
 
-On the flip side, for-expressions **can seem like black magic**. They're
-extremely powerful and incorporate features of the Scala language and
-standard library. What's *really happening* won't be at all apparent
-to beginners.  If it compiles it tends to work, but when it doesn't
-compile the type errors can be a great mystery.
+> Warning: The `RequestBuilder` class is *mutable*. Its instances
+  should not be shared or reused. Be sure to declare all parts of a
+  request definition that you wish to reuse as a `def` rather than a
+  `val`.
 
-### Read about for-expressions
+[rb]: http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html
 
-It's never too early or too late to learn more about
-for-expressions. Chapter 10 of [Scala by Example][ex] provides an
-explanation that is both gentle and comprehensive. You can't read it
-enough.
+### Domains and paths
 
-[ex]: http://www.scala-lang.org/sites/default/files/linuxsoft_archives/docu/files/ScalaByExample.pdf
+Request definitions are initialized with a URL or domain name.
 
-#### What are for-comprehensions?
+#### Free-form URLs
 
-For-expressions and for-comprehensions are the same thing. The
-preferred term these days is for-comprehensions.
+The function `url` belongs to the `dispatch` package. It is typically
+imported by wildcard. If it becomes shadowed by a local `url` value,
+you can always refer to it as `dispatch.url`.
 
-### Break apart complex problems
+```scala
+def myRequest = url("http://example.com/some/path")
+```
 
-For non-trivial promise operations, especially when trying to mix with
-iterables, it may be easier to start with the lower level map,
-flatmap, foreach, and many other methods that for-expressions
-translate into.
+With this builder it is up to the application to construct valid URLs.
 
-Once you get things working with these, you can probably translate it
-into a for-expression. Maybe by rereading Chapter 10 of *Scala by
-Example*. Or you can leave it using the lower level methods. There are
-no for-expression police to hunt you down.
+#### Explicit host builder
 
-### For-expression (in)completeness
+To dynamically build up requests, Dispatch provides a number of
+builders and verbs (symbolic methods). First, you need a host.
 
-For-expressions can do so many different things that Dispatch promises
-and projections don't support them all. If your cool for-expression
-doesn't work for this reason, feel free to contribute the missing
-methods to Disptach.
+```scala
+def myHost = host("example.com")
+```
+
+A port can be specified as a second parameter.
+
+```scala
+def myHost = host("example.com", 8888)
+```
+
+When no port is specified, the protocol default is used.
+
+#### Using HTTPS
+
+When using the host builder, the `secure` method specifies that the
+HTTPS must be used for the request.
+
+```scala
+def mySecureHost = host("example.com").secure
+```
+
+#### Appending path elements
+
+Path elements may be added to requests with the `/` method.
+
+```scala
+def myRequest = myHost / "some" / "path"
+```
+
+Each added element is URL-encoded, so that spaces and non-ASCII
+letters may be added freely. A forward-slash will also be encoded such
+that it does not serve as a path-separator; the `/` method is for
+appending *single* path elements.
