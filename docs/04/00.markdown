@@ -1,0 +1,69 @@
+Defining requests
+-----------------
+
+Dispatch requests are defined using the [RequestBuilder][rb] class of
+the underlying library. Everything that can be expressed with
+Dispatch's builders and "verbs" can be performed directly on that
+lower level interface.
+
+> Warning: The `RequestBuilder` class is *mutable*. Its instances
+  should not be shared or reused. Be sure to declare all parts of a
+  request definition that you wish to reuse as a `def` rather than a
+  `val`.
+
+[rb]: http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html
+
+### Domains and paths
+
+Request definitions are initialized with a URL or domain name.
+
+#### Free-form URLs
+
+The function `url` belongs to the `dispatch` package. It is typically
+imported by wildcard. If it becomes shadowed by a local `url` value,
+you can always refer to it as `dispatch.url`.
+
+```scala
+def myRequest = url("http://example.com/some/path")
+```
+
+With this builder it is up to the application to construct valid URLs.
+
+#### Explicit host builder
+
+To dynamically build up requests, Dispatch provides a number of
+builders and verbs (symbolic methods). First, you need a host.
+
+```scala
+def myHost = host("example.com")
+```
+
+A port can be specified as a second parameter.
+
+```scala
+def myHost = host("example.com", 8888)
+```
+
+When no port is specified, the protocol default is used.
+
+#### Using HTTPS
+
+When using the host builder, the `secure` method specifies that the
+HTTPS must be used for the request.
+
+```scala
+def mySecureHost = host("example.com").secure
+```
+
+#### Appending path elements
+
+Path elements may be added to requests with the `/` method.
+
+```scala
+def myRequest = myHost / "some" / "path"
+```
+
+Each added element is URL-encoded, so that spaces and non-ASCII
+letters may be added freely. A forward-slash will also be encoded such
+that it does not serve as a path-separator; the `/` method is for
+appending *single* path elements.
