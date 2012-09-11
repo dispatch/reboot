@@ -1,0 +1,48 @@
+Unraveling for-expressions
+--------------------------
+
+So far, this documentation has relied exclusively on for-expressions
+for transforming promises, composing promises, and deferring side
+effects. These provide a compact syntax that smooths the rough edges
+of dense, nested function literals. Dispatch is mostly coded, tested,
+and documented with for-expressions to ensure that everything can be
+expressed neatly.
+
+On the flip side, for-expressions **can seem like black magic**. They're
+extremely powerful and incorporate features of the Scala language and
+standard library. What's *really happening* won't be at all apparent
+to beginners.  If it compiles it tends to work, but when it doesn't
+compile the type errors can be a great mystery.
+
+### Read about for-expressions
+
+It's never too early or too late to learn more about
+for-expressions. Chapter 10 of [Scala by Example][ex] provides an
+explanation that is both gentle and comprehensive. You can't read it
+enough.
+
+[ex]: http://www.scala-lang.org/sites/default/files/linuxsoft_archives/docu/files/ScalaByExample.pdf
+
+#### What are for-comprehensions?
+
+For-expressions and for-comprehensions are the same thing. The
+preferred term these days is for-comprehensions.
+
+### Break apart complex problems
+
+For non-trivial promise operations, especially when trying to mix with
+iterables, it may be easier to start with the lower level map,
+flatmap, foreach, and many other methods that for-expressions
+translate into.
+
+Once you get things working with these, you can probably translate it
+into a for-expression. Maybe by rereading Chapter 10 of *Scala by
+Example*. Or you can leave it using the lower level methods. There are
+no for-expression police to hunt you down.
+
+### For-expression (in)completeness
+
+For-expressions can do so many different things that Dispatch promises
+and projections don't support them all. If your cool for-expression
+doesn't work for this reason, feel free to contribute the missing
+methods to Disptach.
