@@ -8,17 +8,26 @@ extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
 with HeaderVerbs
 
 trait HostVerbs {
-  def apply(host: String) =
-    new RequestBuilder().setUrl("http://%s/".format(host))
-  def apply(host: String, port: Int) =
-    new RequestBuilder().setUrl("http://%s:%d/".format(host, port))
+  def apply(host: String) = {
+    val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
+    new RequestBuilder().setUrl("http://%s/".format(asciiSafeDomain))
+  }
+
+  def apply(host: String, port: Int) = {
+    val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
+    new RequestBuilder().setUrl("http://%s:%d/".format(asciiSafeDomain, port))
+  }
 }
+
 object :/ extends HostVerbs
 object host extends HostVerbs
 
 object url extends (String => RequestBuilder) {
-  def apply(url: String) = new RequestBuilder().setUrl(url)
+  def apply(url: String) = {
+    new RequestBuilder().setUrl(url)
+  }
 }
+
 trait RequestVerbs {
   def subject: RequestBuilder
 }
