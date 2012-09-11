@@ -24,8 +24,7 @@ object host extends HostVerbs
 
 object url extends (String => RequestBuilder) {
   def apply(url: String) = {
-    val asciiSafeDomain = IDNDomainHelpers.safeConvert(url)
-    new RequestBuilder().setUrl(asciiSafeDomain)
+    new RequestBuilder().setUrl(url)
   }
 }
 
