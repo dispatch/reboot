@@ -17,7 +17,7 @@ object Bytes extends (client.Response => Array[Byte]) {
 }
 
 object File extends {
-  def apply(file: java.io.File)(r: client.Response) =
+  def apply(file: java.io.File) =
     (new client.resumable.ResumableAsyncHandler with OkHandler[Nothing])
       .setResumableListener(
         new client.extra.ResumableRandomAccessFileListener(
