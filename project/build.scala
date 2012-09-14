@@ -10,7 +10,7 @@ object Builds extends sbt.Build {
   lazy val root = Project(
     "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
       ls.Plugin.LsKeys.skipWrite := true
-    )).delegateTo(setup).aggregate(core, liftjson, jsoup)
+    )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup)
 
   def module(name: String) =
     Project(name, file(name.replace("-", "")))
@@ -27,6 +27,10 @@ object Builds extends sbt.Build {
     .dependsOn(core)
     .dependsOn(core % "test->test")
 
+  lazy val tagsoup = module("tagsoup")
+    .dependsOn(core)
+    .dependsOn(core % "test->test")
+    
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
     "ufcheck", file("ufcheck")
