@@ -9,9 +9,7 @@ import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
 
 object NodeSeq extends (Response => XNodeSeq) {
   lazy val parserFactory = new SAXFactoryImpl
+  lazy val adapter = new NoBindingFactoryAdapter
   def apply(r: Response) =
-    (dispatch.as.String andThen (s => new NoBindingFactoryAdapter().loadXML(
-      new InputSource(new StringReader(s)),
-      parserFactory.newSAXParser()
-    )))(r)
+    adapter.loadXML(new InputSource(r.getResponseBodyAsStream), parserFactory.newSAXParser)
 }
