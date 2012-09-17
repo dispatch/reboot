@@ -45,7 +45,6 @@ trait MethodVerbs extends RequestVerbs {
 
 trait UrlVerbs extends RequestVerbs {
   private val encode = URLEncoder.encode(_: String, "utf-8")
-  import java.net.URI
   def url = subject.build.getUrl // unfortunate
   def / (path: String) = {
     subject.setUrl(url match {
@@ -54,10 +53,7 @@ trait UrlVerbs extends RequestVerbs {
     })
   }
   def secure = {
-    val uri = URI.create(url)
-    subject.setUrl(new URI(
-      "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
-    ).toString)
+    subject.setUrl(Uri(url).copy(scheme="https").toString)
   }
 }
 
