@@ -53,7 +53,7 @@ trait UrlVerbs extends RequestVerbs {
     })
   }
   def secure = {
-    subject.setUrl(Uri(url).copy(scheme="https").toString)
+    subject.setUrl(uri(url).copy(scheme="https").toString)
   }
 }
 

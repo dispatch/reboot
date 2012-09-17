@@ -1,6 +1,6 @@
 package dispatch
 
-object Uri {
+object uri {
   def apply(str: String) = new Uri(str)
 }
 

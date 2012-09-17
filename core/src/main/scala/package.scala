@@ -3,7 +3,7 @@ package object dispatch {
   type Req = com.ning.http.client.RequestBuilder
   /** Type alias for Response, avoid need to import */
   type Res = com.ning.http.client.Response
-
+  /** Type alias for URI, avoid need to import */
   type Uri = java.net.URI
 
   implicit def implyRequestVerbs(builder: Req) =
