@@ -2,6 +2,20 @@ package dispatch
 
 object uri {
   def apply(str: String) = new Uri(str)
+
+  // uri character sets
+  val alpha = lowalpha ++ upalpha
+  val lowalpha = 'a' to 'z'
+  val upalpha = 'A' to 'Z'
+  val digit = '0' to '9'
+  val alphanum = alpha ++ digit
+  val mark = '-' :: '_' :: '.' :: '!' :: '~' :: '*' ::
+             '\'' :: '(' :: ')' :: Nil
+  val unreserved = alpha ++ mark
+  val pchar = unreserved ++ (
+    ':' :: '@' :: '&' :: '=' :: '+' :: '$' :: ',' :: Nil
+  )
+  val segmentValid = (';' +: pchar).toSet
 }
 
 class RichUri(subject: Uri) {
