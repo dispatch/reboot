@@ -8,7 +8,7 @@ with DispatchCleanup {
   import Prop.forAll
 
   import org.json4s._
-  import org.json4s.native._
+  import org.json4s.native.JsonMethods._
   import JsonDSL._
 
   object Json {
