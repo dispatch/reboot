@@ -23,6 +23,14 @@ object Builds extends sbt.Build {
     .dependsOn(core)
     .dependsOn(core % "test->test")
 
+  lazy val json4sJackson = module("json4s-jackson")
+    .dependsOn(core)
+    .dependsOn(core % "test->test")
+
+  lazy val json4s = module("json4s-native")
+    .dependsOn(core)
+    .dependsOn(core % "test->test")
+
   lazy val jsoup = module("jsoup")
     .dependsOn(core)
     .dependsOn(core % "test->test")
