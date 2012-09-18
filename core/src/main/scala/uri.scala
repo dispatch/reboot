@@ -1,9 +1,5 @@
 package dispatch
 
-object uri {
-  def apply(str: String) = new Uri(str)
-}
-
 class RichUri(subject: Uri) {
   def copy(
     scheme: String = subject.getScheme,
