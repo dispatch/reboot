@@ -14,6 +14,8 @@ All Dispatch maven artifact names are now prefixed by `dispatch-`, so
 you will need to adjust these (e.g. `dispatch-core`) when
 upgrading. The org-id is still `net.databinder.dispatch`.
 
+This release also includes Scala 2.10.0-RC7 artifacts.
+
 ### Path builder changes
 
 As part of the path builder change, any slash included in a
