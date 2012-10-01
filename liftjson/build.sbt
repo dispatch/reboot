@@ -1,4 +1,4 @@
-name := "lift-json"
+name := "dispatch-lift-json"
 
 description :=
   "Dispatch module providing lift json support"

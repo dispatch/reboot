@@ -13,7 +13,7 @@ object Builds extends sbt.Build {
     )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup)
 
   def module(name: String) =
-    Project("dispatch-" + name, file(name.replace("-", "")))
+    Project(name, file(name.replace("-", "")))
       .delegateTo(ufcheck, setup)
       .dependsOn(ufcheck % "test->test")
 
