@@ -43,20 +43,16 @@ trait MethodVerbs extends RequestVerbs {
 }
 
 trait UrlVerbs extends RequestVerbs {
-  import java.net.URI
-  def url = subject.build.getUrl // unfortunate
+  def url = subject.build.getUrl
   def / (path: String) = {
-    val uncleanUrl = url match {
+    val uri = new Uri(url)
+    subject.setUrl(uri.copy(path = uri.getPath match {
       case u if u.endsWith("/") => u + path
       case u => u + "/" + path
-    }
-    subject.setUrl(uncleanUrl)
+    }).toASCIIString)
   }
   def secure = {
-    val uri = URI.create(url)
-    subject.setUrl(new URI(
-      "https", uri.getAuthority, uri.getPath, uri.getQuery, uri.getFragment
-    ).toString)
+    subject.setUrl(new Uri(url).copy(scheme="https").toString)
   }
 }
 
