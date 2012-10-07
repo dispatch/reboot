@@ -29,9 +29,18 @@ class Http extends FixedThreadPoolExecutor { self =>
   }
 }
 
+// produce thread(daemon=true), so it doesn't block JVM shutdown
+class DaemonThreadFactory extends juc.ThreadFactory {
+  def newThread(r: Runnable):Thread ={
+    val thread = new Thread
+    thread.setDaemon(true) // this ensure the created threads don't prevent jVM from porpoer shutdown
+    thread
+  }
+}
+
 trait FixedThreadPoolExecutor extends Executor {
   def threadPoolSize: Int
-  lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize)
+  lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize,new DaemonThreadFactory)
 }
 
 trait Executor { self =>
