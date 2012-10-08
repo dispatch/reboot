@@ -150,7 +150,7 @@ object Promise {
       }
     }
 
-  /** Wraps a known value in a Promise. Useful in binidng
+  /** Wraps a known value in a Promise. Useful in binding
    *  some value to other promises in for-expressions. */
   def apply[T](existing: T): Promise[T] =
     new Promise[T] { self =>
