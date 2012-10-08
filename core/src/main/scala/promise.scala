@@ -162,6 +162,27 @@ object Promise {
   @deprecated("Use Promise.apply")
   def of[T](existing: T): Promise[T] = Promise(existing)
 
+  def sleep[T](d: Duration)(todo: => T) = new Promise[T] { self =>
+    import org.jboss.netty.util.{TimerTask, Timeout}
+    def claim = todo
+    var listeners: List[(() => Unit)] = Nil
+    val sleepTimeout = Http.timer.newTimeout(new TimerTask {
+      def run(timeout: Timeout) {
+        println("test")
+        for (listener <- listeners) listener()
+      }
+    }, d.length, d.unit)
+    def isComplete = sleepTimeout.isExpired
+    val timeout = d
+    def addListener(f: () => Unit) = {
+      if (listeners == null)
+        listeners = Nil
+      listeners = f :: listeners
+    }
+  }
+    
+
+
   implicit def iterable[T] = new IterableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
 }

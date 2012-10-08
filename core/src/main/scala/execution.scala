@@ -4,9 +4,16 @@ import com.ning.http.client.{
   AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
   AsyncHttpClientConfig
 }
+import org.jboss.netty.util.HashedWheelTimer
 import java.util.{concurrent => juc}
 
-object Http extends Http
+object Http extends Http {
+  val timer = {
+    val t = new HashedWheelTimer()
+    t.start
+    t
+  }
+}
 
 /** Defaults to no timeout value and a fixed thread pool (256) for promises */
 class Http extends FixedThreadPoolExecutor { self =>
@@ -65,6 +72,7 @@ trait Executor { self =>
 
   def shutdown() {
     client.close()
+    Http.timer.stop()
     promiseExecutor match {
       case service: juc.ExecutorService => service.shutdown()
       case _ => ()
