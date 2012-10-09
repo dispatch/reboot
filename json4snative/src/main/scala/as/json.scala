@@ -1,6 +1,6 @@
 package dispatch.as.json4s
 
-import org.json4s.JValue
+import org.json4s._
 import org.json4s.native.JsonMethods._
 import com.ning.http.client.Response
 

@@ -1,7 +1,7 @@
 package dispatch.as.json4s.stream
 
 import dispatch.stream.StringsByLine
-import org.json4s.JValue
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 object Json {
