@@ -8,7 +8,7 @@ object Json {
   def apply[T](f: JValue => T) =
     new StringsByLine[Unit] {
       def onStringBy(string: String) {
-        f(parse(string))
+        f(parse(string, true))
       }
       def onCompleted = ()
     }
