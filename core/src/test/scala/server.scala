@@ -72,6 +72,6 @@ with DispatchCleanup {
           localhost / "ask" << Map("what" -> sample1,
                                    "echo" -> sample2) OK as.String
         ).either
-        res() ?= Left(StatusCode(500))
+        res() ?= Left(StatusCode(500, "Internal Server Error"))
     }
 }
