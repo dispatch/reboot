@@ -164,20 +164,24 @@ object Promise {
 
   def sleep[T](d: Duration)(todo: => T) = new Promise[T] { self =>
     import org.jboss.netty.util.{TimerTask, Timeout}
+    // put countdown latch in claim
     def claim = todo
-    var listeners: List[(() => Unit)] = Nil
+    // note: super calls addListener before listeners can be initialized
+    var listeners: List[(() => Unit)] = _
     val sleepTimeout = Http.timer.newTimeout(new TimerTask {
       def run(timeout: Timeout) {
-        println("test")
         for (listener <- listeners) listener()
       }
     }, d.length, d.unit)
     def isComplete = sleepTimeout.isExpired
     val timeout = d
     def addListener(f: () => Unit) = {
-      if (listeners == null)
-        listeners = Nil
-      listeners = f :: listeners
+      listeners = (
+        if (listeners == null)
+          f :: Nil
+        else
+          f :: listeners
+      )
     }
   }
     
