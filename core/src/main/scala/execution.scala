@@ -8,11 +8,7 @@ import org.jboss.netty.util.HashedWheelTimer
 import java.util.{concurrent => juc}
 
 object Http extends Http {
-  val timer = {
-    val t = new HashedWheelTimer()
-    t.start
-    t
-  }
+  val timer = new HashedWheelTimer
 }
 
 /** Defaults to no timeout value and a fixed thread pool (256) for promises */
