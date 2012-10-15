@@ -33,13 +33,13 @@ object Http extends Http(
 )
 
 private [dispatch] object Defaults {
-  def client = new AsyncHttpClient
-  def timeout = Duration.Zero
-  def promiseExecutor = DaemonThreadPool(256)
-  def timer = new HashedWheelTimer
+  val client = new AsyncHttpClient
+  val timeout = Duration.Zero
+  val promiseExecutor = DaemonThreadPool(256)
+  val timer = new HashedWheelTimer
 }
 
-trait Executor { self =>
+trait HttpExecutor { self =>
   def promiseExecutor: juc.Executor
   def timer: Timer
   def client: AsyncHttpClient
@@ -58,6 +58,9 @@ trait Executor { self =>
       promiseExecutor,
       timeout
     )
+
+  def sleep[T](d: Duration)(todo: => T) =
+    new SleepPromise(this, d, todo)
 
   def shutdown() {
     client.close()

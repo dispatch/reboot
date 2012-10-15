@@ -162,8 +162,6 @@ object Promise {
   @deprecated("Use Promise.apply")
   def of[T](existing: T): Promise[T] = Promise(existing)
 
-  def sleep[T](d: Duration)(todo: => T) = new SleepPromise(d, todo)
-
   implicit def iterable[T] = new IterableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
 }

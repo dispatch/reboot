@@ -4,7 +4,10 @@ import org.jboss.netty.util.{TimerTask, Timeout}
 
 import java.util.{concurrent => juc}
 
-class SleepPromise[T](d: Duration, todo: => T) extends Promise[T] { self =>
+class SleepPromise[T](
+  val httpExecutor: HttpExecutor,
+  d: Duration,
+  todo: => T) extends Promise[T] { self =>
   private lazy val latch = new juc.CountDownLatch(1)
   def claim = {
     latch.await()
@@ -13,7 +16,7 @@ class SleepPromise[T](d: Duration, todo: => T) extends Promise[T] { self =>
   // note: super calls addListener before listeners can be initialized
   private lazy val listeners =
     new juc.atomic.AtomicReference(List.empty[(() => Unit)])
-  val sleepTimeout = Http.timer.newTimeout(new TimerTask {
+  val sleepTimeout = httpExecutor.timer.newTimeout(new TimerTask {
     def run(timeout: Timeout) {
       latch.countDown()
       val ls = listeners.getAndSet(Nil)
