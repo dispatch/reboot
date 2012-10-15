@@ -13,7 +13,7 @@ case class Http(
   timeout: Duration = Defaults.timeout,
   promiseExecutor: juc.Executor = Defaults.promiseExecutor,
   timer: Timer = Defaults.timer
-) extends Executor {
+) extends HttpExecutor {
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = copy(timeout=t)
 
