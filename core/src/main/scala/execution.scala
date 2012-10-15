@@ -43,7 +43,8 @@ class DaemonThreadFactory extends juc.ThreadFactory {
 
 trait FixedThreadPoolExecutor extends Executor {
   def threadPoolSize: Int
-  lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize,new DaemonThreadFactory)
+  lazy val promiseExecutor =
+    juc.Executors.newFixedThreadPool(threadPoolSize, new DaemonThreadFactory)
 }
 
 trait Executor { self =>
