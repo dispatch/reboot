@@ -4,52 +4,34 @@ import com.ning.http.client.{
   AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
   AsyncHttpClientConfig
 }
-import org.jboss.netty.util.HashedWheelTimer
+import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
 
-object Http extends Http {
-  val timer = new HashedWheelTimer
-}
-
-/** Defaults to no timeout value and a fixed thread pool (256) for promises */
-class Http extends FixedThreadPoolExecutor { self =>
-  lazy val client = new AsyncHttpClient
-  val timeout = Duration.Zero
-  def threadPoolSize = 256
-
+case class Http(
+  client: AsyncHttpClient = new AsyncHttpClient,
+  timeout: Duration = Duration.Zero,
+  promiseExecutor: juc.Executor = DaemonThreadPool(256),
+  timer: Timer = new HashedWheelTimer
+) extends Executor {
   /** Convenience method for an Executor with the given timeout */
-  def waiting(t: Duration) = new Executor {
-    def client = self.client
-    val timeout = t
-    lazy val promiseExecutor = self.promiseExecutor
-  }
+  def waiting(t: Duration) = copy(timeout=t)
+
   /** Convenience method for an executor with a fixed thread pool of
       the given size */
-  def threads(promiseThreadPoolSize: Int) = new FixedThreadPoolExecutor {
-    def client = self.client
-    val timeout = self.timeout
-    def threadPoolSize = promiseThreadPoolSize
-  }
+  def threads(promiseThreadPoolSize: Int) =
+    copy(promiseExecutor = DaemonThreadPool(promiseThreadPoolSize))
 }
 
-// produce thread(daemon=true), so it doesn't block JVM shutdown
-class DaemonThreadFactory extends juc.ThreadFactory {
-  def newThread(r: Runnable):Thread ={
-    val thread = new Thread
-    thread.setDaemon(true)
-    thread
-  }
-}
-
-trait FixedThreadPoolExecutor extends Executor {
-  def threadPoolSize: Int
-  lazy val promiseExecutor =
-    juc.Executors.newFixedThreadPool(threadPoolSize, new DaemonThreadFactory)
-}
+object Http extends Http(
+  new AsyncHttpClient,
+  Duration.Zero,
+  DaemonThreadPool(256),
+  new HashedWheelTimer
+)
 
 trait Executor { self =>
   def promiseExecutor: juc.Executor
-
+  def timer: Timer
   def client: AsyncHttpClient
   /** Timeout for promises made by this HTTP Executor */
   def timeout: Duration
@@ -75,4 +57,17 @@ trait Executor { self =>
       case _ => ()
     }
   }
+}
+
+object DaemonThreadPool {
+  /** produces daemon threads that won't block JVM shutdown */
+  val factory = new juc.ThreadFactory {
+    def newThread(r: Runnable): Thread ={
+      val thread = new Thread
+      thread.setDaemon(true)
+      thread
+    }
+  }
+  def apply(threadPoolSize: Int) =
+    juc.Executors.newFixedThreadPool(threadPoolSize, factory)
 }
