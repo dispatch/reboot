@@ -7,11 +7,12 @@ import com.ning.http.client.{
 import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
 
+/** Http executor with defaults */
 case class Http(
-  client: AsyncHttpClient = new AsyncHttpClient,
-  timeout: Duration = Duration.Zero,
-  promiseExecutor: juc.Executor = DaemonThreadPool(256),
-  timer: Timer = new HashedWheelTimer
+  client: AsyncHttpClient = Defaults.client,
+  timeout: Duration = Defaults.timeout,
+  promiseExecutor: juc.Executor = Defaults.promiseExecutor,
+  timer: Timer = Defaults.timer
 ) extends Executor {
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = copy(timeout=t)
@@ -22,12 +23,21 @@ case class Http(
     copy(promiseExecutor = DaemonThreadPool(promiseThreadPoolSize))
 }
 
+/** Singleton default Http executor, can be used directly or altered
+ *  with its case-class `copy` */
 object Http extends Http(
-  new AsyncHttpClient,
-  Duration.Zero,
-  DaemonThreadPool(256),
-  new HashedWheelTimer
+  Defaults.client,
+  Defaults.timeout,
+  Defaults.promiseExecutor,
+  Defaults.timer
 )
+
+private [dispatch] object Defaults {
+  def client = new AsyncHttpClient
+  def timeout = Duration.Zero
+  def promiseExecutor = DaemonThreadPool(256)
+  def timer = new HashedWheelTimer
+}
 
 trait Executor { self =>
   def promiseExecutor: juc.Executor
@@ -51,7 +61,7 @@ trait Executor { self =>
 
   def shutdown() {
     client.close()
-    Http.timer.stop()
+    timer.stop()
     promiseExecutor match {
       case service: juc.ExecutorService => service.shutdown()
       case _ => ()
