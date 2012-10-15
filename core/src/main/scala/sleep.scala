@@ -13,7 +13,6 @@ class SleepPromise[T](
     latch.await()
     todo
   }
-  // note: super calls addListener before listeners can be initialized
   private lazy val listeners =
     new juc.atomic.AtomicReference(List.empty[(() => Unit)])
   val sleepTimeout = httpExecutor.timer.newTimeout(new TimerTask {
