@@ -27,7 +27,9 @@ class SleepPromise[T](
   def addListener(f: () => Unit) {
     val ls = listeners.get
     if (isComplete) {
-      f() // should really happen in a background thread
+      httpExecutor.promiseExecutor.execute(new java.lang.Runnable {
+        def run() { f() }
+      })
     } else {
       if (! listeners.compareAndSet(ls, f :: ls)) {
         addListener(f)
