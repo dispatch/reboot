@@ -9,6 +9,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Claim promise or throw exception, should only be called once */
   protected def claim: A
 
+  /** Repeat operations that produce the promised value */
+  def repeat: Promise[A]
+
   def timeout: Duration
 
   /** Internal cache of promised value or exception thrown */
@@ -39,6 +42,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def map[B](f: A => B): Promise[B] =
     new SelfPromise[B] {
       def claim = f(self())
+      def repeat = self.repeat.map(f)
     }
   /** Bind this Promise to another Promise, or something which an
    *  implicit Guarantor may convert to a Promise. */
@@ -53,7 +57,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       def isComplete = self.isComplete && other.isComplete
       def timeout = self.timeout
       def claim = other()
-    }
+      def repeat = self.repeat.flatMap(f)(guarantor)
+
+  }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
    *  NoSuchElementException when the promise is empty. */
@@ -74,6 +80,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       }
       def isComplete = self.isComplete
       def timeout = self.timeout
+      def repeat = self.repeat.withFilter(p)
     }
   /** filter still used for certain cases in for expressions */
   def filter(p: A => Boolean): Promise[A] = withFilter(p)
@@ -86,12 +93,13 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Project promised value into an either containing the value or any
    *  exception thrown retrieving it. Unwraps `cause` of any top-level
    *  ExecutionException */
-  def either =
+  def either: Promise[Either[Throwable, A]] =
     new Promise[Either[Throwable, A]] with SelfPromise[Either[Throwable, A]] {
       def claim = self.result.left.map { 
         case e: juc.ExecutionException => e.getCause
         case e => e
       }
+      def repeat = self.repeat.either
     }
 
   /** Create a left projection of a contained either */
@@ -134,8 +142,9 @@ trait DelegatePromise[+D] {
 }
 
 object Promise {
-  def all[A](promises: Iterable[Promise[A]]) =
+  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
     new Promise[Iterable[A]] { self =>
+      def repeat = Promise.all(for (p <- promises) yield p.repeat)
       def claim = promises.map { _() }
       def isComplete = promises.forall { _.isComplete }
       val timeout = Duration.None
@@ -155,6 +164,7 @@ object Promise {
   def apply[T](existing: T): Promise[T] =
     new Promise[T] { self =>
       def claim = existing
+      def repeat = self
       def isComplete = true
       val timeout: Duration = Duration.None
       def addListener(f: () => Unit) = f()
@@ -200,10 +210,12 @@ trait PromiseSIP[+A] { self: Promise[A] =>
 }
 
 class ListenableFuturePromise[A](
-  val underlying: ListenableFuture[A],
+  underlyingIn: => ListenableFuture[A],
   val executor: juc.Executor,
   val timeout: Duration
 ) extends Promise[A] {
+  lazy val underlying = underlyingIn
+  def repeat = new ListenableFuturePromise(underlyingIn, executor, timeout)
   def claim = timeout match {
     case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)

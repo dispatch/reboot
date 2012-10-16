@@ -8,27 +8,35 @@ object PromiseEither {
     def delegate = underlying
   }
 
-  class LeftProjection[+A,+B](underlying: Promise[Either[A,B]]) {
-    def flatMap[BB >: B,X](f: A => Promise[Either[X,BB]]) =
+  class LeftProjection[+A,+B](underlying: => Promise[Either[A,B]]) { self =>
+    private def repeat = new LeftProjection(underlying.repeat)
+    def flatMap[BB >: B,X](f: A => Promise[Either[X,BB]]):
+      Promise[Either[X,BB]] =
       new EitherDelegate(underlying) with Promise[Either[X,BB]] {
         def claim = underlying().left.flatMap { a => f(a)() }
+        def repeat = self.repeat.flatMap(f)
       }
-    def map[X](f: A => X) =
+    def map[X](f: A => X): Promise[Either[X,B]] =
       new EitherDelegate(underlying) with Promise[Either[X,B]] {
         def claim = underlying().left.map(f)
+        def repeat = self.repeat.map(f)
       }
     def foreach[U](f: A => U) {
       underlying.addListener { () => underlying().left.foreach(f) }
     }
   }
-  class RightProjection[+A,+B](underlying: Promise[Either[A,B]]) {
-    def flatMap[AA >: A,Y](f: B => Promise[Either[AA,Y]]) =
+  class RightProjection[+A,+B](underlying: Promise[Either[A,B]]) { self =>
+    private def repeat = new RightProjection(underlying.repeat)
+    def flatMap[AA >: A,Y](f: B => Promise[Either[AA,Y]]):
+    Promise[Either[AA,Y]] =
       new EitherDelegate(underlying) with Promise[Either[AA,Y]] {
         def claim = underlying().right.flatMap { b => f(b)() }
+        def repeat = self.repeat.flatMap(f)
       }
-    def map[Y](f: B => Y) =
+    def map[Y](f: B => Y): Promise[Either[A,Y]] =
       new EitherDelegate(underlying) with Promise[Either[A,Y]] {
         def claim = underlying().right.map(f)
+        def repeat = self.repeat.map(f)
       }
     def foreach(f: B => Unit) {
       underlying.addListener { () => underlying().right.foreach(f) }
