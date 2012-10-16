@@ -56,7 +56,7 @@ trait HttpExecutor { self =>
     new ListenableFuturePromise(
       client.executeRequest(request, handler),
       promiseExecutor,
-      timeout
+      this
     )
 
   def sleep[T](d: Duration)(todo: => T) =

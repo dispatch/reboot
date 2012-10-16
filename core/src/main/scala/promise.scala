@@ -12,7 +12,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Repeat operations that produce the promised value */
   def repeat: Promise[A]
 
-  def timeout: Duration
+  def httpExecutor: HttpExecutor
 
   /** Internal cache of promised value or exception thrown */
   protected lazy val result = allCatch.either { claim }
@@ -55,7 +55,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
         for (_ <- self; _ <- other) f()
       }
       def isComplete = self.isComplete && other.isComplete
-      def timeout = self.timeout
+      def httpExecutor = self.httpExecutor
       def claim = other()
       def repeat = self.repeat.flatMap(f)(guarantor)
 
@@ -79,8 +79,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
         } 
       }
       def isComplete = self.isComplete
-      def timeout = self.timeout
       def repeat = self.repeat.withFilter(p)
+      def httpExecutor = self.httpExecutor
     }
   /** filter still used for certain cases in for expressions */
   def filter(p: A => Boolean): Promise[A] = withFilter(p)
@@ -138,16 +138,17 @@ trait DelegatePromise[+D] {
   def delegate: Promise[D]
   def addListener(f: () => Unit) { delegate.addListener(f) }
   def isComplete = delegate.isComplete
-  def timeout = delegate.timeout
+  def httpExecutor = delegate.httpExecutor
 }
 
 object Promise {
+  @deprecated
   def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
     new Promise[Iterable[A]] { self =>
       def repeat = Promise.all(for (p <- promises) yield p.repeat)
       def claim = promises.map { _() }
       def isComplete = promises.forall { _.isComplete }
-      val timeout = Duration.None
+      val httpExecutor = Http
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         promises.foreach { p =>
@@ -161,12 +162,13 @@ object Promise {
 
   /** Wraps a known value in a Promise. Useful in binding
    *  some value to other promises in for-expressions. */
+  @deprecated
   def apply[T](existing: T): Promise[T] =
     new Promise[T] { self =>
       def claim = existing
       def repeat = self
       def isComplete = true
-      val timeout: Duration = Duration.None
+      val httpExecutor = Http
       def addListener(f: () => Unit) = f()
     }
   @deprecated("Use Promise.apply")
@@ -212,11 +214,11 @@ trait PromiseSIP[+A] { self: Promise[A] =>
 class ListenableFuturePromise[A](
   underlyingIn: => ListenableFuture[A],
   val executor: juc.Executor,
-  val timeout: Duration
+  val httpExecutor: HttpExecutor
 ) extends Promise[A] {
   lazy val underlying = underlyingIn
-  def repeat = new ListenableFuturePromise(underlyingIn, executor, timeout)
-  def claim = timeout match {
+  def repeat = new ListenableFuturePromise(underlyingIn, executor, httpExecutor)
+  def claim = httpExecutor.timeout match {
     case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
   }
