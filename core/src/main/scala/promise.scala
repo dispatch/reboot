@@ -138,7 +138,7 @@ object Promise {
     new Promise[Iterable[A]] { self =>
       def claim = promises.map { _() }
       def isComplete = promises.forall { _.isComplete }
-      val timeout = Duration.Zero // can't think of a sensible option
+      val timeout = Duration.None
       def addListener(f: () => Unit) = {
         val count = new juc.atomic.AtomicInteger(promises.size)
         promises.foreach { p =>
@@ -156,7 +156,7 @@ object Promise {
     new Promise[T] { self =>
       def claim = existing
       def isComplete = true
-      val timeout: Duration = Duration.Zero
+      val timeout: Duration = Duration.None
       def addListener(f: () => Unit) = f()
     }
   @deprecated("Use Promise.apply")
@@ -205,7 +205,7 @@ class ListenableFuturePromise[A](
   val timeout: Duration
 ) extends Promise[A] {
   def claim = timeout match {
-    case Duration.Zero => underlying.get
+    case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
   }
   def isComplete = underlying.isDone || underlying.isCancelled
@@ -239,6 +239,6 @@ case class Duration(length: Long, unit: TimeUnit) {
 }
 
 object Duration {
-  val Zero = Duration(-1L, TimeUnit.MILLISECONDS)
+  val None = Duration(-1L, TimeUnit.MILLISECONDS)
   def millis(length: Long) = Duration(length, TimeUnit.MILLISECONDS)
 }

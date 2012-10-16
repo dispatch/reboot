@@ -34,7 +34,7 @@ object Http extends Http(
 
 private [dispatch] object Defaults {
   val client = new AsyncHttpClient
-  val timeout = Duration.Zero
+  val timeout = Duration.None
   val promiseExecutor = DaemonThreadPool(256)
   val timer = new HashedWheelTimer
 }
