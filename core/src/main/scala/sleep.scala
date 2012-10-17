@@ -5,7 +5,7 @@ import org.jboss.netty.util.{TimerTask, Timeout}
 import java.util.{concurrent => juc}
 
 class SleepPromise[T](
-  val httpExecutor: HttpExecutor,
+  val http: HttpExecutor,
   d: Duration,
   todo: => T) extends Promise[T] { self =>
   private lazy val latch = new juc.CountDownLatch(1)
@@ -13,10 +13,10 @@ class SleepPromise[T](
     latch.await()
     todo
   }
-  def repeat = new SleepPromise(httpExecutor, d, todo)
+  def repeat = new SleepPromise(http, d, todo)
   private lazy val listeners =
     new juc.atomic.AtomicReference(List.empty[(() => Unit)])
-  val sleepTimeout = httpExecutor.timer.newTimeout(new TimerTask {
+  val sleepTimeout = http.timer.newTimeout(new TimerTask {
     def run(timeout: Timeout) {
       latch.countDown()
       val ls = listeners.getAndSet(Nil)
@@ -28,9 +28,7 @@ class SleepPromise[T](
   def addListener(f: () => Unit) {
     val ls = listeners.get
     if (isComplete) {
-      httpExecutor.promiseExecutor.execute(new java.lang.Runnable {
-        def run() { f() }
-      })
+      http.promiseExecutor.execute(f)
     } else {
       if (! listeners.compareAndSet(ls, f :: ls)) {
         addListener(f)

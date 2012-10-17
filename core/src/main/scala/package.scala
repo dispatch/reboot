@@ -15,6 +15,10 @@ package object dispatch {
   implicit def implyRichURI(uri: Uri) =
     new RichUri(uri)
 
+  implicit def implyRunnable[U](f: () => U) = new java.lang.Runnable {
+    def run() { f() }
+  }
+
   implicit val durationOrdering = Ordering.by[Duration,Long] {
     _.millis
   }

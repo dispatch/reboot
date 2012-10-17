@@ -11,8 +11,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
 
   /** Repeat operations that produce the promised value */
   def repeat: Promise[A]
-
-  def httpExecutor: HttpExecutor
+  /* Reference to parent HttpExecutor, to access configured background
+   * Executor, default timeout Duration, and async Timer. */
+  val http: HttpExecutor
 
   /** Internal cache of promised value or exception thrown */
   protected lazy val result = allCatch.either { claim }
@@ -50,12 +51,12 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
     new Promise[C] {
-      lazy val other = guarantor.promise(f(self()))
+      lazy val other = guarantor.promise(self, f(self()))
       def addListener(f: () => Unit) {
         for (_ <- self; _ <- other) f()
       }
       def isComplete = self.isComplete && other.isComplete
-      def httpExecutor = self.httpExecutor
+      val http = self.http
       def claim = other()
       def repeat = self.repeat.flatMap(f)(guarantor)
 
@@ -80,7 +81,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       }
       def isComplete = self.isComplete
       def repeat = self.repeat.withFilter(p)
-      def httpExecutor = self.httpExecutor
+      val http = self.http
     }
   /** filter still used for certain cases in for expressions */
   def filter(p: A => Boolean): Promise[A] = withFilter(p)
@@ -138,41 +139,49 @@ trait DelegatePromise[+D] {
   def delegate: Promise[D]
   def addListener(f: () => Unit) { delegate.addListener(f) }
   def isComplete = delegate.isComplete
-  def httpExecutor = delegate.httpExecutor
+  val http = delegate.http
 }
 
 object Promise {
-  @deprecated
-  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
-    new Promise[Iterable[A]] { self =>
-      def repeat = Promise.all(for (p <- promises) yield p.repeat)
-      def claim = promises.map { _() }
-      def isComplete = promises.forall { _.isComplete }
-      val httpExecutor = Http
-      def addListener(f: () => Unit) = {
-        val count = new juc.atomic.AtomicInteger(promises.size)
-        promises.foreach { p =>
-          p.addListener { () =>
-            if (count.decrementAndGet == 0)
-              f()
+  class Factory(http: HttpExecutor) { factory =>
+    def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+      new Promise[Iterable[A]] {
+        def repeat = all(for (p <- promises) yield p.repeat)
+        def claim = promises.map { _() }
+        def isComplete = promises.forall { _.isComplete }
+        val http = factory.http
+        def addListener(f: () => Unit) = {
+          val count = new juc.atomic.AtomicInteger(promises.size)
+          promises.foreach { p =>
+            p.addListener { () =>
+              if (count.decrementAndGet == 0)
+                f()
+            }
           }
         }
       }
-    }
+    def sleep[T](d: Duration)(todo: => T) =
+      new SleepPromise(factory.http, d, todo)
+    def apply[T](existing: T): Promise[T] =
+      new Promise[T] {
+        def claim = existing
+        def repeat = factory.apply(existing)
+        def isComplete = true
+        val http = factory.http
+        def addListener(f: () => Unit) =
+          factory.http.promiseExecutor.execute(f)
+      }
+  }
+
+  @deprecated("Use Http.promise.all or other HttpExecutor")
+  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+    Http.promise.all(promises)
 
   /** Wraps a known value in a Promise. Useful in binding
    *  some value to other promises in for-expressions. */
-  @deprecated
+  @deprecated("Use Http.promise.apply or other HttpExecutor")
   def apply[T](existing: T): Promise[T] =
-    new Promise[T] { self =>
-      def claim = existing
-      def repeat = self
-      def isComplete = true
-      val httpExecutor = Http
-      def addListener(f: () => Unit) = f()
-    }
-  @deprecated("Use Promise.apply")
-  def of[T](existing: T): Promise[T] = Promise(existing)
+    Http.promise(existing)
 
   implicit def iterable[T] = new IterableGuarantor[T]
   implicit def identity[T] = new IdentityGuarantor[T]
@@ -214,25 +223,21 @@ trait PromiseSIP[+A] { self: Promise[A] =>
 class ListenableFuturePromise[A](
   underlyingIn: => ListenableFuture[A],
   val executor: juc.Executor,
-  val httpExecutor: HttpExecutor
+  val http: HttpExecutor
 ) extends Promise[A] {
   lazy val underlying = underlyingIn
-  def repeat = new ListenableFuturePromise(underlyingIn, executor, httpExecutor)
-  def claim = httpExecutor.timeout match {
+  def repeat = new ListenableFuturePromise(underlyingIn, executor, http)
+  def claim = http.timeout match {
     case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
   }
   def isComplete = underlying.isDone || underlying.isCancelled
   def addListener(f: () => Unit) =
-    underlying.addListener(new Runnable {
-      def run {
-        f()
-      }
-    }, executor)
+    underlying.addListener(f, executor)
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
-  def promise(collateral: A): That
+  def promise(parent: Promise[_], collateral: A): That
 }
 
 class IterableGuarantor[T] extends Guarantor[
@@ -240,12 +245,12 @@ class IterableGuarantor[T] extends Guarantor[
   Iterable[T],
   Promise[Iterable[T]]
 ] {
-  def promise(collateral: Iterable[Promise[T]]) =
-    Promise.all(collateral)
+  def promise(parent: Promise[_], collateral: Iterable[Promise[T]]) =
+    parent.http.promise.all(collateral)
 }
 
 class IdentityGuarantor[T] extends Guarantor[Promise[T],T,Promise[T]] {
-  def promise(collateral: Promise[T]) = collateral
+  def promise(parent: Promise[_], collateral: Promise[T]) = collateral
 }
 
 case class Duration(length: Long, unit: TimeUnit) {

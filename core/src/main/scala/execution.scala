@@ -59,8 +59,7 @@ trait HttpExecutor { self =>
       this
     )
 
-  def sleep[T](d: Duration)(todo: => T) =
-    new SleepPromise(this, d, todo)
+  lazy val promise = new dispatch.Promise.Factory(self)
 
   def shutdown() {
     client.close()

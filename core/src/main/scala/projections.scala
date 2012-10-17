@@ -44,17 +44,18 @@ object PromiseEither {
     def values[A1 >: A, C]
     (implicit ev: RightProjection[A, B] <:<
                   RightProjection[A1, Iterable[C]]) =
-      new PromiseRightIterable.Values(this)
+      new PromiseRightIterable.Values(underlying, this)
   }
 
 }
 
 object PromiseIterable {
 
-  class Flatten[A](underlying: Promise[Iterable[A]]) {
+  class Flatten[A](val underlying: Promise[Iterable[A]]) {
+    import underlying.http.promise
     def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
       underlying.flatMap { iter =>
-        Promise.all(iter.map(f)).map { _.flatten }
+        promise.all(iter.map(f)).map { _.flatten }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
     : Promise[Iterable[B]] =
@@ -67,9 +68,10 @@ object PromiseIterable {
     def filter(p: A => Boolean) = withFilter(p)
   }
   class Values[A](underlying: Promise[Iterable[A]]) {
+    import underlying.http.promise
     def flatMap[B](f: A => Promise[B]) =
       underlying.flatMap { iter =>
-        Promise.all(iter.map(f))
+        promise.all(iter.map(f))
       }
     def map[B](f: A => B): Promise[Iterable[B]] =
       underlying.map { _.map(f) }
@@ -96,40 +98,42 @@ object PromiseRightIterable {
       } yield (seq :+ cur)
     }
   }
-  class Flatten[E,A](underlying: RightIter[E,A]) {
+  class Flatten[E,A](parent: Promise[_], underlying: RightIter[E,A]) {
+    import parent.http.promise
     def flatMap[Iter[B] <: Iterable[B], B]
     (f: A => Promise[Either[E,Iter[B]]]) =
       underlying.flatMap { iter =>
-        Promise.all(iter.map(f)).map { eths =>
+        promise.all(iter.map(f)).map { eths =>
           flatRight(eths).right.map { _.flatten }
         }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B]) =
       underlying.flatMap { iter =>
-        Promise(Right(iter.map(f).flatten))
+        promise(Right(iter.map(f).flatten))
       }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
-      new Values(underlying.map { _.filter(p) }.right)
+      new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
   }
-  class Values[E,A](underlying: RightIter[E,A]) {
+  class Values[E,A](parent: Promise[_], underlying: RightIter[E,A]) {
+    import parent.http.promise
     def flatMap[B](f: A => Promise[Either[E,B]]) =
       underlying.flatMap { iter =>
-        Promise.all(iter.map(f)).map(flatRight)
+        promise.all(iter.map(f)).map(flatRight)
       }
     def map[B](f: A => B) =
       underlying.flatMap { iter =>
-        Promise(Right(iter.map(f)))
+        promise(Right(iter.map(f)))
     }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
     }
-    def flatten = new Flatten(underlying)
+    def flatten = new Flatten(parent, underlying)
     def withFilter(p: A => Boolean) =
-      new Values(underlying.map { _.filter(p) }.right)
+      new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
   }
 }
