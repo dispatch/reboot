@@ -3,17 +3,18 @@ package dispatch.retry
 import dispatch._
 
 object Times {
-  def apply[T](count: Int)(implicit predicate: Predicate[T]):
-  (T => Promise[T]) =
-    sys.error("todo")
+  def apply[T](count: Int)(promise: Promise[T])
+              (implicit success: Success[T]): Promise[T] = {
+    promise.flatMap { res =>
+      if (count < 1 || success.predicate(res)) promise
+      else Times(count - 1)(promise.replay)
+    }
+  }
 }
 
-trait Predicate[T] extends (T => Boolean)
+class Success[T](val predicate: T => Boolean)
 
-object Test {
-  implicit def eitherPredicate[A,B]: Predicate[Either[A,B]] =
-    sys.error("todo")
-
-  def test(p: Promise[Either[String,Int]]): Promise[Either[String,Int]] =
-    p.flatMap(Times(5))
+object Success {
+  implicit def either[A,B]: Success[Either[A,B]] =
+    new Success(_.isRight)
 }
