@@ -59,8 +59,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       val http = self.http
       def claim = other()
       def replay = self.replay.flatMap(f)(guarantor)
-
-  }
+    }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
    *  NoSuchElementException when the promise is empty. */
