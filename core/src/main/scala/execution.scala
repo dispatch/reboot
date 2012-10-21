@@ -74,8 +74,8 @@ trait HttpExecutor { self =>
 object DaemonThreadPool {
   /** produces daemon threads that won't block JVM shutdown */
   val factory = new juc.ThreadFactory {
-    def newThread(r: Runnable): Thread ={
-      val thread = new Thread
+    def newThread(runnable: Runnable): Thread ={
+      val thread = new Thread(runnable)
       thread.setDaemon(true)
       thread
     }
