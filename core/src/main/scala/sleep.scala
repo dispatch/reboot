@@ -13,7 +13,7 @@ class SleepPromise[T](
     latch.await()
     todo
   }
-  def repeat = new SleepPromise(http, d, todo)
+  def replay = new SleepPromise(http, d, todo)
   private lazy val listeners =
     new juc.atomic.AtomicReference(List.empty[(() => Unit)])
   val sleepTimeout = http.timer.newTimeout(new TimerTask {

@@ -9,8 +9,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Claim promise or throw exception, should only be called once */
   protected def claim: A
 
-  /** Repeat operations that produce the promised value */
-  def repeat: Promise[A]
+  /** Replay operations that produce the promised value */
+  def replay: Promise[A]
   /* Reference to parent HttpExecutor, to access configured background
    * Executor, default timeout Duration, and async Timer. */
   val http: HttpExecutor
@@ -43,7 +43,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def map[B](f: A => B): Promise[B] =
     new SelfPromise[B] {
       def claim = f(self())
-      def repeat = self.repeat.map(f)
+      def replay = self.replay.map(f)
     }
   /** Bind this Promise to another Promise, or something which an
    *  implicit Guarantor may convert to a Promise. */
@@ -58,7 +58,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
       def isComplete = self.isComplete && other.isComplete
       val http = self.http
       def claim = other()
-      def repeat = self.repeat.flatMap(f)(guarantor)
+      def replay = self.replay.flatMap(f)(guarantor)
 
   }
   /** Support if clauses in for expressions. A filtered promise
@@ -80,7 +80,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
         } 
       }
       def isComplete = self.isComplete
-      def repeat = self.repeat.withFilter(p)
+      def replay = self.replay.withFilter(p)
       val http = self.http
     }
   /** filter still used for certain cases in for expressions */
@@ -100,7 +100,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
         case e: juc.ExecutionException => e.getCause
         case e => e
       }
-      def repeat = self.repeat.either
+      def replay = self.replay.either
     }
 
   /** Create a left projection of a contained either */
@@ -146,7 +146,7 @@ object Promise {
   class Factory(http: HttpExecutor) { factory =>
     def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
       new Promise[Iterable[A]] {
-        def repeat = all(for (p <- promises) yield p.repeat)
+        def replay = all(for (p <- promises) yield p.replay)
         def claim = promises.map { _() }
         def isComplete = promises.forall { _.isComplete }
         val http = factory.http
@@ -165,7 +165,7 @@ object Promise {
     def apply[T](existing: T): Promise[T] =
       new Promise[T] {
         def claim = existing
-        def repeat = factory.apply(existing)
+        def replay = factory.apply(existing)
         def isComplete = true
         val http = factory.http
         def addListener(f: () => Unit) =
@@ -226,7 +226,7 @@ class ListenableFuturePromise[A](
   val http: HttpExecutor
 ) extends Promise[A] {
   lazy val underlying = underlyingIn
-  def repeat = new ListenableFuturePromise(underlyingIn, executor, http)
+  def replay = new ListenableFuturePromise(underlyingIn, executor, http)
   def claim = http.timeout match {
     case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
