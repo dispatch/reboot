@@ -29,11 +29,11 @@ class Http extends FixedThreadPoolExecutor { self =>
   }
 }
 
-// produce thread(daemon=true), so it doesn't block JVM shutdown
+/** produce thread(daemon=true), so it doesn't block JVM shutdown */
 class DaemonThreadFactory extends juc.ThreadFactory {
-  def newThread(r: Runnable):Thread ={
-    val thread = new Thread
-    thread.setDaemon(true) // this ensure the created threads don't prevent JVM shutdown
+  def newThread(runnable: Runnable):Thread = {
+    val thread = new Thread(runnable)
+    thread.setDaemon(true)
     thread
   }
 }
