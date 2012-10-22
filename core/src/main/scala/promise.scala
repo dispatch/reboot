@@ -5,6 +5,51 @@ import java.util.{concurrent => juc}
 import juc.TimeUnit
 import scala.util.control.Exception.{allCatch,catching}
 
+object Promise {
+  implicit def iterable[T] = new IterableGuarantor[T]
+  implicit def identity[T] = new IdentityGuarantor[T]
+
+  class Factory(http: HttpExecutor) { factory =>
+    def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+      new Promise[Iterable[A]] {
+        def replay = all(for (p <- promises) yield p.replay)
+        def claim = promises.map { _() }
+        def isComplete = promises.forall { _.isComplete }
+        val http = factory.http
+        def addListener(f: () => Unit) = {
+          val count = new juc.atomic.AtomicInteger(promises.size)
+          promises.foreach { p =>
+            p.addListener { () =>
+              if (count.decrementAndGet == 0)
+                f()
+            }
+          }
+        }
+      }
+    def sleep[T](d: Duration)(todo: => T) =
+      new SleepPromise(factory.http, d, todo)
+    def apply[T](existing: T): Promise[T] =
+      new Promise[T] {
+        def claim = existing
+        def replay = factory.apply(existing)
+        def isComplete = true
+        val http = factory.http
+        def addListener(f: () => Unit) =
+          factory.http.promiseExecutor.execute(f)
+      }
+  }
+
+  @deprecated("Use Http.promise.all or other HttpExecutor")
+  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+    Http.promise.all(promises)
+
+  /** Wraps a known value in a Promise. Useful in binding
+   *  some value to other promises in for-expressions. */
+  @deprecated("Use Http.promise.apply or other HttpExecutor")
+  def apply[T](existing: T): Promise[T] =
+    Http.promise(existing)
+}
+
 trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Claim promise or throw exception, should only be called once */
   protected def claim: A
@@ -114,6 +159,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def fold[X](fa: Throwable => X, fb: A => X): Promise[X] =
     for (eth <- either) yield eth.fold(fa, fb)
 
+  def flatten[B](implicit pv: Promise[A] <:< Promise[Promise[B]]):
+    Promise[B] = (this: Promise[Promise[B]]).flatMap(identity)
+
   /** Facilitates projection over promised iterables */
   def values[B](implicit ev: Promise[A] <:< Promise[Iterable[B]]) =
     new PromiseIterable.Values(this)
@@ -139,51 +187,6 @@ trait DelegatePromise[+D] {
   def addListener(f: () => Unit) { delegate.addListener(f) }
   def isComplete = delegate.isComplete
   val http = delegate.http
-}
-
-object Promise {
-  class Factory(http: HttpExecutor) { factory =>
-    def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
-      new Promise[Iterable[A]] {
-        def replay = all(for (p <- promises) yield p.replay)
-        def claim = promises.map { _() }
-        def isComplete = promises.forall { _.isComplete }
-        val http = factory.http
-        def addListener(f: () => Unit) = {
-          val count = new juc.atomic.AtomicInteger(promises.size)
-          promises.foreach { p =>
-            p.addListener { () =>
-              if (count.decrementAndGet == 0)
-                f()
-            }
-          }
-        }
-      }
-    def sleep[T](d: Duration)(todo: => T) =
-      new SleepPromise(factory.http, d, todo)
-    def apply[T](existing: T): Promise[T] =
-      new Promise[T] {
-        def claim = existing
-        def replay = factory.apply(existing)
-        def isComplete = true
-        val http = factory.http
-        def addListener(f: () => Unit) =
-          factory.http.promiseExecutor.execute(f)
-      }
-  }
-
-  @deprecated("Use Http.promise.all or other HttpExecutor")
-  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
-    Http.promise.all(promises)
-
-  /** Wraps a known value in a Promise. Useful in binding
-   *  some value to other promises in for-expressions. */
-  @deprecated("Use Http.promise.apply or other HttpExecutor")
-  def apply[T](existing: T): Promise[T] =
-    Http.promise(existing)
-
-  implicit def iterable[T] = new IterableGuarantor[T]
-  implicit def identity[T] = new IdentityGuarantor[T]
 }
 
 trait PromiseSIP[+A] { self: Promise[A] =>
