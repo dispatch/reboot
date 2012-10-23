@@ -22,6 +22,7 @@ with DispatchCleanup {
   }
 
   import dispatch._
+  import Http.promise
 
   def localhost = host("127.0.0.1", server.port)
 
@@ -35,7 +36,7 @@ with DispatchCleanup {
   }
 
   property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
-    val res = (Promise("0") /: sample) { (p, num) =>
+    val res = (promise("0") /: sample) { (p, num) =>
       p.flatMap { cur => sum(Seq(cur, num.toString)) }
     }
     res() == sample.sum.toString
@@ -48,12 +49,12 @@ with DispatchCleanup {
       else recur(
         nums.grouped(2).map { twos =>
           if (twos.size == 1) twos.head
-          else Promise.all(twos).flatMap(sum)
+          else promise.all(twos).flatMap(sum)
         }.toIterable
       )
     }
     recur(
-      sample.map { i => Promise(i.toString) }
+      sample.map { i => promise(i.toString) }
     )() == sample.sum.toString
   }
 }

@@ -5,11 +5,60 @@ import java.util.{concurrent => juc}
 import juc.TimeUnit
 import scala.util.control.Exception.{allCatch,catching}
 
+object Promise {
+  implicit def iterable[T] = new IterableGuarantor[T]
+  implicit def identity[T] = new IdentityGuarantor[T]
+
+  class Factory(http: HttpExecutor) { factory =>
+    def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+      new Promise[Iterable[A]] {
+        def replay = all(for (p <- promises) yield p.replay)
+        def claim = promises.map { _() }
+        def isComplete = promises.forall { _.isComplete }
+        val http = factory.http
+        def addListener(f: () => Unit) = {
+          val count = new juc.atomic.AtomicInteger(promises.size)
+          promises.foreach { p =>
+            p.addListener { () =>
+              if (count.decrementAndGet == 0)
+                f()
+            }
+          }
+        }
+      }
+    def sleep[T](d: Duration)(todo: => T) =
+      new SleepPromise(factory.http, d, todo)
+    def apply[T](existing: T): Promise[T] =
+      new Promise[T] {
+        def claim = existing
+        def replay = factory.apply(existing)
+        def isComplete = true
+        val http = factory.http
+        def addListener(f: () => Unit) =
+          factory.http.promiseExecutor.execute(f)
+      }
+  }
+
+  @deprecated("Use Http.promise.all or other HttpExecutor")
+  def all[A](promises: Iterable[Promise[A]]): Promise[Iterable[A]] =
+    Http.promise.all(promises)
+
+  /** Wraps a known value in a Promise. Useful in binding
+   *  some value to other promises in for-expressions. */
+  @deprecated("Use Http.promise.apply or other HttpExecutor")
+  def apply[T](existing: T): Promise[T] =
+    Http.promise(existing)
+}
+
 trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Claim promise or throw exception, should only be called once */
   protected def claim: A
 
-  def timeout: Duration
+  /** Replay operations that produce the promised value */
+  def replay: Promise[A]
+  /* Reference to parent HttpExecutor, to access configured background
+   * Executor, default timeout Duration, and async Timer. */
+  val http: HttpExecutor
 
   /** Internal cache of promised value or exception thrown */
   protected lazy val result = allCatch.either { claim }
@@ -39,6 +88,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   def map[B](f: A => B): Promise[B] =
     new SelfPromise[B] {
       def claim = f(self())
+      def replay = self.replay.map(f)
     }
   /** Bind this Promise to another Promise, or something which an
    *  implicit Guarantor may convert to a Promise. */
@@ -46,13 +96,14 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
     new Promise[C] {
-      lazy val other = guarantor.promise(f(self()))
+      lazy val other = guarantor.promise(self, f(self()))
       def addListener(f: () => Unit) {
         for (_ <- self; _ <- other) f()
       }
       def isComplete = self.isComplete && other.isComplete
-      def timeout = self.timeout
+      val http = self.http
       def claim = other()
+      def replay = self.replay.flatMap(f)(guarantor)
     }
   /** Support if clauses in for expressions. A filtered promise
    *  behaves like an Option, in that apply() will throw a
@@ -73,7 +124,8 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
         } 
       }
       def isComplete = self.isComplete
-      def timeout = self.timeout
+      def replay = self.replay.withFilter(p)
+      val http = self.http
     }
   /** filter still used for certain cases in for expressions */
   def filter(p: A => Boolean): Promise[A] = withFilter(p)
@@ -86,12 +138,13 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Project promised value into an either containing the value or any
    *  exception thrown retrieving it. Unwraps `cause` of any top-level
    *  ExecutionException */
-  def either =
+  def either: Promise[Either[Throwable, A]] =
     new Promise[Either[Throwable, A]] with SelfPromise[Either[Throwable, A]] {
       def claim = self.result.left.map { 
         case e: juc.ExecutionException => e.getCause
         case e => e
       }
+      def replay = self.replay.either
     }
 
   /** Create a left projection of a contained either */
@@ -105,6 +158,9 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Project any resulting exception or result into a unified type X */
   def fold[X](fa: Throwable => X, fb: A => X): Promise[X] =
     for (eth <- either) yield eth.fold(fa, fb)
+
+  def flatten[B](implicit pv: Promise[A] <:< Promise[Promise[B]]):
+    Promise[B] = (this: Promise[Promise[B]]).flatMap(identity)
 
   /** Facilitates projection over promised iterables */
   def values[B](implicit ev: Promise[A] <:< Promise[Iterable[B]]) =
@@ -130,40 +186,7 @@ trait DelegatePromise[+D] {
   def delegate: Promise[D]
   def addListener(f: () => Unit) { delegate.addListener(f) }
   def isComplete = delegate.isComplete
-  def timeout = delegate.timeout
-}
-
-object Promise {
-  def all[A](promises: Iterable[Promise[A]]) =
-    new Promise[Iterable[A]] { self =>
-      def claim = promises.map { _() }
-      def isComplete = promises.forall { _.isComplete }
-      val timeout = Duration.Zero // can't think of a sensible option
-      def addListener(f: () => Unit) = {
-        val count = new juc.atomic.AtomicInteger(promises.size)
-        promises.foreach { p =>
-          p.addListener { () =>
-            if (count.decrementAndGet == 0)
-              f()
-          }
-        }
-      }
-    }
-
-  /** Wraps a known value in a Promise. Useful in binidng
-   *  some value to other promises in for-expressions. */
-  def apply[T](existing: T): Promise[T] =
-    new Promise[T] { self =>
-      def claim = existing
-      def isComplete = true
-      val timeout: Duration = Duration.Zero
-      def addListener(f: () => Unit) = f()
-    }
-  @deprecated("Use Promise.apply")
-  def of[T](existing: T): Promise[T] = Promise(existing)
-
-  implicit def iterable[T] = new IterableGuarantor[T]
-  implicit def identity[T] = new IdentityGuarantor[T]
+  val http = delegate.http
 }
 
 trait PromiseSIP[+A] { self: Promise[A] =>
@@ -200,25 +223,23 @@ trait PromiseSIP[+A] { self: Promise[A] =>
 }
 
 class ListenableFuturePromise[A](
-  val underlying: ListenableFuture[A],
+  underlyingIn: => ListenableFuture[A],
   val executor: juc.Executor,
-  val timeout: Duration
+  val http: HttpExecutor
 ) extends Promise[A] {
-  def claim = timeout match {
-    case Duration.Zero => underlying.get
+  lazy val underlying = underlyingIn
+  def replay = new ListenableFuturePromise(underlyingIn, executor, http)
+  def claim = http.timeout match {
+    case Duration.None => underlying.get
     case Duration(duration, unit) => underlying.get(duration, unit)
   }
   def isComplete = underlying.isDone || underlying.isCancelled
   def addListener(f: () => Unit) =
-    underlying.addListener(new Runnable {
-      def run {
-        f()
-      }
-    }, executor)
+    underlying.addListener(f, executor)
 }
 
 trait Guarantor[-A, B, That <: Promise[B]] {
-  def promise(collateral: A): That
+  def promise(parent: Promise[_], collateral: A): That
 }
 
 class IterableGuarantor[T] extends Guarantor[
@@ -226,12 +247,12 @@ class IterableGuarantor[T] extends Guarantor[
   Iterable[T],
   Promise[Iterable[T]]
 ] {
-  def promise(collateral: Iterable[Promise[T]]) =
-    Promise.all(collateral)
+  def promise(parent: Promise[_], collateral: Iterable[Promise[T]]) =
+    parent.http.promise.all(collateral)
 }
 
 class IdentityGuarantor[T] extends Guarantor[Promise[T],T,Promise[T]] {
-  def promise(collateral: Promise[T]) = collateral
+  def promise(parent: Promise[_], collateral: Promise[T]) = collateral
 }
 
 case class Duration(length: Long, unit: TimeUnit) {
@@ -239,6 +260,6 @@ case class Duration(length: Long, unit: TimeUnit) {
 }
 
 object Duration {
-  val Zero = Duration(-1L, TimeUnit.MILLISECONDS)
+  val None = Duration(-1L, TimeUnit.MILLISECONDS)
   def millis(length: Long) = Duration(length, TimeUnit.MILLISECONDS)
 }

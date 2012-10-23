@@ -1,4 +1,4 @@
-name := "core"
+name := "dispatch-core"
 
 description :=
   "Core Dispatch module wrapping sonatype/async-http-client"

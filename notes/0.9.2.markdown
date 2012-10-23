@@ -1,0 +1,33 @@
+### Improvements
+
+* [TagSoup request handler][soup] contributed by Rogach
+* [Support for international domain names][idn] in `host` builder, contributed by adamdecaf
+* [Corrected encoding][path] for spaces in the `/` path builder
+
+[soup]: https://github.com/dispatch/reboot/blob/master/tagsoup/src/main/scala/as/soup.scala
+[idn]: https://github.com/dispatch/reboot/pull/21
+[path]: https://github.com/dispatch/reboot/pull/24
+
+### Dependency resolution changes
+
+All Dispatch maven artifact names are now prefixed by `dispatch-`, so
+you will need to adjust these (e.g. `dispatch-core`) when
+upgrading. The org-id is still `net.databinder.dispatch`.
+
+This release also includes Scala 2.10.0-RC7 artifacts.
+
+### Path builder changes
+
+As part of the path builder change, any slash included in a
+path-segment is now passed through unchanged. So for example,
+
+    scala> (host("example.com") / "a/b").url
+    res1: java.lang.String = http://example.com/a/b
+
+Characters that are not allowed in a path segment are encoded.
+
+    scala> (host("example.com") / "a b").url
+    res2: java.lang.String = http://example.com/a%20b
+
+    scala> (host("example.com") / "a?b").url
+    res3: java.lang.String = http://example.com/a%3Fb

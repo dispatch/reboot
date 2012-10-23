@@ -4,39 +4,44 @@ import com.ning.http.client.{
   AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
   AsyncHttpClientConfig
 }
+import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
 
-object Http extends Http
-
-/** Defaults to no timeout value and a fixed thread pool (256) for promises */
-class Http extends FixedThreadPoolExecutor { self =>
-  lazy val client = new AsyncHttpClient
-  val timeout = Duration.Zero
-  def threadPoolSize = 256
-
+/** Http executor with defaults */
+case class Http(
+  client: AsyncHttpClient = Defaults.client,
+  timeout: Duration = Defaults.timeout,
+  promiseExecutor: juc.Executor = Defaults.promiseExecutor,
+  timer: Timer = Defaults.timer
+) extends HttpExecutor {
   /** Convenience method for an Executor with the given timeout */
-  def waiting(t: Duration) = new Executor {
-    def client = self.client
-    val timeout = t
-    lazy val promiseExecutor = self.promiseExecutor
-  }
+  def waiting(t: Duration) = copy(timeout=t)
+
   /** Convenience method for an executor with a fixed thread pool of
       the given size */
-  def threads(promiseThreadPoolSize: Int) = new FixedThreadPoolExecutor {
-    def client = self.client
-    val timeout = self.timeout
-    def threadPoolSize = promiseThreadPoolSize
-  }
+  def threads(promiseThreadPoolSize: Int) =
+    copy(promiseExecutor = DaemonThreadPool(promiseThreadPoolSize))
 }
 
-trait FixedThreadPoolExecutor extends Executor {
-  def threadPoolSize: Int
-  lazy val promiseExecutor = juc.Executors.newFixedThreadPool(threadPoolSize)
+/** Singleton default Http executor, can be used directly or altered
+ *  with its case-class `copy` */
+object Http extends Http(
+  Defaults.client,
+  Defaults.timeout,
+  Defaults.promiseExecutor,
+  Defaults.timer
+)
+
+private [dispatch] object Defaults {
+  val client = new AsyncHttpClient
+  val timeout = Duration.None
+  val promiseExecutor = DaemonThreadPool(256)
+  val timer = new HashedWheelTimer
 }
 
-trait Executor { self =>
+trait HttpExecutor { self =>
   def promiseExecutor: juc.Executor
-
+  def timer: Timer
   def client: AsyncHttpClient
   /** Timeout for promises made by this HTTP Executor */
   def timeout: Duration
@@ -51,14 +56,30 @@ trait Executor { self =>
     new ListenableFuturePromise(
       client.executeRequest(request, handler),
       promiseExecutor,
-      timeout
+      this
     )
+
+  lazy val promise = new dispatch.Promise.Factory(self)
 
   def shutdown() {
     client.close()
+    timer.stop()
     promiseExecutor match {
       case service: juc.ExecutorService => service.shutdown()
       case _ => ()
     }
   }
+}
+
+object DaemonThreadPool {
+  /** produces daemon threads that won't block JVM shutdown */
+  val factory = new juc.ThreadFactory {
+    def newThread(runnable: Runnable): Thread ={
+      val thread = new Thread(runnable)
+      thread.setDaemon(true)
+      thread
+    }
+  }
+  def apply(threadPoolSize: Int) =
+    juc.Executors.newFixedThreadPool(threadPoolSize, factory)
 }

@@ -1,6 +1,6 @@
 package dispatch
 
-object uri {
+object Uri {
   def apply(str: String) = new Uri(str)
 
   // uri character sets

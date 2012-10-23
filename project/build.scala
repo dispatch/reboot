@@ -10,7 +10,7 @@ object Builds extends sbt.Build {
   lazy val root = Project(
     "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
       ls.Plugin.LsKeys.skipWrite := true
-    )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup)
+    )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
 
   def module(name: String) =
     Project(name, file(name.replace("-", "")))
@@ -20,6 +20,14 @@ object Builds extends sbt.Build {
   lazy val core = module("core")
 
   lazy val liftjson = module("lift-json")
+    .dependsOn(core)
+    .dependsOn(core % "test->test")
+
+  lazy val json4sJackson = module("json4s-jackson")
+    .dependsOn(core)
+    .dependsOn(core % "test->test")
+
+  lazy val json4sNative = module("json4s-native")
     .dependsOn(core)
     .dependsOn(core % "test->test")
 
@@ -37,7 +45,7 @@ object Builds extends sbt.Build {
   ).dependsOn(scalacheck % "test->compile")
 
   lazy val scalacheck = RootProject(
-    uri("git://github.com/n8han/scalacheck.git#1.8cc")
+    uri("git://github.com/n8han/scalacheck.git#2a90c81")
   )
 }
 
