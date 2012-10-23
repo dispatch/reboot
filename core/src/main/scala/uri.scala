@@ -1,39 +1,47 @@
 package dispatch
 
-object Uri {
-  def apply(str: String) = new Uri(str)
-
+object UriEncode {
   // uri character sets
-  val alpha = lowalpha ++ upalpha
-  val lowalpha = 'a' to 'z'
-  val upalpha = 'A' to 'Z'
-  val digit = '0' to '9'
-  val alphanum = alpha ++ digit
-  val mark = '-' :: '_' :: '.' :: '!' :: '~' :: '*' ::
+  def alpha = lowalpha ++ upalpha
+  def lowalpha = 'a' to 'z'
+  def upalpha = 'A' to 'Z'
+  def digit = '0' to '9'
+  def alphanum = alpha ++ digit
+  def mark = '-' :: '_' :: '.' :: '!' :: '~' :: '*' ::
              '\'' :: '(' :: ')' :: Nil
-  val unreserved = alpha ++ mark
-  val pchar = unreserved ++ (
+  def unreserved = alpha ++ mark
+  def pchar = unreserved ++ (
     ':' :: '@' :: '&' :: '=' :: '+' :: '$' :: ',' :: Nil
   )
   val segmentValid = (';' +: pchar).toSet
+
+  def path(pathSegment: String) = {
+    (for (char <- pathSegment.iterator) yield {
+      if (segmentValid.contains(char))
+        char
+      else
+        "%%%X".format(char.toInt)
+    }).mkString
+  }
 }
 
-class RichUri(subject: Uri) {
+class RawUri(subject: Uri) {
   def copy(
-    scheme: String = subject.getScheme,
-    userInfo: String = subject.getUserInfo,
-    host: String = subject.getHost,
-    port: Int = subject.getPort,
-    path: String = subject.getPath,
-    query: String = subject.getQuery,
-    fragment: String = subject.getFragment
-  ) = new Uri(
-    scheme,
-    userInfo,
-    host,
-    port,
-    path,
-    query,
-    fragment
-  )
+    scheme: Option[String] = Option(subject.getScheme),
+    userInfo: Option[String] = Option(subject.getRawUserInfo),
+    host: Option[String] = Option(subject.getHost),
+    port: Option[Int] = Some(subject.getPort).filter( _ != -1),
+    path: Option[String] = Option(subject.getRawPath),
+    query: Option[String] = Option(subject.getRawQuery),
+    fragment: Option[String] = Option(subject.getRawFragment)
+  ) =
+    (scheme.map { _ + ":" } ::
+     userInfo.map { _ +  "@" } ::
+     host ::
+     port.map { ":" + _ } ::
+     path ::
+     query.map { "?" + _ } ::
+     fragment.map { "#" + _ } ::
+     Nil
+   ).flatten.mkString
 }
