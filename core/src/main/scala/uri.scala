@@ -1,5 +1,42 @@
 package dispatch
 
+/** URI representation with raw parts, so  */
+case class RawUri(
+  scheme: Option[String],
+  userInfo: Option[String],
+  host: Option[String],
+  port: Option[Int],
+  path: Option[String],
+  query: Option[String],
+  fragment: Option[String]
+) {
+  def toUri = new Uri(
+    (scheme.map { _ + ":" } ::
+     Some("//") ::
+     userInfo.map { _ +  "@" } ::
+     host ::
+     port.map { ":" + _ } ::
+     path ::
+     query.map { "?" + _ } ::
+     fragment.map { "#" + _ } ::
+     Nil
+   ).flatten.mkString)
+  override def toString = toUri.toASCIIString
+}
+
+object RawUri {
+  def apply(str: String): RawUri = RawUri(new Uri(str))
+  def apply(subject: Uri): RawUri = RawUri(
+    scheme = Option(subject.getScheme),
+    userInfo = Option(subject.getRawUserInfo),
+    host = Option(subject.getHost),
+    port = Some(subject.getPort).filter( _ != -1),
+    path = Option(subject.getRawPath),
+    query = Option(subject.getRawQuery),
+    fragment = Option(subject.getRawFragment)
+  )
+}
+
 object UriEncode {
   // uri character sets
   def alpha = lowalpha ++ upalpha
@@ -23,25 +60,4 @@ object UriEncode {
         "%%%X".format(char.toInt)
     }).mkString
   }
-}
-
-class RawUri(subject: Uri) {
-  def copy(
-    scheme: Option[String] = Option(subject.getScheme),
-    userInfo: Option[String] = Option(subject.getRawUserInfo),
-    host: Option[String] = Option(subject.getHost),
-    port: Option[Int] = Some(subject.getPort).filter( _ != -1),
-    path: Option[String] = Option(subject.getRawPath),
-    query: Option[String] = Option(subject.getRawQuery),
-    fragment: Option[String] = Option(subject.getRawFragment)
-  ) =
-    (scheme.map { _ + ":" } ::
-     userInfo.map { _ +  "@" } ::
-     host ::
-     port.map { ":" + _ } ::
-     path ::
-     query.map { "?" + _ } ::
-     fragment.map { "#" + _ } ::
-     Nil
-   ).flatten.mkString
 }

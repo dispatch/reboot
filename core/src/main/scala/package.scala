@@ -12,9 +12,6 @@ package object dispatch {
   implicit def implyRequestHandlerTuple(builder: Req) =
     new RequestHandlerTupleBuilder(builder)
 
-  implicit def implyRawURI(uri: Uri) =
-    new RawUri(uri)
-
   implicit def implyRunnable[U](f: () => U) = new java.lang.Runnable {
     def run() { f() }
   }
