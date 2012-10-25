@@ -4,6 +4,7 @@ import com.ning.http.client.{
   AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
   AsyncHttpClientConfig
 }
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
 
@@ -20,7 +21,7 @@ case class Http(
   /** Convenience method for an executor with a fixed thread pool of
       the given size */
   def threads(promiseThreadPoolSize: Int) =
-    copy(promiseExecutor = DaemonThreadPool(promiseThreadPoolSize))
+    copy(promiseExecutor = DaemonThreads(promiseThreadPoolSize))
 }
 
 /** Singleton default Http executor, can be used directly or altered
@@ -33,10 +34,18 @@ object Http extends Http(
 )
 
 private [dispatch] object Defaults {
-  val client = new AsyncHttpClient
-  val timeout = Duration.None
-  val promiseExecutor = DaemonThreadPool(256)
-  val timer = new HashedWheelTimer
+  lazy val client = new AsyncHttpClient(config)
+  lazy val timeout = Duration.None
+  lazy val config = new AsyncHttpClientConfig.Builder()
+    .setAsyncHttpClientProviderConfig(
+      new NettyAsyncHttpProviderConfig().addProperty(
+        NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, bossExecutor
+      )
+    ).build()
+  lazy val bossExecutor =
+    juc.Executors.newCachedThreadPool(DaemonThreads.factory)
+  lazy val promiseExecutor = DaemonThreads(256)
+  lazy val timer = new HashedWheelTimer
 }
 
 trait HttpExecutor { self =>
@@ -71,7 +80,7 @@ trait HttpExecutor { self =>
   }
 }
 
-object DaemonThreadPool {
+object DaemonThreads {
   /** produces daemon threads that won't block JVM shutdown */
   val factory = new juc.ThreadFactory {
     def newThread(runnable: Runnable): Thread ={
