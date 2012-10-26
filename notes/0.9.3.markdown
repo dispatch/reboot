@@ -21,6 +21,14 @@ shared [HashedWheelTimer][timer].
 [timer]: http://docs.jboss.org/netty/3.1/api/org/jboss/netty/util/HashedWheelTimer.html
 
 
+### Json4s support
+
+Contributed by Ivan Porto Carrero, the modules dispatch-json4s-native
+and dispatch-json4s-jackson each provide handlers `as.json4s.Json` for
+complete responses and `as.json.stream.Json` for streaming
+responses. Choose one module as a dependency; the handlers inside have
+the same names.
+
 ### Daemon threads all the way down
 
 To facilitate use of Dispatch in the Scala console, in automated
