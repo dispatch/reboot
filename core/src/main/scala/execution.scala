@@ -45,7 +45,7 @@ private [dispatch] object Defaults {
   lazy val bossExecutor =
     juc.Executors.newCachedThreadPool(DaemonThreads.factory)
   lazy val promiseExecutor = DaemonThreads(256)
-  lazy val timer = new HashedWheelTimer
+  lazy val timer = new HashedWheelTimer(DaemonThreads.factory)
 }
 
 trait HttpExecutor { self =>
