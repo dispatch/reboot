@@ -2,7 +2,7 @@
 
 The new `dispatch.retry` package provides support for retrying
 requests that end in failure. Failure can be defined in terms of
-`Either` with a `Left`, `Option` with a `None`, or a
+`Either` with a `Left`, `Option` with a `None`, or any
 `Success.predicate` defined by the application.
 
     def remoteProcedure: Promise[Either[String,String]] ...
@@ -68,3 +68,9 @@ now it's called `HttpExecutor` to avoid namespace collisions with
 juc's `Executor`. Where possible you should use the Http class for
 customization, since more abstract methods may be added to this trait
 in the future. With the case class you benefit from default values.
+
+### Compatible Scala Versions
+
+This release of Dispatch supports all Scala versions from 2.8.1 to
+2.9.2. The core module has been compiled with Scala 2.10.0-RC1 and
+published as `dispatch-core_2.10-0.9.3`.
