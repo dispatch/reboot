@@ -15,6 +15,8 @@ case class Http(
   promiseExecutor: juc.Executor = Defaults.promiseExecutor,
   timer: Timer = Defaults.timer
 ) extends HttpExecutor {
+  import AsyncHttpClientConfig.Builder
+
   /** Convenience method for an Executor with the given timeout */
   def waiting(t: Duration) = copy(timeout=t)
 
@@ -22,6 +24,15 @@ case class Http(
       the given size */
   def threads(promiseThreadPoolSize: Int) =
     copy(promiseExecutor = DaemonThreads(promiseThreadPoolSize))
+
+  /** Replaces `client` with a new instance configured using the withBuilder
+      function. The current client config is the builder's prototype.  */
+  def configure(withBuilder: Builder => Builder) =
+    copy(client =
+      new AsyncHttpClient(withBuilder(
+        new AsyncHttpClientConfig.Builder(client.getConfig)
+      ).build)
+    )
 }
 
 /** Singleton default Http executor, can be used directly or altered
@@ -41,7 +52,8 @@ private [dispatch] object Defaults {
       new NettyAsyncHttpProviderConfig().addProperty(
         NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, bossExecutor
       )
-    ).build()
+    ).setRequestTimeoutInMs(-1) // don't timeout streaming connections
+    .build
   lazy val bossExecutor =
     juc.Executors.newCachedThreadPool(DaemonThreads.factory)
   lazy val promiseExecutor = DaemonThreads(256)
