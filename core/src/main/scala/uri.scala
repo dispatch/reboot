@@ -46,7 +46,7 @@ object UriEncode {
   def alphanum = alpha ++ digit
   def mark = '-' :: '_' :: '.' :: '!' :: '~' :: '*' ::
              '\'' :: '(' :: ')' :: Nil
-  def unreserved = alpha ++ mark
+  def unreserved = alphanum ++ mark
   def pchar = unreserved ++ (
     ':' :: '@' :: '&' :: '=' :: '+' :: '$' :: ',' :: Nil
   )
