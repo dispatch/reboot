@@ -1,0 +1,76 @@
+### Retry on application-defined failure
+
+The new `dispatch.retry` package provides support for retrying
+requests that end in failure. Failure can be defined in terms of
+`Either` with a `Left`, `Option` with a `None`, or any
+`Success.predicate` defined by the application.
+
+    def remoteProcedure: Promise[Either[String,String]] ...
+    
+    val p = retry.Directly(5)(remoteProcedure)
+
+This would retry the request immediately, up to five times, when a
+result is a `Left`. Since it's not always the best thing to hammer a
+service that is having trouble, we also have `retry.Pause` which takes
+a fixed pause interval, and `retry.Backoff` which implements an
+exponential backoff.
+
+Retries are implemented with non-blocking promise composition and a
+shared [HashedWheelTimer][timer].
+
+[timer]: http://docs.jboss.org/netty/3.1/api/org/jboss/netty/util/HashedWheelTimer.html
+
+
+### Json4s support
+
+Contributed by [casualjim][casualjim], the modules dispatch-json4s-native
+and dispatch-json4s-jackson each provide handlers `as.json4s.Json` for
+complete responses and `as.json.stream.Json` for streaming
+responses. Choose one module as a dependency; the handlers inside have
+the same names.
+
+[casualjim]: https://github.com/casualjim
+
+### Daemon threads all the way down
+
+To facilitate use of Dispatch in the Scala console, in automated
+tests, in other libraries, we've ferreted out the threadpools in
+underlying libraries and provided them with a factory for daemon
+threads. As a result, you won't have to call `Http#shutdown` so
+studiously.
+
+Server applications may continue to call `Http#shutdown` from their
+own graceful shutdown procedures.
+
+### Http is a case class
+
+As was helpfully pointed out on github, the factory methods on Http
+were like lame versions of the `copy` method of case
+classes. Realizing this was true, we made `Http` a case class with
+default values for all parameters. This way, you can customize the
+Http instance and we can add parameters later, if necessary, without
+breaking your code.
+
+The `Http` singleton object is an instance of this class with all
+parameters set to their defaults. The `waiting` and `threads` factory
+methods are still there, now based on `copy`.
+
+### Breaking Changes
+
+The `Http` case class refactor is likely to break code that does any
+significant customization of its `Http` instance. If you extend Http,
+you'll get a warning for extending a case class. Instead of doing
+that, construct the case class with the values you were supplying
+before in method overrides.
+
+The Http class extends a trait that used to be called `Executor`, but
+now it's called `HttpExecutor` to avoid namespace collisions with
+juc's `Executor`. Where possible you should use the Http class for
+customization, since more abstract methods may be added to this trait
+in the future. With the case class you benefit from default values.
+
+### Compatible Scala Versions
+
+This release of Dispatch supports all Scala versions from 2.8.1 to
+2.9.2. The core module has been compiled with Scala 2.10.0-RC1 and
+published as `dispatch-core_2.10-0.9.3`.

@@ -5,7 +5,7 @@ import dispatch._
 import com.ning.http.client.oauth._
 
 trait SomeHttp {
-  def http: Executor
+  def http: HttpExecutor
 }
 
 trait SomeConsumer {

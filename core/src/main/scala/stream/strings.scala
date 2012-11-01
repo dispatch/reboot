@@ -1,7 +1,5 @@
 package dispatch.stream
 
-import scala.collection.JavaConverters._
-
 import com.ning.http.client._
 import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
 
@@ -16,7 +14,7 @@ trait Strings[T] extends AsyncHandler[T] {
   def onStatusReceived(status: HttpResponseStatus) = state
   def onHeadersReceived(headers: HttpResponseHeaders) = {
     for {
-      ct <- headers.getHeaders.get("content-type").asScala.headOption
+      ct <- Option(headers.getHeaders.getFirstValue("content-type"))
       cs <- Option(parseCharset(ct))
     } charset = cs
     state

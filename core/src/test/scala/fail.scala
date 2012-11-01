@@ -19,6 +19,7 @@ with DispatchCleanup {
   }
 
   import dispatch._
+  import Http.promise
 
   def localhost = host("127.0.0.1", server.port)
 
@@ -41,7 +42,7 @@ with DispatchCleanup {
   property("project right on success2") = {
     val path = Right("foo")
     val eth = for {
-      p <- Promise(path).right
+      p <- promise(path).right
       res <- Http(localhost / p OK as.String).either.right
       res2 <- Http(localhost / p OK as.String).either.right
     } yield res2.length
@@ -54,8 +55,8 @@ with DispatchCleanup {
     val good = Right("meh")
     val bad = Right(sample)
     val eth = for {
-      g <- Promise(good).right
-      b <- Promise(bad).right
+      g <- promise(good).right
+      b <- promise(bad).right
       res <- Http(localhost / g OK as.String).either.right
       res2 <- Http(localhost / b OK as.String).either.right
     } yield res2

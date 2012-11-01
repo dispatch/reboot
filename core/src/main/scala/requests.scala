@@ -44,15 +44,17 @@ trait MethodVerbs extends RequestVerbs {
 
 trait UrlVerbs extends RequestVerbs {
   def url = subject.build.getUrl
-  def / (path: String) = {
-    val uri = new Uri(url)
-    subject.setUrl(uri.copy(path = uri.getPath match {
-      case u if u.endsWith("/") => u + path
-      case u => u + "/" + path
-    }).toASCIIString)
+  def / (segment: String) = {
+    val uri = RawUri(url)
+    val encodedSegment = UriEncode.path(segment)
+    val rawPath = uri.path.orElse(Some("/")).map {
+      case u if u.endsWith("/") => u + encodedSegment
+      case u => u + "/" + encodedSegment
+    }
+    subject.setUrl(uri.copy(path=rawPath).toString)
   }
   def secure = {
-    subject.setUrl(new Uri(url).copy(scheme="https").toString)
+    subject.setUrl(RawUri(url).copy(scheme=Some("https")).toString)
   }
 }
 
