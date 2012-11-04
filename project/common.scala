@@ -4,7 +4,7 @@ object Common {
   import Keys._
 
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
-    version := "0.9.4-SNAPSHOT",
+    version := "0.9.4",
 
     crossScalaVersions :=
       Seq("2.8.1", "2.8.2", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
