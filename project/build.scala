@@ -5,9 +5,12 @@ object Builds extends sbt.Build {
 
   /** Aggregates tasks for all projects */
   lazy val root = Project(
-    "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
-      ls.Plugin.LsKeys.skipWrite := true
-    )).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
+    "dispatch-all", file("."), settings =
+      Defaults.defaultSettings ++ Common.settings ++ Seq(
+        ls.Plugin.LsKeys.skipWrite := true,
+      publish := { }
+      )
+    ).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
 
   def module(name: String) =
     Project(name,
