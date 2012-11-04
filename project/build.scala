@@ -3,18 +3,16 @@ import sbt._
 object Builds extends sbt.Build {
   import Keys._
 
-  /** Defines common settings for all projects */
-  lazy val setup = Project("setup", file("setup"))
-
   /** Aggregates tasks for all projects */
   lazy val root = Project(
     "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
       ls.Plugin.LsKeys.skipWrite := true
-    )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
+    )).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
 
   def module(name: String) =
-    Project(name, file(name.replace("-", "")))
-      .delegateTo(ufcheck, setup)
+    Project(name,
+            file(name.replace("-", "")),
+            settings = Defaults.defaultSettings ++ Common.settings)
       .dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core")
