@@ -46,7 +46,7 @@ object Builds extends sbt.Build {
   ).dependsOn(scalacheck % "test->compile")
 
   lazy val scalacheck = RootProject(
-    uri("git://github.com/n8han/scalacheck.git#2a90c81")
+    uri("git://github.com/n8han/scalacheck.git#3aad8be")
   )
 }
 
