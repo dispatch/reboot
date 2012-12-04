@@ -17,32 +17,30 @@ with DispatchCleanup {
     object What extends Params.Extract("what", Params.first)
     object EchoHeader extends StringHeader("echo")
     netty.Http.anylocal.handler(netty.async.Planify {
-      unfiltered.kit.AsyncCycle.perfect {
-        case req @ Path("/echo") & Params(Echo(echo)) =>
-          Http.promise(PlainTextContent ~> ResponseString(echo))
-        case req @ Path("/ask") & Params(Echo(echo) & What(what)) =>
-          for {
-            e <- Http(
-              localhost / what << Map("echo" -> echo) OK as.String
-            ).either
-          } yield {
-            e.fold(
-              _ => InternalServerError ~> ResponseString("service error"),
-              str => PlainTextContent ~> ResponseString(str)
-            )
-          }
-        case req @ Path("/ask") & Params(What(what)) & EchoHeader(echo) =>
-          for {
-            e <- Http(
-              localhost / what << Map("echo" -> echo) OK as.String
-            ).either
-          } yield {
-            e.fold(
-              _ => InternalServerError ~> ResponseString("service error"),
-              str => PlainTextContent ~> ResponseString(str)
-            )
-          }
-      }
+      case req @ Path("/echo") & Params(Echo(echo)) =>
+        req.respond(PlainTextContent ~> ResponseString(echo))
+      case req @ Path("/ask") & Params(Echo(echo) & What(what)) =>
+        for {
+          e <- Http(
+            localhost / what << Map("echo" -> echo) OK as.String
+          ).either
+        } {
+          req.respond(e.fold(
+            _ => InternalServerError ~> ResponseString("service error"),
+            str => PlainTextContent ~> ResponseString(str)
+          ))
+        }
+      case req @ Path("/ask") & Params(What(what)) & EchoHeader(echo) =>
+        for {
+          e <- Http(
+            localhost / what << Map("echo" -> echo) OK as.String
+          ).either
+        } {
+          req.respond(e.fold(
+            _ => InternalServerError ~> ResponseString("service error"),
+            str => PlainTextContent ~> ResponseString(str)
+          ))
+        }
     }).start()
   }
 
