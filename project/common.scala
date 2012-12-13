@@ -3,6 +3,13 @@ import sbt._
 object Common {
   import Keys._
 
+  val testSettings:Seq[Setting[_]] = Seq(
+    testOptions in Test += Tests.Cleanup { loader =>
+      val c = loader.loadClass("unfiltered.spec.Cleanup$")
+      c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
+    }
+  )
+
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
     version := "0.9.4",
 
@@ -10,11 +17,6 @@ object Common {
       Seq("2.8.1", "2.8.2", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2"),
 
     organization := "net.databinder.dispatch",
-
-    testOptions in Test += Tests.Cleanup { loader =>
-      val c = loader.loadClass("unfiltered.spec.Cleanup$")
-      c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
-    },
 
     homepage :=
       Some(new java.net.URL("http://dispatch.databinder.net/")),

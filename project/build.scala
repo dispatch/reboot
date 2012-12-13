@@ -15,7 +15,9 @@ object Builds extends sbt.Build {
   def module(name: String) =
     Project(name,
             file(name.replace("-", "")),
-            settings = Defaults.defaultSettings ++ Common.settings)
+            settings = Defaults.defaultSettings ++
+              Common.settings ++
+              Common.testSettings)
       .dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core")
