@@ -66,10 +66,6 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Listener to be called in an executor when promise is available */
   protected [dispatch] def addListener(f: () => Unit)
 
-  // lazily assign result when available, e.g. to evaluate mapped function
-  // that may kick off further promises
-  self.addListener { () => result }
-
   /** True if promised value is available */
   def isComplete: Boolean
 
@@ -87,6 +83,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
   /** Map the promised value to something else */
   def map[B](f: A => B): Promise[B] =
     new SelfPromise[B] {
+      addListener { () => result }
       def claim = f(self())
       def replay = self.replay.map(f)
     }
@@ -96,6 +93,7 @@ trait Promise[+A] extends PromiseSIP[A] { self =>
              (f: A => B)
              (implicit guarantor: Guarantor[B,C,That]): Promise[C] =
     new Promise[C] {
+      addListener { () => result }
       lazy val other = guarantor.promise(self, f(self()))
       def addListener(f: () => Unit) {
         for (_ <- self; _ <- other) f()
