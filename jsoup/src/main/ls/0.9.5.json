@@ -1,0 +1,21 @@
+{
+  "organization" : "net.databinder.dispatch",
+  "name" : "dispatch-jsoup",
+  "version" : "0.9.5",
+  "description" : "Dispatch module providing jsoup html parsing support",
+  "site" : "http://dispatch.databinder.net/",
+  "tags" : [ ],
+  "docs" : "",
+  "resolvers" : [ "https://oss.sonatype.org/content/repositories/releases" ],
+  "dependencies" : [ {
+    "organization" : "org.jsoup",
+    "name" : "jsoup",
+    "version" : "1.6.3"
+  } ],
+  "scalas" : [ "2.8.1", "2.8.2", "2.9.0-1", "2.9.1", "2.9.1-1", "2.9.2" ],
+  "licenses" : [ {
+    "name" : "LGPL v3",
+    "url" : "http://www.gnu.org/licenses/lgpl.txt"
+  } ],
+  "sbt" : false
+}
