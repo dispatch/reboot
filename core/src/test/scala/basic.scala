@@ -20,6 +20,8 @@ with DispatchCleanup {
         PlainTextContent ~> ResponseString(req.method + URLDecoder.decode(echo, "utf-8"))
       case req @ Path(Seg("echopath" :: Nil)) =>
         PlainTextContent ~> ResponseString(req.method)
+      case Path(Seg("agent" :: Nil)) & UserAgent(agent) =>
+        PlainTextContent ~> ResponseString(agent)
     }).start()
   }
 
@@ -71,4 +73,12 @@ with DispatchCleanup {
     )
     res() =? ("OPTIONS" + sample)
   }
+
+  property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
+    val res = Http(
+      localhost / "agent" > as.String
+    )
+    res() =? ("Dispatch/%s" format BuildInfo.version)
+  }
+
 }

@@ -8,3 +8,11 @@ libraryDependencies ++= Seq(
 )
 
 seq(lsSettings :_*)
+
+seq(buildInfoSettings:_*)
+
+sourceGenerators in Compile <+= buildInfo
+
+buildInfoKeys := Seq[BuildInfoKey](version)
+
+buildInfoPackage := "dispatch"
