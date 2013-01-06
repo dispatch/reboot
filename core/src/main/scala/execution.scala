@@ -48,6 +48,7 @@ private [dispatch] object Defaults {
   lazy val client = new AsyncHttpClient(config)
   lazy val timeout = Duration.None
   lazy val config = new AsyncHttpClientConfig.Builder()
+    .setUserAgent("Dispatch/%s" format BuildInfo.version)
     .setAsyncHttpClientProviderConfig(
       new NettyAsyncHttpProviderConfig().addProperty(
         NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, bossExecutor
