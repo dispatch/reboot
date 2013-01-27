@@ -1,4 +1,4 @@
-name := "json4s-native"
+name := "dispatch-json4s-native"
 
 description :=
   "Dispatch module providing json4s native support"
