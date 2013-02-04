@@ -31,8 +31,8 @@ preferred term these days is for-comprehensions.
 ### Break apart complex problems
 
 For non-trivial promise operations, especially when trying to mix with
-iterables, it may be easier to start with the lower level map,
-flatmap, foreach, and many other methods that for-expressions
+Iterables, it may be easier to start with the lower level map,
+flatMap, foreach, and many other methods that for-expressions
 translate into.
 
 Once you get things working with these, you can probably translate it

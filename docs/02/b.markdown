@@ -63,7 +63,7 @@ caught. Exceptions are easy to handle when you have a straightforward
 thread of computation. In asynchronous programming, you don't.
 
 Think of exceptions as an ejection seat. They allow you to escape from
-failure without planning ahead. On the downside, somebody's got to
+failure without planning ahead. On the downside, some body's got to
 perform the rescue operation to get you home, which could range in
 difficulty from easy to impossible. With asynchronous callbacks it's
 as if you're flying over enemy territory, or into orbit. The cost and

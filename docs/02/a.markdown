@@ -48,7 +48,7 @@ We'll make a slight change to the extraction method.
 def extractTemp(xml: scala.xml.Elem) = {
   val seq = for {
     elem <- xml \\\\ "temp_c"
-    attr <- elem.attribute("data") 
+    attr <- elem.attribute("data")
   } yield attr.toString.toInt
   seq.headOption
 }
@@ -91,7 +91,7 @@ def hottest(locs: String*) = {
 ```
 
 If the nested for-expressions throw you for a loop, keep in mind that
-promises are not themselves iterable. You're dealing with unrelated
+promises are not themselves Iterable. You're dealing with unrelated
 types, even if they share some philosophical opinions. They can't be
 haphazardly mixed in the same for-expression.
 

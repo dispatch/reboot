@@ -33,7 +33,7 @@ like this in the output:
     length: dispatch.Promise[Int] = Promise(2)
 
 Both promises depend on the same network operation. By the time the
-second is evealuated by the console, its underlying value may or may
+second is evaluated by the console, its underlying value may or may
 not be available.  But if you try a moment or two later, you'll see
 that both promises print their values.
 
