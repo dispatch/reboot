@@ -1,0 +1,22 @@
+### Promised value contention
+
+An issue was raised on the [mailing list][list] involving highly
+concurrent use of Dispatch. Listeners added to the underlying future
+are handled by thread-pool executor, which executes each listener in
+its own thread. Many of these threads were observed to be waiting on
+the assignment of the same `lazy val result`, severely affecting
+performance in these conditions.
+
+In this release Dispatch cuts the number of listeners added to its
+underlying future, reducing contention and improving performance.
+
+
+### Retry handler type variance
+
+Contra-variance is added to type `T` of `dispatch.retry.Success` so
+that inferred subtypes of `Promise` may also be passed to retry
+handlers.
+
+In other words, more stuff that you want to compile will now compile.
+
+[list]: https://groups.google.com/forum/?fromgroups#!forum/dispatch-scala

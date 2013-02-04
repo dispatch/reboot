@@ -45,7 +45,7 @@ object Backoff extends CountingRetry {
   }
 }
 
-class Success[T](val predicate: T => Boolean)
+class Success[-T](val predicate: T => Boolean)
 
 object Success {
   implicit def either[A,B]: Success[Either[A,B]] =

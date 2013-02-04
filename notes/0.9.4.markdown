@@ -1,0 +1,24 @@
+### Fixes
+
+* Numeric characters being escaped by `/` path builder, found and
+  fixed by [softprops][softprops]
+* Open connections were closed by default after 60 seconds,
+  interfering with the streaming API consumption. The default is
+  [eliminated][streaming].
+  
+### Enhancements
+
+* New `configure` method makes it easier to build on Dispatch's
+  default AsyncHttpClient configuration.
+
+[softprops]: https://github.com/dispatch/reboot/commit/b0fcb6c0243e9cbe453fd22bd9dbb24981baa54c
+[streaming]: https://github.com/dispatch/reboot/issues/30
+
+
+    val http =
+      Http.configure { config: AsyncHttpClientConfig.Builder =>
+        config.setRequestTimeoutInMs(60000) // keep old default?
+      }
+
+
+

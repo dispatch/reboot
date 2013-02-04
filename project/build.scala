@@ -3,18 +3,21 @@ import sbt._
 object Builds extends sbt.Build {
   import Keys._
 
-  /** Defines common settings for all projects */
-  lazy val setup = Project("setup", file("setup"))
-
   /** Aggregates tasks for all projects */
   lazy val root = Project(
-    "dispatch-all", file("."), settings = Defaults.defaultSettings ++ Seq(
-      ls.Plugin.LsKeys.skipWrite := true
-    )).delegateTo(setup).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
+    "dispatch-all", file("."), settings =
+      Defaults.defaultSettings ++ Common.settings ++ Seq(
+        ls.Plugin.LsKeys.skipWrite := true,
+      publish := { }
+      )
+    ).aggregate(core, liftjson, jsoup, tagsoup, json4sJackson, json4sNative)
 
   def module(name: String) =
-    Project(name, file(name.replace("-", "")))
-      .delegateTo(ufcheck, setup)
+    Project(name,
+            file(name.replace("-", "")),
+            settings = Defaults.defaultSettings ++
+              Common.settings ++
+              Common.testSettings)
       .dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core")
@@ -45,7 +48,7 @@ object Builds extends sbt.Build {
   ).dependsOn(scalacheck % "test->compile")
 
   lazy val scalacheck = RootProject(
-    uri("git://github.com/n8han/scalacheck.git#2a90c81")
+    uri("git://github.com/n8han/scalacheck.git#3aad8be")
   )
 }
 
