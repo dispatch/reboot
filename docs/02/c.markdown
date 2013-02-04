@@ -7,7 +7,7 @@ promise to fully control and represent error conditions.
 ### Promise#either
 
 Much like `Promise#option`, the either method returns a promise that
-catches any exception that occurrs in performing the request and
+catches any exception that occurs in performing the request and
 handling its response. But unlike option, either holds on to its
 captured exception.
 
@@ -62,7 +62,7 @@ def extractTemp(xml: scala.xml.Elem):
   Either[String,Int] = {
   val seq = for {
     elem <- xml \\\\ "temp_c"
-    attr <- elem.attribute("data") 
+    attr <- elem.attribute("data")
   } yield attr.toString.toInt
   seq.headOption.toRight {
     "Temperature missing in service response"
@@ -90,7 +90,7 @@ def temperature(loc: String) =
 
 This is fairly similar to the version created with option. You'll
 recall that we can't haphazardly mix promises with other types in for
-expressions, because a promise *is not* an iterable or an
+expressions, because a promise *is not* an Iterable or an
 either. However, if you want to be a little bit fancy you can condense
 these operations by making everything a promise.
 
@@ -152,7 +152,7 @@ def hottest(locs: String*) = {
 ```
 
 This method returns a promise of a 2-tuple, including an option of the
-max and iterable of any errors. With this you can know which city was
+max and Iterable of any errors. With this you can know which city was
 the hottest, as well as which inputs failed and why.
 
 ### Testing the hottest

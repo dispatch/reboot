@@ -11,7 +11,7 @@ as its underlying transport. For more info, see the
 
 ### Mailing List
 
-There's a [mailing list for Dispatch][mail]. Please mail the list **before opening 
-github issues** for problems that are not obvious, reproducable bugs.
+There's a [mailing list for Dispatch][mail]. Please mail the list **before opening
+github issues** for problems that are not obvious, reproducible bugs.
 
 [mail]: https://groups.google.com/forum/?fromgroups#!forum/dispatch-scala

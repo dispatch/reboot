@@ -38,8 +38,8 @@ available until all the component promises have completed.
 
 ### Implicit ordering
 
-In the body of the for expression we're using `max` on this iterable
-of pairs. Tuples derive thir orderings from their component parts,
+In the body of the for expression we're using `max` on this Iterable
+of pairs. Tuples derive their orderings from their component parts,
 so the max of our tuple `(Int, String)` will be a pair with the
 highest temperature.
 
