@@ -1,7 +1,8 @@
 package dispatch.immutable
 
+import java.io.File
 import dispatch.{IDNDomainHelpers, RawUri, UriEncode}
-import com.ning.http.client.{FluentStringsMap, RequestBuilder}
+import com.ning.http.client.{FluentCaseInsensitiveStringsMap, FluentStringsMap, RequestBuilder}
 
 object HttpRequest {
   def apply() = new HttpRequest
@@ -20,7 +21,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     withChange(_.setMethod(method))
   }
 
-  // symbol: :/
   def setHost(host: String): HttpRequest = {
     lazy val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
     withChange(_.setUrl("http://%s/".format(asciiSafeDomain)))
@@ -34,7 +34,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
   // symbol? ::/ or :[ or...
   // def setPort(port: Int): HttpRequest
 
-  // symbol: /
   def /(path: String) = addPath(path)
   def addPath(segment: String): HttpRequest = {
     val uri = RawUri(url)
@@ -47,11 +46,16 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
   }
   // def removePath(path: String): HttpRequest
 
-  // symbol: <:<
-  // def addHeaders(headers: Traversable[(String, String)]): HttpRequest
+  // todo: test
+  def <:<(headers: Traversable[(String, String)]): HttpRequest = addHeaders(headers)
+  def addHeaders(headers: Traversable[(String, String)]): HttpRequest = {
+    val headersMap = headers.foldLeft(new FluentCaseInsensitiveStringsMap) {
+      case (acc, (key, value)) => acc.add(key, value)
+    }
+    withChange(_.setHeaders(headersMap))
+  }
   // def removeHeaders(headers: Traversable[(String, String)]): HttpRequest
 
-  // symbol: <<?
   def <<?(params: Traversable[(String, String)]): HttpRequest = addQueryPrams(params)
   def addQueryPrams(params: Traversable[(String, String)]): HttpRequest = {
     val paramsMap = params.foldLeft(new FluentStringsMap) {
@@ -62,20 +66,37 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
   // def removeQueryParam(params: Traversable[(String, String)]): HttpRequest
 
   // todo: Set the Verb to POST
-  // symbol: <<
-  // def addPostParams(params: Traversable[(String, String)]): HttpRequest
+  def <<(params: Traversable[(String, String)]): HttpRequest = addPostParams(params)
+  def addPostParams(params: Traversable[(String, String)]): HttpRequest = {
+    val paramsMap = params.foldLeft(new FluentStringsMap) {
+      case (acc, (key, value)) => acc.add(key, value)
+    }
+    withChange(_.setMethod("POST").setParameters(paramsMap))
+  }
   // def removePostParams(params: Traversable[(String, String)]): HttpRequest
 
   // todo: Set the Verb to PUT
-  // symbol: <<<
-  // def addPutBody(body: String): HttpRequest
-  // def addPutBody(body: File): HttpRequest
+  def <<<(body: String): HttpRequest = addPutBody(body)
+  def addPutBody(body: String): HttpRequest = {
+    withChange(_.setMethod("PUT").setBody(body))
+  }
+
+  def <<<(body: File): HttpRequest = addPutBody(body)
+  def addPutBody(body: File): HttpRequest = {
+    withChange(_.setMethod("PUT").setBody(body))
+  }
 
   // todo: Merge requests
   // symbol: <&
   // def <&(other: HttpRequest): HttpRequest
 
-  // symbol: secure
-  // def setSecure(): HttpRequest
-  // def isSecure(): Boolean
+  // todo: Add cookies?
+
+  // todo: test
+  def secure: HttpRequest = {
+    withChange(_.setUrl(RawUri(url).copy(scheme = Some("https")).toString))
+  }
+
+  // todo: test
+  def isSecure(): Boolean = url.startsWith("https")
 }

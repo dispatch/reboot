@@ -35,18 +35,17 @@ with DispatchCleanup {
   // a shim until we can update scalacheck to a version that non-alpha strings that don't break Java
   val syms = "&#$@%"
 
-  // property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
-  //   val res = Http(
-  //     localhost / "echo" << Map("echo" -> sample) > as.String
-  //   )
-  //   res() =? ("POST" + sample)
-  // }
+  property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
+    val res = Http(
+      localhost / "echo" << Map("echo" -> sample) > as.String
+    )
+    res() =? ("POST" + sample)
+  }
 
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.String
     )
-    println(res())
     res() =? ("GET" + sample)
   }
 
