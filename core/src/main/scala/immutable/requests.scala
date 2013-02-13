@@ -9,7 +9,16 @@ object HttpRequest {
 
 class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBuilder()) {
 
+  private[this] def url = request.build.getUrl()
   private[this] def withChange(f: RequestBuilder => RequestBuilder) = new HttpRequest(f(request))
+
+  def setUrl(url: String): HttpRequest = {
+    withChange(_.setUrl(url))
+  }
+
+  def setMethod(method: String): HttpRequest = {
+    withChange(_.setMethod(method))
+  }
 
   // symbol: :/
   def setHost(host: String): HttpRequest = {
@@ -24,8 +33,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
 
   // symbol? ::/ or :[ or...
   // def setPort(port: Int): HttpRequest
-
-  def url = request.build.getUrl()
 
   // symbol: /
   def /(path: String) = addPath(path)

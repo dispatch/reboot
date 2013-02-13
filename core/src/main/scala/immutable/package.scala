@@ -8,4 +8,7 @@ package object immutable {
   // Probably a bad idea.
   implicit def IgnoreMe(builder: HttpRequest) =
     builder.request
+
+  implicit def initRequestVerbs(verb: RequestVerbs): HttpRequest =
+    verb()
 }

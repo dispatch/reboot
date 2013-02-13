@@ -2,6 +2,7 @@ package dispatch.immutable.spec
 
 import dispatch.as
 import dispatch.Http
+import dispatch.BuildInfo
 import dispatch.immutable._
 import org.scalacheck._
 import dispatch.spec.DispatchCleanup
@@ -56,31 +57,32 @@ with DispatchCleanup {
     res().getResponseBody =? ("GET" + sample)
   }
 
-  // property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
-  //   // (second sample in request path is ignored)
-  //   val res = Http(
-  //     localhost / "echopath" / (sample + syms) / sample OK as.String
-  //   )
-  //   ("GET" + sample + syms) =? res()
-  // }
+  property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
+    // (second sample in request path is ignored)
+    val res = Http(
+      localhost / "echopath" / (sample + syms) / sample OK as.String
+    )
+    ("GET" + sample + syms) =? res()
+  }
 
-  // property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
-  //   val requesturl = "http://127.0.0.1:%d/echopath/%s".format(server.port, URLEncoder.encode(sample + syms, "utf-8"))
-  //   val res = Http(url(requesturl) / sample OK as.String)
-  //   res() == ("GET" + sample + syms)
-  // }
+  property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
+    val requesturl = "http://127.0.0.1:%d/echopath/%s".format(server.port, URLEncoder.encode(sample + syms, "utf-8"))
+    val res = Http(url(requesturl) / sample OK as.String)
+    res() == ("GET" + sample + syms)
+  }
 
+  // Server not running?
   // property("OPTIONS and handle") = forAll(Gen.alphaStr) { (sample: String) =>
   //   val res = Http(
-  //     localhost.OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
+  //     OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
   //   )
   //   res() =? ("OPTIONS" + sample)
   // }
 
-  // property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
-  //   val res = Http(
-  //     localhost / "agent" > as.String
-  //   )
-  //   res() =? ("Dispatch/%s" format BuildInfo.version)
-  // }
+  property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
+    val res = Http(
+      localhost / "agent" > as.String
+    )
+    res() =? ("Dispatch/%s" format BuildInfo.version)
+  }
 }
