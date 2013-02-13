@@ -71,6 +71,10 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
   // def addPutBody(body: String): HttpRequest
   // def addPutBody(body: File): HttpRequest
 
+  // todo: Merge requests
+  // symbol: <&
+  // def <&(other: HttpRequest): HttpRequest
+
   // symbol: secure
   // def setSecure(): HttpRequest
   // def isSecure(): Boolean

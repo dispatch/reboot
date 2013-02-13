@@ -3,6 +3,10 @@ package dispatch.immutable
 object :/ extends HostCreation
 object host extends HostCreation
 
+object /:\ {
+  def apply = HttpRequest
+}
+
 trait HostCreation {
   def apply(host: String): HttpRequest =
     HttpRequest().setHost(host)
