@@ -51,7 +51,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     }
   }
 
-  // todo: test
   def <:<(headers: Traversable[(String, String)]): HttpRequest = addHeaders(headers)
   def addHeaders(headers: Traversable[(String, String)]): HttpRequest = {
     val headersMap = headers.foldLeft(new FluentCaseInsensitiveStringsMap) {
