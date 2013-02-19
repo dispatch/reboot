@@ -70,7 +70,28 @@ object OperationsSpecification extends Properties("Operations") {
     res ?= "https://localhost/path"
   }
 
+  property("GET verb handler") = forAll(Gen.alphaStr) { (sample: String) =>
+    val res1 = getMethod(GET ("localhost"))
+    val res2 = getMethod(POST ("localhost"))
+    val res3 = getMethod(PUT ("localhost"))
+    val res4 = getMethod(DELETE ("localhost"))
+    val res5 = getMethod(TRACE ("localhost"))
+    val res6 = getMethod(OPTIONS ("localhost"))
+    val res7 = getMethod(HEAD ("localhost"))
+
+    res1 ?= "GET"
+    res2 ?= "POST"
+    res3 ?= "PUT"
+    res4 ?= "DELETE"
+    res5 ?= "TRACE"
+    res6 ?= "OPTIONS"
+    res7 ?= "HEAD"
+  }
+
   private[this] def getUrl(req: HttpRequest): String = req.request.build.getUrl()
+
+  private[this] def getMethod(req: HttpRequest): String = req.request.build.getMethod()
+
   private[this] def getHeaders(req: HttpRequest): Map[String, String] =
     JMapWrapper(req.request.build.getHeaders()).toMap.map(pair => (pair._1 -> pair._2.get(0)))
 

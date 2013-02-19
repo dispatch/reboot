@@ -26,13 +26,14 @@ object Http {
 protected[this] trait RequestVerbs extends (() => HttpRequest) {
   this: Any =>
 
-  def apply(): HttpRequest = HttpRequest().setMethod(this.getClass.getName.replaceAll("""\$""", ""))
+  def apply(): HttpRequest
+  def apply(host: String): HttpRequest = apply().setHost(host)
 }
 
-object HEAD    extends RequestVerbs
-object GET     extends RequestVerbs
-object POST    extends RequestVerbs
-object PUT     extends RequestVerbs
-object DELETE  extends RequestVerbs
-object TRACE   extends RequestVerbs
-object OPTIONS extends RequestVerbs
+object HEAD    extends RequestVerbs { def apply() = HttpRequest().setMethod("HEAD") }
+object GET     extends RequestVerbs { def apply() = HttpRequest().setMethod("GET") }
+object POST    extends RequestVerbs { def apply() = HttpRequest().setMethod("POST") }
+object PUT     extends RequestVerbs { def apply() = HttpRequest().setMethod("PUT") }
+object DELETE  extends RequestVerbs { def apply() = HttpRequest().setMethod("DELETE") }
+object TRACE   extends RequestVerbs { def apply() = HttpRequest().setMethod("TRACE") }
+object OPTIONS extends RequestVerbs { def apply() = HttpRequest().setMethod("OPTIONS") }
