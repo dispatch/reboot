@@ -31,9 +31,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     withChange(_.setUrl("http://%s:%d/".format(asciiSafeDomain, port)))
   }
 
-  // symbol? ::/ or :[ or...
-  // def setPort(port: Int): HttpRequest
-
   def /(path: String) = addPath(path)
   def addPath(segment: String): HttpRequest = {
     val uri = RawUri(url)
@@ -44,7 +41,15 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     }
     withChange(_.setUrl(uri.copy(path = rawPath).toString))
   }
-  // def removePath(path: String): HttpRequest
+
+  def removePath(path: String): HttpRequest = {
+    if (url.contains(path)) {
+      val newUri = url.split("/%s".format(path)).mkString
+      withChange(_.setUrl(newUri))
+    } else {
+      this
+    }
+  }
 
   // todo: test
   def <:<(headers: Traversable[(String, String)]): HttpRequest = addHeaders(headers)
@@ -54,7 +59,12 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     }
     withChange(_.setHeaders(headersMap))
   }
-  // def removeHeaders(headers: Traversable[(String, String)]): HttpRequest
+
+  // symbol: !<:<
+  def removeHeaders(headers: Traversable[(String, String)]): HttpRequest = {
+    val headersMap = request.build.getHeaders().deleteAll(headers.map(_._1).toSeq: _*)
+    withChange(_.setHeaders(headersMap))
+  }
 
   def <<?(params: Traversable[(String, String)]): HttpRequest = addQueryPrams(params)
   def addQueryPrams(params: Traversable[(String, String)]): HttpRequest = {
@@ -63,9 +73,13 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     }
     withChange(_.setQueryParameters(paramsMap))
   }
-  // def removeQueryParam(params: Traversable[(String, String)]): HttpRequest
 
-  // todo: Set the Verb to POST
+  // symbol: !<<?
+  def removeQueryParams(params: Traversable[(String, String)]): HttpRequest = {
+    val paramsMap = request.build.getQueryParams().deleteAll(params.map(_._1).toSeq: _*)
+    withChange(_.setQueryParameters(paramsMap))
+  }
+
   def <<(params: Traversable[(String, String)]): HttpRequest = addPostParams(params)
   def addPostParams(params: Traversable[(String, String)]): HttpRequest = {
     val paramsMap = params.foldLeft(new FluentStringsMap) {
@@ -73,9 +87,13 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     }
     withChange(_.setMethod("POST").setParameters(paramsMap))
   }
-  // def removePostParams(params: Traversable[(String, String)]): HttpRequest
 
-  // todo: Set the Verb to PUT
+  // symbol: !<<
+  def removePostParams(params: Traversable[(String, String)]): HttpRequest = {
+    val paramsMap = request.build.getParams().deleteAll(params.map(_._1).toSeq: _*)
+    withChange(_.setParameters(paramsMap))
+  }
+
   def <<<(body: String): HttpRequest = addPutBody(body)
   def addPutBody(body: String): HttpRequest = {
     withChange(_.setMethod("PUT").setBody(body))
@@ -86,17 +104,9 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     withChange(_.setMethod("PUT").setBody(body))
   }
 
-  // todo: Merge requests
-  // symbol: <&
-  // def <&(other: HttpRequest): HttpRequest
-
-  // todo: Add cookies?
-
-  // todo: test
   def secure: HttpRequest = {
     withChange(_.setUrl(RawUri(url).copy(scheme = Some("https")).toString))
   }
 
-  // todo: test
   def isSecure(): Boolean = url.startsWith("https")
 }
