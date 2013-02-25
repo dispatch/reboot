@@ -17,13 +17,15 @@ object OperationsSpecification extends Properties("Operations") {
   }
 
   property("Removing url paths") = forAll(Gen.alphaStr) { (sample: String) =>
+    val middle = "middle" + sample.trim
+
     val res0 = getUrl((baseUrl / sample / "path").removePath("path"))
     val res1 = getUrl((baseUrl / "path" / sample).removePath("path"))
-    val res2 = getUrl((baseUrl / "path" / sample / "path2").removePath(sample))
+    val res2 = getUrl((baseUrl / "path" / middle / "path2").removePath(middle))
 
     res0 ?= ("http://localhost/%s".format(sample))
     res1 ?= ("http://localhost/%s".format(sample))
-    //res2 ?= ("http://localhost/path/path2")
+    res2 ?= "http://localhost/path/path2"
   }
 
   property("Adding headers") = forAll(Gen.alphaStr) { (sample: String) =>

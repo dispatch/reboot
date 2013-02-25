@@ -57,7 +57,6 @@ with DispatchCleanup {
   }
 
   property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
-    // (second sample in request path is ignored)
     val res = Http(
       localhost / "echopath" / (sample + syms) / sample OK as.String
     )
@@ -69,14 +68,6 @@ with DispatchCleanup {
     val res = Http(url(requesturl) / sample OK as.String)
     res() == ("GET" + sample + syms)
   }
-
-  // Server not running?
-  // property("OPTIONS and handle") = forAll(Gen.alphaStr) { (sample: String) =>
-  //   val res = Http(
-  //     OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
-  //   )
-  //   res() =? ("OPTIONS" + sample)
-  // }
 
   property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
