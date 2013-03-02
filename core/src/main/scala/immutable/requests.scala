@@ -59,21 +59,19 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     withChange(_.setHeaders(headersMap))
   }
 
-  // symbol: !<:<
   def removeHeaders(headers: Traversable[(String, String)]): HttpRequest = {
     val headersMap = request.build.getHeaders().deleteAll(headers.map(_._1).toSeq: _*)
     withChange(_.setHeaders(headersMap))
   }
 
-  def <<?(params: Traversable[(String, String)]): HttpRequest = addQueryPrams(params)
-  def addQueryPrams(params: Traversable[(String, String)]): HttpRequest = {
+  def <<?(params: Traversable[(String, String)]): HttpRequest = addQueryParams(params)
+  def addQueryParams(params: Traversable[(String, String)]): HttpRequest = {
     val paramsMap = params.foldLeft(new FluentStringsMap) {
       case (acc, (key, value)) => acc.add(key, value)
     }
     withChange(_.setQueryParameters(paramsMap))
   }
 
-  // symbol: !<<?
   def removeQueryParams(params: Traversable[(String, String)]): HttpRequest = {
     val paramsMap = request.build.getQueryParams().deleteAll(params.map(_._1).toSeq: _*)
     withChange(_.setQueryParameters(paramsMap))
@@ -87,7 +85,6 @@ class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBu
     withChange(_.setMethod("POST").setParameters(paramsMap))
   }
 
-  // symbol: !<<
   def removePostParams(params: Traversable[(String, String)]): HttpRequest = {
     val paramsMap = request.build.getParams().deleteAll(params.map(_._1).toSeq: _*)
     withChange(_.setParameters(paramsMap))
