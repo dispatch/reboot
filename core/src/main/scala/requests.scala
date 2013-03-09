@@ -54,7 +54,7 @@ trait UrlVerbs extends RequestVerbs {
     subject.setUrl(uri.copy(path=rawPath).toString)
   }
   def / (segment: AnyVal): RequestBuilder = segment match {
-    case unit: Unit => this / ""
+    case unit: Unit => subject
     case other      => this / other.toString
   }
   def secure = {
