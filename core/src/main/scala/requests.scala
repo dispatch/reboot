@@ -23,7 +23,7 @@ object host extends HostVerbs
 
 object url extends (String => RequestBuilder) {
   def apply(url: String) = {
-    new RequestBuilder().setUrl(url)
+    new RequestBuilder().setUrl(RawUri(url).toString)
   }
 }
 

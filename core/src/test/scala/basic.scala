@@ -32,6 +32,19 @@ with DispatchCleanup {
   // a shim until we can update scalacheck to a version that non-alpha strings that don't break Java
   val syms = "&#$@%"
 
+  def cyrillicChars = Gen.choose( 0x0400, 0x04FF) map {_.toChar}
+
+  def cyrillic = for {
+      cs <- Gen.listOf(cyrillicChars)
+  } yield {
+      cs.mkString
+  }
+
+  property("url() should encode non-ascii chars in the path") = forAll(cyrillic) { (sample: String) =>
+      val uri = url("http://wikipedia.com/"+sample)
+      uri.build().getUrl() =? RawUri("http://wikipedia.com/"+sample).toString
+  }
+
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
