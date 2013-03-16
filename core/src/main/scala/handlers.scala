@@ -19,8 +19,8 @@ class RequestHandlerTupleBuilder(builder: RequestBuilder) {
     (builder.build(), h)
 }
 
-case class StatusCode(code: Int)
-extends Exception("Unexpected response status: %d".format(code))
+case class StatusCode(code: Int, reason: String)
+extends Exception("Unexpected response status: %d %s".format(code, reason))
 
 class FunctionHandler[T](f: Response => T) extends AsyncCompletionHandler[T] {
   def onCompleted(response: Response) = f(response)
@@ -34,7 +34,7 @@ trait OkHandler[T] extends AsyncHandler[T] {
     if (status.getStatusCode / 100 == 2)
       super.onStatusReceived(status)
     else
-      throw StatusCode(status.getStatusCode)
+      throw StatusCode(status.getStatusCode, status.getStatusText)
   }
 }
 
