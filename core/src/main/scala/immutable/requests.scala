@@ -11,7 +11,18 @@ object HttpRequest {
 class HttpRequest(private[immutable] val request: RequestBuilder = new RequestBuilder()) {
 
   private[this] def url = request.build.getUrl()
-  private[this] def withChange(f: RequestBuilder => RequestBuilder) = new HttpRequest(f(request))
+  private[this] def withChange(f: RequestBuilder => RequestBuilder): HttpRequest = {
+    val builtReq = request.build
+    val newReq = new RequestBuilder()
+      .setUrl(builtReq.getUrl)
+      .setMethod(builtReq.getMethod())
+      .setHeaders(builtReq.getHeaders)
+      .setQueryParameters(builtReq.getQueryParams)
+      .setParameters(builtReq.getParams)
+
+    if (builtReq.getMethod == "PUT") { newReq.setBody(builtReq.getStringData) }
+    new HttpRequest(f(newReq))
+  }
 
   def setUrl(url: String): HttpRequest = {
     withChange(_.setUrl(url))
