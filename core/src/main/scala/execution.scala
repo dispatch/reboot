@@ -7,6 +7,7 @@ import com.ning.http.client.{
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
+import scala.{concurrent => suc }
 
 /** Http executor with defaults */
 case class Http(
@@ -82,6 +83,12 @@ trait HttpExecutor { self =>
     )
 
   lazy val promise = new dispatch.Promise.Factory(self)
+
+  def future[T](request: Request, handler: AsyncHandler[T]): suc.Future[T] = {
+    val lfut = client.executeRequest(request, handler)
+    val promise = suc.Promise[T]()
+    promise.future
+  }
 
   def shutdown() {
     client.close()
