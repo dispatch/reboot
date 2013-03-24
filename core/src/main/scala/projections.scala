@@ -2,63 +2,64 @@ package dispatch
 
 // handy projections
 
-object PromiseEither {
-  class EitherDelegate[+A,+B](underlying: Promise[Either[A,B]])
-  extends DelegatePromise[Either[A,B]] {
-    def delegate = underlying
-  }
+import scala.concurrent.{Future,ExecutionContext}
 
-  class LeftProjection[+A,+B](underlying: => Promise[Either[A,B]]) { self =>
-    private def replay = new LeftProjection(underlying.replay)
-    def flatMap[BB >: B,X](f: A => Promise[Either[X,BB]]):
-      Promise[Either[X,BB]] =
-      new EitherDelegate(underlying) with Promise[Either[X,BB]] {
-        def claim = underlying().left.flatMap { a => f(a)() }
-        def replay = self.replay.flatMap(f)
+object FutureEither {
+
+  class LeftProjection[+A,+B]
+  (underlying: Future[Either[A,B]])(implicit executor: ExecutionContext) {
+
+    def flatMap[BB >: B,X](f: A => Future[Either[X,BB]]):
+      Future[Either[X,BB]] =
+      underlying.flatMap {
+        _.fold(a => f(a),
+                 b => Future.successful(Right(b)))
       }
-    def map[X](f: A => X): Promise[Either[X,B]] =
-      new EitherDelegate(underlying) with Promise[Either[X,B]] {
-        def claim = underlying().left.map(f)
-        def replay = self.replay.map(f)
+
+    def map[X](f: A => X): Future[Either[X,B]] =
+      underlying.map {
+        _.left.map(f)
       }
+
     def foreach[U](f: A => U) {
-      underlying.addListener { () => underlying().left.foreach(f) }
+      underlying.foreach { _.left.foreach(f) }
     }
   }
-  class RightProjection[+A,+B](underlying: Promise[Either[A,B]]) { self =>
-    private def replay = new RightProjection(underlying.replay)
-    def flatMap[AA >: A,Y](f: B => Promise[Either[AA,Y]]):
-    Promise[Either[AA,Y]] =
-      new EitherDelegate(underlying) with Promise[Either[AA,Y]] {
-        def claim = underlying().right.flatMap { b => f(b)() }
-        def replay = self.replay.flatMap(f)
+  class RightProjection[+A,+B]
+  (underlying: Future[Either[A,B]])(implicit executor: ExecutionContext) {
+    def flatMap[AA >: A,Y](f: B => Future[Either[AA,Y]]):
+    Future[Either[AA,Y]] =
+      underlying.flatMap { eth =>
+        eth.fold(a => Future.successful(Left(a)),
+                 b => f(b))
       }
-    def map[Y](f: B => Y): Promise[Either[A,Y]] =
-      new EitherDelegate(underlying) with Promise[Either[A,Y]] {
-        def claim = underlying().right.map(f)
-        def replay = self.replay.map(f)
+
+    def map[Y](f: B => Y): Future[Either[A,Y]] =
+      underlying.map {
+        _.right.map(f)
       }
+
     def foreach(f: B => Unit) {
-      underlying.addListener { () => underlying().right.foreach(f) }
+      underlying.foreach { _.right.foreach(f) }
     }
-    def values[A1 >: A, C]
+/*    def values[A1 >: A, C]
     (implicit ev: RightProjection[A, B] <:<
                   RightProjection[A1, Iterable[C]]) =
-      new PromiseRightIterable.Values(underlying, this)
-  }
-
+      new FutureRightIterable.Values(underlying, this)
+  } */
 }
 
-object PromiseIterable {
+object FutureIterable {
 
-  class Flatten[A](val underlying: Promise[Iterable[A]]) {
-    import underlying.http.promise
-    def flatMap[Iter[B] <: Iterable[B], B](f: A => Promise[Iter[B]]) =
+  class Flatten[A](val underlying: Future[Iterable[A]])
+                  (implicit executor: ExecutionContext) {
+
+    def flatMap[Iter[B] <: Iterable[B], B](f: A => Future[Iter[B]]) =
       underlying.flatMap { iter =>
-        promise.all(iter.map(f)).map { _.flatten }
+        Future.sequence(iter.map(f)).map { _.flatten }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
-    : Promise[Iterable[B]] =
+    : Future[Iterable[B]] =
       underlying.map { _.map(f) }.map { _.flatten }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
@@ -67,13 +68,14 @@ object PromiseIterable {
       new Flatten(underlying.map { _.filter(p) })
     def filter(p: A => Boolean) = withFilter(p)
   }
-  class Values[A](underlying: Promise[Iterable[A]]) {
-    import underlying.http.promise
-    def flatMap[B](f: A => Promise[B]) =
+
+  class Values[A](underlying: Future[Iterable[A]])
+                 (implicit executor: ExecutionContext) {
+    def flatMap[B](f: A => Future[B]) =
       underlying.flatMap { iter =>
-        promise.all(iter.map(f))
+        Future.sequence(iter.map(f))
       }
-    def map[B](f: A => B): Promise[Iterable[B]] =
+    def map[B](f: A => B): Future[Iterable[B]] =
       underlying.map { _.map(f) }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
@@ -85,8 +87,9 @@ object PromiseIterable {
   }
 }
 
-object PromiseRightIterable {
-  import PromiseEither.RightProjection
+/*
+object FutureRightIterable {
+  import FutureEither.RightProjection
   type RightIter[E,A] = RightProjection[E,Iterable[A]]
 
   private def flatRight[L,R](eithers: Iterable[Either[L,R]]) = {
@@ -98,10 +101,9 @@ object PromiseRightIterable {
       } yield (seq :+ cur)
     }
   }
-  class Flatten[E,A](parent: Promise[_], underlying: RightIter[E,A]) {
-    import parent.http.promise
+  class Flatten[E,A](parent: Future[_], underlying: RightIter[E,A]) {
     def flatMap[Iter[B] <: Iterable[B], B]
-    (f: A => Promise[Either[E,Iter[B]]]) =
+    (f: A => Future[Either[E,Iter[B]]]) =
       underlying.flatMap { iter =>
         promise.all(iter.map(f)).map { eths =>
           flatRight(eths).right.map { _.flatten }
@@ -118,9 +120,9 @@ object PromiseRightIterable {
       new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
   }
-  class Values[E,A](parent: Promise[_], underlying: RightIter[E,A]) {
+  class Values[E,A](parent: Future[_], underlying: RightIter[E,A]) {
     import parent.http.promise
-    def flatMap[B](f: A => Promise[Either[E,B]]) =
+    def flatMap[B](f: A => Future[Either[E,B]]) =
       underlying.flatMap { iter =>
         promise.all(iter.map(f)).map(flatRight)
       }
@@ -135,5 +137,6 @@ object PromiseRightIterable {
     def withFilter(p: A => Boolean) =
       new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
-  }
+  } */
 }
+
