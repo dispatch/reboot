@@ -42,11 +42,11 @@ object FutureEither {
     def foreach(f: B => Unit) {
       underlying.foreach { _.right.foreach(f) }
     }
-/*    def values[A1 >: A, C]
+    def values[A1 >: A, C]
     (implicit ev: RightProjection[A, B] <:<
                   RightProjection[A1, Iterable[C]]) =
       new FutureRightIterable.Values(underlying, this)
-  } */
+  }
 }
 
 object FutureIterable {
@@ -87,7 +87,7 @@ object FutureIterable {
   }
 }
 
-/*
+
 object FutureRightIterable {
   import FutureEither.RightProjection
   type RightIter[E,A] = RightProjection[E,Iterable[A]]
@@ -101,17 +101,18 @@ object FutureRightIterable {
       } yield (seq :+ cur)
     }
   }
-  class Flatten[E,A](parent: Future[_], underlying: RightIter[E,A]) {
+  class Flatten[E,A](parent: Future[_], underlying: RightIter[E,A])
+                    (implicit executor: ExecutionContext) {
     def flatMap[Iter[B] <: Iterable[B], B]
     (f: A => Future[Either[E,Iter[B]]]) =
       underlying.flatMap { iter =>
-        promise.all(iter.map(f)).map { eths =>
+        Future.sequence(iter.map(f)).map { eths =>
           flatRight(eths).right.map { _.flatten }
         }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B]) =
       underlying.flatMap { iter =>
-        promise(Right(iter.map(f).flatten))
+        Future.successful(Right(iter.map(f).flatten))
       }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
@@ -120,15 +121,16 @@ object FutureRightIterable {
       new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
   }
-  class Values[E,A](parent: Future[_], underlying: RightIter[E,A]) {
-    import parent.http.promise
+  class Values[E,A](parent: Future[_], underlying: RightIter[E,A])
+                   (implicit executor: ExecutionContext) {
+
     def flatMap[B](f: A => Future[Either[E,B]]) =
       underlying.flatMap { iter =>
-        promise.all(iter.map(f)).map(flatRight)
+        Future.sequence(iter.map(f)).map(flatRight)
       }
     def map[B](f: A => B) =
       underlying.flatMap { iter =>
-        promise(Right(iter.map(f)))
+        Future.successful(Right(iter.map(f)))
     }
     def foreach(f: A => Unit) {
       underlying.foreach { _.foreach(f) }
@@ -137,6 +139,5 @@ object FutureRightIterable {
     def withFilter(p: A => Boolean) =
       new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
-  } */
+  } 
 }
-

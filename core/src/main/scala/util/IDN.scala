@@ -14,7 +14,7 @@ object IDNDomainHelpers {
       IDN.toASCII(domain)
     } catch {
       case error: IllegalArgumentException => throw InternationalDomainConversionException
-      case error => throw error
+      case error: Throwable => throw error
     }
   }
 

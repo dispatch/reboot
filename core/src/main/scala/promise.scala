@@ -54,9 +54,6 @@ class EnrichedFuture[A](underlying: Future[A]) {
   def completeOption = 
     for (tried <- underlying.value) yield tried.get
 
-  implicit def enrichFuture[T](future: Future[T]) =
-    new EnrichedFuture(future)
-
   def print(implicit executor: ExecutionContext) =
     "Promise(%s)".format(either(executor).completeOption.map {
       case Left(exc) => "!%s!".format(exc.getMessage)

@@ -37,10 +37,3 @@ trait OkHandler[T] extends AsyncHandler[T] {
       throw StatusCode(status.getStatusCode)
   }
 }
-
-@deprecated("use objects in dispatch.as package") object As {
-  def apply[T](f: Response => T) = f
-  val string = as.String
-  val bytes = as.Bytes
-  val file = as.File
-}

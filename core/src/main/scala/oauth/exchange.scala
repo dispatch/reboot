@@ -2,6 +2,7 @@ package dispatch.oauth
 
 import dispatch._
 
+import scala.concurrent.{Future,ExecutionContext}
 import com.ning.http.client.oauth._
 
 trait SomeHttp {
@@ -36,16 +37,18 @@ trait Exchange {
     com.ning.http.util.Base64.encode(nonceBuffer)
   }
 
-  def message[A](promised: Promise[A], ctx: String) =
+  def message[A](promised: Future[A], ctx: String)
+                (implicit executor: ExecutionContext)  =
     for (exc <- promised.either.left)
       yield "Unexpected problem fetching %s:\n%s".format(ctx, exc.getMessage)
 
-  def fetchRequestToken: Promise[Either[String,RequestToken]] = {
+  def fetchRequestToken(implicit executor: ExecutionContext)
+  : Future[Either[String,RequestToken]] = {
     val promised = http(
       url(requestToken) 
         << Map("oauth_callback" -> callback)
         <@ (consumer)
-        > AsOAuth.token
+        > as.oauth.Token
     )
     for (eth <- message(promised, "request token")) yield eth.joinRight
   }
@@ -66,12 +69,13 @@ trait Exchange {
   }
 
   def fetchAccessToken(reqToken: RequestToken, verifier: String)
-  : Promise[Either[String,RequestToken]]  = {
+                      (implicit executor: ExecutionContext)
+  : Future[Either[String,RequestToken]]  = {
     val promised = http(
       url(accessToken)
         << Map("oauth_verifier" -> verifier)
         <@ (consumer, reqToken)
-        > AsOAuth.token
+        > as.oauth.Token
     )
     for (eth <- message(promised, "access token")) yield eth.joinRight
   }

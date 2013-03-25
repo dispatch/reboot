@@ -52,34 +52,25 @@ trait HttpExecutor { self =>
   def timer: Timer
   def client: AsyncHttpClient
 
-/*  def apply(builder: RequestBuilder): Promise[Response] =
+  def apply(builder: RequestBuilder): Future[Response] =
     apply(builder.build() -> new FunctionHandler(identity))
 
-  def apply[T](pair: (Request, AsyncHandler[T])): Promise[T] =
+  def apply[T](pair: (Request, AsyncHandler[T])): Future[T] =
     apply(pair._1, pair._2)
-
-  def apply[T](request: Request, handler: AsyncHandler[T]): Promise[T] =
-    new ListenableFuturePromise(
-      client.executeRequest(request, handler),
-      promiseExecutor,
-      this
-    )
- */
 
   def future[T]
     (request: Request, handler: AsyncHandler[T])
     (implicit executor: ExecutionContext): Future[T] = {
     val lfut = client.executeRequest(request, handler)
     val promise = Promise[T]()
-    lfut.addListener(new Runnable {
-      def run() {
-        promise.complete(util.Try(lfut.get()))
+    lfut.addListener(
+      () => promise.complete(util.Try(lfut.get())),
+      new juc.Executor {
+        def execute(runnable: Runnable) {
+          executor.execute(runnable)
+        }
       }
-    }, new juc.Executor {
-      def execute(runnable: Runnable) {
-        executor.execute(runnable)
-      }
-    })
+    )
     promise.future
   }
 
