@@ -3,7 +3,7 @@ package dispatch
 import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
 import juc.TimeUnit
-import scala.concurrent.{Future,ExecutionContext,Await}
+import scala.concurrent.{Future,ExecutionContext,Await,ExecutionException}
 import scala.concurrent.duration.Duration
 import scala.util.control.Exception.{allCatch,catching}
 
@@ -15,6 +15,7 @@ class EnrichedFuture[A](underlying: Future[A]) {
   def either(implicit executor: ExecutionContext)
   : Future[Either[Throwable, A]] =
     underlying.map { res => Right(res) }(executor).recover {
+      case exc: ExecutionException => Left(exc.getCause)
       case throwable => Left(throwable)
     }(executor)
 
