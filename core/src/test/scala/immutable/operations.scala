@@ -90,6 +90,12 @@ object OperationsSpecification extends Properties("Operations") {
     res7 ?= "HEAD"
   }
 
+  property("Testing immutability of requests") = forAll(Gen.alphaStr) { _ =>
+    val req = baseUrl <:< Map("headerkey1" -> "headervalue1")
+    req <:< Map("headerkey2" -> "headervalue2")
+    getHeaders(req).filterKeys(_ == "headerkey1").size ?= 1
+  }
+
   private[this] def getUrl(req: HttpRequest): String = req.request.build.getUrl()
 
   private[this] def getMethod(req: HttpRequest): String = req.request.build.getMethod()
