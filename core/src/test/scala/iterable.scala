@@ -35,15 +35,6 @@ with DispatchCleanup {
     for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
 
-  property("iterable promise guarantor") = forAll(Gen.alphaStr) {
-  (sample: String) =>
-    val values: Promise[Iterable[Int]] = for {
-      chrs <- split(sample)
-      chr <- chrs
-    } yield value(chr)
-    values() == sample.map { _.toInt }
-  }
-
   property("iterable promise values") = forAll(Gen.alphaStr) {
   (sampleL: String) =>
     val sample = sampleL.take(10) // n^2 concurrent requests
