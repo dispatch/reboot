@@ -61,13 +61,15 @@ trait HttpExecutor { self =>
       Future.sequence(seq)
   }
 
-  def apply(builder: RequestBuilder): Future[Response] =
+  def apply(builder: RequestBuilder)
+           (implicit executor: ExecutionContext): Future[Response] =
     apply(builder.build() -> new FunctionHandler(identity))
 
-  def apply[T](pair: (Request, AsyncHandler[T])): Future[T] =
+  def apply[T](pair: (Request, AsyncHandler[T]))
+              (implicit executor: ExecutionContext): Future[T] =
     apply(pair._1, pair._2)
 
-  def future[T]
+  def apply[T]
     (request: Request, handler: AsyncHandler[T])
     (implicit executor: ExecutionContext): Future[T] = {
     val lfut = client.executeRequest(request, handler)
