@@ -26,6 +26,8 @@ package object dispatch {
   implicit def enrichFuture[T](future: Future[T]) =
     new EnrichedFuture(future)
 
+  implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
+
   @deprecated("use scala.concurrent.Future", "0.10.0")
   type Promise[T] = scala.concurrent.Future[T]
 }
