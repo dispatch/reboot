@@ -7,7 +7,7 @@ import com.ning.http.client.{
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
-import scala.concurrent.{Future,Promise,ExecutionContext}
+import scala.concurrent.{Future,ExecutionContext}
 
 /** Http executor with defaults */
 case class Http(
@@ -52,6 +52,15 @@ trait HttpExecutor { self =>
   def timer: Timer
   def client: AsyncHttpClient
 
+  object promise {
+    @deprecated("use scala.concurrent.Future.successful", "0.10.0")
+    def apply[T](f: => T) = Future.successful(f)
+    @deprecated("use scala.concurrent.Future.sequence", "0.10.0")
+    def all[T](seq: Iterable[Future[T]])
+              (implicit executor: ExecutionContext) = 
+      Future.sequence(seq)
+  }
+
   def apply(builder: RequestBuilder): Future[Response] =
     apply(builder.build() -> new FunctionHandler(identity))
 
@@ -62,7 +71,7 @@ trait HttpExecutor { self =>
     (request: Request, handler: AsyncHandler[T])
     (implicit executor: ExecutionContext): Future[T] = {
     val lfut = client.executeRequest(request, handler)
-    val promise = Promise[T]()
+    val promise = scala.concurrent.Promise[T]()
     lfut.addListener(
       () => promise.complete(util.Try(lfut.get())),
       new juc.Executor {
