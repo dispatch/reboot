@@ -51,5 +51,3 @@ object Builds extends sbt.Build {
     uri("git://github.com/n8han/scalacheck.git#3aad8be")
   )
 }
-
-
