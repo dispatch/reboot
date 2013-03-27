@@ -39,7 +39,9 @@ with DispatchCleanup {
     res() =? Left(StatusCode(404))
   }
 
-  property("project right on success2") = {
+  val numList = listOf1(chooseNum(-1000L, 1000L))
+
+  property("project right on success2") = forAll(numList) { sample =>
     val path = Right("foo")
     val eth = for {
       p <- promise(path).right
