@@ -19,10 +19,6 @@ package object dispatch {
     def run() { f() }
   }
 
-  implicit val durationOrdering = Ordering.by[Duration,Long] {
-    _.toMillis
-  }
-
   implicit def enrichFuture[T](future: Future[T]) =
     new EnrichedFuture(future)
 
