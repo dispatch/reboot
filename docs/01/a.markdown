@@ -1,7 +1,7 @@
 Abstraction over promised information
 -------------------------------------
 
-Often, can you can the extend utility of promises with simple
+Often, you can the extend utility of promises with simple
 abstraction. In this example we'll leverage a web service to write an
 internal API that promises to tell us the temperature.
 
@@ -65,7 +65,7 @@ element "temp_c" using the `\\\\` method of `xml.Elem`.
 def extractTemp(xml: scala.xml.Elem) = {
   val seq = for {
     elem <- xml \\\\ "temp_c"
-    attr <- elem.attribute("data") 
+    attr <- elem.attribute("data")
   } yield attr.toString.toInt
   seq.head
 }
