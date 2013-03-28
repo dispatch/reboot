@@ -24,6 +24,7 @@ with DispatchCleanup {
   }
 
   import dispatch._
+  import scala.concurrent.Future
 
   def localhost = host("127.0.0.1", server.port)
 
@@ -34,6 +35,14 @@ with DispatchCleanup {
   def value(str: String): Promise[Int] =
     for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
+
+  property("iterable promise flatMap") = forAll(Gen.alphaStr) {
+  (sample: String) =>
+    val values = split(sample).values.flatMap { chr =>
+      value(chr)
+    }
+    values() == sample.map { _.toInt }
+  }
 
   property("iterable promise values") = forAll(Gen.alphaStr) {
   (sampleL: String) =>
