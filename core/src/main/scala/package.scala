@@ -1,5 +1,4 @@
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 
 package object dispatch {
   /** Type alias for RequestBuilder, our typical request definitions */
@@ -21,8 +20,6 @@ package object dispatch {
 
   implicit def enrichFuture[T](future: Future[T]) =
     new EnrichedFuture(future)
-
-  implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
 
   @deprecated("use scala.concurrent.Future", "0.10.0")
   type Promise[T] = scala.concurrent.Future[T]

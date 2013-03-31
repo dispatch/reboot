@@ -5,14 +5,12 @@ import com.ning.http.client.{
   AsyncHttpClientConfig
 }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
-import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
 import scala.concurrent.{Future,ExecutionContext}
 
 /** Http executor with defaults */
 case class Http(
-  client: AsyncHttpClient = Defaults.client,
-  timer: Timer = Defaults.timer
+  client: AsyncHttpClient = InternalDefaults.client
 ) extends HttpExecutor {
   import AsyncHttpClientConfig.Builder
 
@@ -29,11 +27,10 @@ case class Http(
 /** Singleton default Http executor, can be used directly or altered
  *  with its case-class `copy` */
 object Http extends Http(
-  Defaults.client,
-  Defaults.timer
+  InternalDefaults.client
 )
 
-private [dispatch] object Defaults {
+private [dispatch] object InternalDefaults {
   lazy val client = new AsyncHttpClient(config)
   lazy val config = new AsyncHttpClientConfig.Builder()
     .setUserAgent("Dispatch/%s" format BuildInfo.version)
@@ -45,11 +42,9 @@ private [dispatch] object Defaults {
     .build
   lazy val bossExecutor =
     juc.Executors.newCachedThreadPool(DaemonThreads.factory)
-  lazy val timer = new HashedWheelTimer(DaemonThreads.factory)
 }
 
 trait HttpExecutor { self =>
-  def timer: Timer
   def client: AsyncHttpClient
 
   object promise {
@@ -87,7 +82,6 @@ trait HttpExecutor { self =>
 
   def shutdown() {
     client.close()
-    timer.stop()
   }
 }
 

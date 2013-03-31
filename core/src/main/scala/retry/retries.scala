@@ -3,6 +3,7 @@ package dispatch.retry
 import scala.concurrent.{Future,ExecutionContext}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+import org.jboss.netty.util.Timer
 
 import dispatch._
 
@@ -21,12 +22,12 @@ object Pause extends CountingRetry {
                delay: Duration = Duration(500, TimeUnit.MILLISECONDS))
               (promise: () => Future[T])
               (implicit success: Success[T],
-              executor: ExecutionContext,
-              http: HttpExecutor): Future[T] = {
+               timer: Timer,
+               executor: ExecutionContext): Future[T] = {
     retry(max,
           promise,
           success,
-          c => SleepFuture(http, delay) {
+          c => SleepFuture(delay) {
             Pause(c, delay)(promise)
           }.flatten)
   }
@@ -39,12 +40,12 @@ object Backoff extends CountingRetry {
                base: Int = 2)
               (promise: () => Future[T])
               (implicit success: Success[T],
-               executor: ExecutionContext,
-               http: HttpExecutor): Future[T] = {
+               timer: Timer,
+               executor: ExecutionContext): Future[T] = {
     retry(max,
           promise,
           success,
-          count => SleepFuture(http, delay) {
+          count => SleepFuture(delay) {
             Backoff(count, 
                     Duration(delay.length * base, delay.unit),
                     base)(promise)
