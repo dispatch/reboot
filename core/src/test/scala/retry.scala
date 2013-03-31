@@ -25,6 +25,9 @@ with DispatchCleanup {
   import java.util.concurrent.TimeUnit
 
   import org.jboss.netty.util.{Timer, HashedWheelTimer}
+  // We're using a very fine grained timer, and short retry intervals,
+  // to keep the tests fast. These are unlikely to be good settings
+  // for an application.
   implicit val timer: Timer =
     new HashedWheelTimer(DaemonThreads.factory, 1, TimeUnit.MILLISECONDS)
 
