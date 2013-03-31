@@ -62,6 +62,8 @@ object Success {
 }
 
 trait CountingRetry {
+  /** Applies the given function and will retry up to `max` times,
+      until a successful result is produced. */
   protected def retry[T](max: Int,
                          promise: () => Future[T],
                          success: Success[T],
