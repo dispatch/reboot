@@ -41,7 +41,7 @@ with DispatchCleanup {
     val values = split(sample).values.flatMap { chr =>
       value(chr)
     }
-    values() == sample.map { _.toInt }
+    values() ?= sample.map { _.toInt }
   }
 
   property("iterable promise values") = forAll(Gen.alphaStr) {
@@ -53,7 +53,7 @@ with DispatchCleanup {
       c1 <- value(chr1)
       c2 <- value(chr2)
     } yield (c1, c2)
-    values() =? (for {
+    values() ?= (for {
       c1 <- sample
       c2 <- sample.reverse
     } yield (c1.toInt, c2.toInt))
@@ -66,7 +66,7 @@ with DispatchCleanup {
       chr1 <- split(sample).either.right.values
       c1 <- value(chr1)
     } yield Right(c1)
-    values().right.get =? (for {
+    values().right.get ?= (for {
       c1 <- sample
     } yield c1.toInt)
   }

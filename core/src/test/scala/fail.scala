@@ -27,7 +27,7 @@ with DispatchCleanup {
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
     val res = Http(localhost / sample OK as.String).either
-    res() =? Left(StatusCode(404))
+    res() ?= Left(StatusCode(404))
   }
 
   property("project left on failure") = forAll(
@@ -36,7 +36,7 @@ with DispatchCleanup {
     val res = Http(localhost / sample OK as.String).either.right.map {
       _ => "error"
     }
-    res() =? Left(StatusCode(404))
+    res() ?= Left(StatusCode(404))
   }
 
   property("project right on success2") = forAll(Gen.value("foo")) { sample =>
@@ -46,7 +46,7 @@ with DispatchCleanup {
       res <- Http(localhost / p OK as.String).either.right
       res2 <- Http(localhost / p OK as.String).either.right
     } yield res2.length
-    eth() =? Right(3)
+    eth() ?= Right(3)
   }
 
   property("project left on failure2") = forAll(
@@ -60,6 +60,6 @@ with DispatchCleanup {
       res <- Http(localhost / g OK as.String).either.right
       res2 <- Http(localhost / b OK as.String).either.right
     } yield res2
-    eth() =? Left(StatusCode(404))
+    eth() ?= Left(StatusCode(404))
   }
 }
