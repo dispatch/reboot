@@ -24,6 +24,7 @@ with DispatchCleanup {
   }
 
   import dispatch._
+  import scala.concurrent.Future
 
   def localhost = host("127.0.0.1", server.port)
 
@@ -35,13 +36,12 @@ with DispatchCleanup {
     for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
 
-  property("iterable promise guarantor") = forAll(Gen.alphaStr) {
+  property("iterable promise flatMap") = forAll(Gen.alphaStr) {
   (sample: String) =>
-    val values: Promise[Iterable[Int]] = for {
-      chrs <- split(sample)
-      chr <- chrs
-    } yield value(chr)
-    values() == sample.map { _.toInt }
+    val values = split(sample).values.flatMap { chr =>
+      value(chr)
+    }
+    values() ?= sample.map { _.toInt }
   }
 
   property("iterable promise values") = forAll(Gen.alphaStr) {
@@ -53,7 +53,7 @@ with DispatchCleanup {
       c1 <- value(chr1)
       c2 <- value(chr2)
     } yield (c1, c2)
-    values() =? (for {
+    values() ?= (for {
       c1 <- sample
       c2 <- sample.reverse
     } yield (c1.toInt, c2.toInt))
@@ -66,7 +66,7 @@ with DispatchCleanup {
       chr1 <- split(sample).either.right.values
       c1 <- value(chr1)
     } yield Right(c1)
-    values().right.get =? (for {
+    values().right.get ?= (for {
       c1 <- sample
     } yield c1.toInt)
   }

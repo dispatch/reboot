@@ -42,28 +42,28 @@ with DispatchCleanup {
 
   property("url() should encode non-ascii chars in the path") = forAll(cyrillic) { (sample: String) =>
       val uri = url("http://wikipedia.com/"+sample)
-      uri.build().getUrl() =? RawUri("http://wikipedia.com/"+sample).toString
+      uri.build().getUrl() ?= RawUri("http://wikipedia.com/"+sample).toString
   }
 
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
     )
-    res() =? ("POST" + sample)
+    res() ?= ("POST" + sample)
   }
 
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.String
     )
-    res() =? ("GET" + sample)
+    res() ?= ("GET" + sample)
   }
 
   property("GET and get response") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample)
     )
-    res().getResponseBody =? ("GET" + sample)
+    res().getResponseBody ?= ("GET" + sample)
   }
 
   property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
@@ -71,7 +71,7 @@ with DispatchCleanup {
     val res = Http(
       localhost / "echopath" / (sample + syms) / sample OK as.String
     )
-    ("GET" + sample + syms) =? res()
+    ("GET" + sample + syms) ?= res()
   }
 
   property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
@@ -84,14 +84,14 @@ with DispatchCleanup {
     val res = Http(
       localhost.OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
     )
-    res() =? ("OPTIONS" + sample)
+    res() ?= ("OPTIONS" + sample)
   }
 
   property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "agent" > as.String
     )
-    res() =? ("Dispatch/%s" format BuildInfo.version)
+    res() ?= ("Dispatch/%s" format BuildInfo.version)
   }
 
 }

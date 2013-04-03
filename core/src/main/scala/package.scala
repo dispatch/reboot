@@ -1,3 +1,5 @@
+import scala.concurrent.Future
+
 package object dispatch {
   /** Type alias for RequestBuilder, our typical request definitions */
   type Req = com.ning.http.client.RequestBuilder
@@ -5,9 +7,6 @@ package object dispatch {
   type Res = com.ning.http.client.Response
   /** Type alias for URI, avoid need to import */
   type Uri = java.net.URI
-
-  @deprecated("Use dispatch.HttpExecutor")
-  type Executor = HttpExecutor
 
   implicit def implyRequestVerbs(builder: Req) =
     new DefaultRequestVerbs(builder)
@@ -19,7 +18,9 @@ package object dispatch {
     def run() { f() }
   }
 
-  implicit val durationOrdering = Ordering.by[Duration,Long] {
-    _.millis
-  }
+  implicit def enrichFuture[T](future: Future[T]) =
+    new EnrichedFuture(future)
+
+  @deprecated("use scala.concurrent.Future", "0.10.0")
+  type Promise[T] = scala.concurrent.Future[T]
 }
