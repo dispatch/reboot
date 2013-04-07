@@ -14,10 +14,10 @@ class EnrichedFuture[A](underlying: Future[A]) {
    *  ExecutionException */
   def either(implicit executor: ExecutionContext)
   : Future[Either[Throwable, A]] =
-    underlying.map { res => Right(res) }(executor).recover {
+    underlying.map { res => Right(res) }.recover {
       case exc: ExecutionException => Left(exc.getCause)
       case throwable => Left(throwable)
-    }(executor)
+    }
 
   /** Create a left projection of a contained either */
   def left[B,C](implicit ev: Future[A] <:< Future[Either[B, C]],
@@ -32,7 +32,7 @@ class EnrichedFuture[A](underlying: Future[A]) {
   /** Project any resulting exception or result into a unified type X */
   def fold[X](fa: Throwable => X, fb: A => X)
     (implicit executor: ExecutionContext): Future[X] =
-    for (eth <- either(executor)) yield eth.fold(fa, fb)
+    for (eth <- either) yield eth.fold(fa, fb)
 
   def flatten[B]
     (implicit pv: Future[A] <:< Future[Future[B]],
@@ -47,7 +47,7 @@ class EnrichedFuture[A](underlying: Future[A]) {
   /** Project promised value into an Option containing the value if retrived
    *  with no exception */
   def option(implicit executor: ExecutionContext): Future[Option[A]] =
-    either(executor).map { _.right.toOption }
+    either.map { _.right.toOption }
 
   def apply() = Await.result(underlying, Duration.Inf)
 
