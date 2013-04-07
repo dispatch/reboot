@@ -3,26 +3,30 @@ Abstraction over future information
 
 Often, you can the extend the utility of futures with simple
 abstraction. In this example we'll leverage a web service to write an
-internal API that will tell us the temperature.
+internal API that will tell us the temperature in a US city.
 
-### Googling the weather
+### Palling around with Weather Underground
 
 In one method we'll contain the construction of the request. In this
-case it's an endpoint that only requires one parameter, the location
-of interest. It's a fuzzy lookup, so we don't have to be too careful
-about the input for major cities.
+case it's an endpoint with all of the parameters in path elements.
 
 ```scala
-import dispatch._
-def weatherSvc(loc: String) =
-  url("http://www.google.com/ig/api").addQueryParameter("weather", loc)
+import dispatch._, Dispatch._
+
+case class Location(city: String, state: String)
+
+def weatherSvc(loc: Location) = {
+  host("api.wunderground.com") / "api" / "$wkey$" / 
+    "conditions" / "q" / loc.state / (loc.city + ".xml")
+}
 ```
 
 With this method we can bind to a handler that prints out the response
 in the usual way:
 
 ```scala
-for (str <- Http(weatherSvc("New York, USA") OK as.String))
+val nyc = Location("New York", "NY")
+for (str <- Http(weatherSvc(nyc) OK as.String))
   println(str)
 ```
 
@@ -35,7 +39,7 @@ Luckily, dispatch has another built-in handler for services that
 respond in this format.
 
 ```scala
-def weatherXml(loc: String) =
+def weatherXml(loc: Location) =
   Http(weatherSvc(loc) OK as.xml.Elem)
 ```
 
@@ -53,7 +57,7 @@ can use our new method to print a nicely formatted response.
 
 ```scala
 def printer = new scala.xml.PrettyPrinter(90, 2)
-for (xml <- weatherXml("New York, USA"))
+for (xml <- weatherXml(nyc))
   println(printer.format(xml))
 ```
 
@@ -65,18 +69,17 @@ element "temp_c" using the `\\\\` method of `xml.Elem`.
 def extractTemp(xml: scala.xml.Elem) = {
   val seq = for {
     elem <- xml \\\\ "temp_c"
-    attr <- elem.attribute("data")
-  } yield attr.toString.toInt
+  } yield elem.text.toFloat
   seq.head
 }
 ```
 
-### Promising the temperature
+### Temperature of the future
 
 With this we can create another high-level access method:
 
 ```scala
-def temperature(loc: String) =
+def temperature(loc: Location) =
   for (xml <- weatherXml(loc))
     yield extractTemp(xml)
 ```
@@ -86,7 +89,8 @@ understood by the service:
 
 
 ```scala
-for (t <- temperature("New York, USA")) println(t)
+for (t <- temperature(Location("Los Angeles","CA")))
+  println(t)
 ```
 
 The information gathering is now fully abstracted without blocking,
