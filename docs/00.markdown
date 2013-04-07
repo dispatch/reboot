@@ -29,7 +29,7 @@ After "the internet" has downloaded, you're good to go.
 We'll start with a very simple request.
 
 ```scala
-import dispatch._
+import dispatch._, Defaults._
 val svc = url("http://api.hostip.info/country.php")
 val country = Http(svc OK as.String)
 ```
