@@ -1,9 +1,9 @@
-Abstraction over promised information
+Abstraction over future information
 -------------------------------------
 
-Often, you can the extend utility of promises with simple
+Often, you can the extend the utility of futures with simple
 abstraction. In this example we'll leverage a web service to write an
-internal API that promises to tell us the temperature.
+internal API that will tell us the temperature.
 
 ### Googling the weather
 
@@ -39,7 +39,7 @@ def weatherXml(loc: String) =
   Http(weatherSvc(loc) OK as.xml.Elem)
 ```
 
-This method returns a promise `scala.xml.Elem`. Note that Dispatch
+This method returns a future `scala.xml.Elem`. Note that Dispatch
 handlers, like `as.String` and `as.xml.Elem`, mimic the name of the
 type they produce. They're all under the package `dispatch.as` where
 you can access them without additional imports.
@@ -81,7 +81,7 @@ def temperature(loc: String) =
     yield extractTemp(xml)
 ```
 
-And now we have at hand the promised temperature of any location
+And now we have at hand the future temperature of any location
 understood by the service:
 
 

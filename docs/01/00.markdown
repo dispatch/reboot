@@ -1,51 +1,55 @@
-Bargaining with promises
+Bargaining with futures
 ------------------------
 
-Applying a promise is like taking a hostage. Your demands might be met
+Applying a future is like taking a hostage. Your demands might be met
 in time, but until they are you're sitting around doing nothing other
 than guarding a prisoner.
 
-So we don't like to take hostages or apply promises, but what good is
-a promise if you can't do anything with its value? Luckily, you can do
+So we don't like to take hostages or apply futures, but what good is
+a future if you can't do anything with its value? Luckily, you can do
 plenty. You just have to be flexible about when things happen.
 
 ### Transformations
 
-A promise is like an option that doesn't know what it is yet; that
-doesn't stop it from promising to transform into something else. We
-could transform an option of a string into an option of its
-length. Same goes for promises.
+A future is like an option that doesn't know what it is yet; that
+doesn't stop it from transforming into something else. We could
+transform an option of a string into an option of its length. Same
+goes for futures.
 
 ```scala
-import dispatch._
+import dispatch._, Defaults._
 val svc = url("http://api.hostip.info/country.php")
 val country = Http(svc OK as.String)
 val length = for (c <- country) yield c.length
 ```
-The `length` value is a promise of integer.
+The `length` value is a future of integer.
 
-### Promise#toString
+### Future#print
 
 If you pasted the above into a console, you probably saw something
 like this in the output:
 
-    country: dispatch.Promise[String] = Promise(-incomplete-)
-    length: dispatch.Promise[Int] = Promise(2)
+    country: scala.concurrent.Future[String] =
+      scala.concurrent.impl.Promise\$DefaultPromise@4929b5a5
+    length: scala.concurrent.Future[Int] =
+      scala.concurrent.impl.Promise\$DefaultPromise@581fa0fe
 
-Both promises depend on the same network operation. By the time the
-second is evaluated by the console, its underlying value may or may
-not be available.  But if you try a moment or two later, you'll see
-that both promises print their values.
+Not too helpful right? The `print` method makes a nicer string:
 
-    scala> country
-    res2: dispatch.Promise[String] = Promise(US)
+    scala> country.print
+    res0: String = Future(US)
 
-`Promise.toString` represents promised values only if they are already
-available.
+If the future value isn't available, `print` won't wait:
 
-### Promise#completeOption
+    scala> Http(svc OK as.String).print
+    res1: String = Future(-incomplete-)
 
-How does `toString` work on unknown values? It uses an option. You can
+> Note: `print` and some other `Future` methods in this documentation
+  are provided implicitly by `dispatch.EnrichedFuture`
+
+### Future#completeOption
+
+How does `print` work on unknown values? It uses an option. You can
 use the same technique to access the integer value, *if it's
 available*.
 
@@ -55,4 +59,4 @@ val lengthNow = length.completeOption.getOrElse(-1)
 
 But most of the time, you want to operate on values that are known to
 be available. In the next pages we'll see how far we can go in this
-direction by transforming promises.
+direction by transforming futures.
