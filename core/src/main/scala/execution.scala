@@ -5,25 +5,14 @@ import com.ning.http.client.{
   AsyncHttpClientConfig
 }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
-import org.jboss.netty.util.{Timer,HashedWheelTimer}
 import java.util.{concurrent => juc}
+import scala.concurrent.{Future,ExecutionContext}
 
 /** Http executor with defaults */
 case class Http(
-  client: AsyncHttpClient = Defaults.client,
-  timeout: Duration = Defaults.timeout,
-  promiseExecutor: juc.Executor = Defaults.promiseExecutor,
-  timer: Timer = Defaults.timer
+  client: AsyncHttpClient = InternalDefaults.client
 ) extends HttpExecutor {
   import AsyncHttpClientConfig.Builder
-
-  /** Convenience method for an Executor with the given timeout */
-  def waiting(t: Duration) = copy(timeout=t)
-
-  /** Convenience method for an executor with a fixed thread pool of
-      the given size */
-  def threads(promiseThreadPoolSize: Int) =
-    copy(promiseExecutor = DaemonThreads(promiseThreadPoolSize))
 
   /** Replaces `client` with a new instance configured using the withBuilder
       function. The current client config is the builder's prototype.  */
@@ -38,15 +27,11 @@ case class Http(
 /** Singleton default Http executor, can be used directly or altered
  *  with its case-class `copy` */
 object Http extends Http(
-  Defaults.client,
-  Defaults.timeout,
-  Defaults.promiseExecutor,
-  Defaults.timer
+  InternalDefaults.client
 )
 
-private [dispatch] object Defaults {
+private [dispatch] object InternalDefaults {
   lazy val client = new AsyncHttpClient(config)
-  lazy val timeout = Duration.None
   lazy val config = new AsyncHttpClientConfig.Builder()
     .setUserAgent("Dispatch/%s" format BuildInfo.version)
     .setAsyncHttpClientProviderConfig(
@@ -57,39 +42,46 @@ private [dispatch] object Defaults {
     .build
   lazy val bossExecutor =
     juc.Executors.newCachedThreadPool(DaemonThreads.factory)
-  lazy val promiseExecutor = DaemonThreads(256)
-  lazy val timer = new HashedWheelTimer(DaemonThreads.factory)
 }
 
 trait HttpExecutor { self =>
-  def promiseExecutor: juc.Executor
-  def timer: Timer
   def client: AsyncHttpClient
-  /** Timeout for promises made by this HTTP Executor */
-  def timeout: Duration
 
-  def apply(builder: RequestBuilder): Promise[Response] =
+  object promise {
+    @deprecated("use scala.concurrent.Future.successful", "0.10.0")
+    def apply[T](f: => T) = Future.successful(f)
+    @deprecated("use scala.concurrent.Future.sequence", "0.10.0")
+    def all[T](seq: Iterable[Future[T]])
+              (implicit executor: ExecutionContext) = 
+      Future.sequence(seq)
+  }
+
+  def apply(builder: RequestBuilder)
+           (implicit executor: ExecutionContext): Future[Response] =
     apply(builder.build() -> new FunctionHandler(identity))
 
-  def apply[T](pair: (Request, AsyncHandler[T])): Promise[T] =
+  def apply[T](pair: (Request, AsyncHandler[T]))
+              (implicit executor: ExecutionContext): Future[T] =
     apply(pair._1, pair._2)
 
-  def apply[T](request: Request, handler: AsyncHandler[T]): Promise[T] =
-    new ListenableFuturePromise(
-      client.executeRequest(request, handler),
-      promiseExecutor,
-      this
+  def apply[T]
+    (request: Request, handler: AsyncHandler[T])
+    (implicit executor: ExecutionContext): Future[T] = {
+    val lfut = client.executeRequest(request, handler)
+    val promise = scala.concurrent.Promise[T]()
+    lfut.addListener(
+      () => promise.complete(util.Try(lfut.get())),
+      new juc.Executor {
+        def execute(runnable: Runnable) {
+          executor.execute(runnable)
+        }
+      }
     )
-
-  lazy val promise = new dispatch.Promise.Factory(self)
+    promise.future
+  }
 
   def shutdown() {
     client.close()
-    timer.stop()
-    promiseExecutor match {
-      case service: juc.ExecutorService => service.shutdown()
-      case _ => ()
-    }
   }
 }
 

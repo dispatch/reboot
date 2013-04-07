@@ -5,7 +5,7 @@ import org.scalacheck._
 object ComposeSpecification
 extends Properties("Compose")
 with DispatchCleanup {
-  import Prop.forAll
+  import Prop._
   import Gen._
 
   val server = { 
@@ -32,14 +32,14 @@ with DispatchCleanup {
   val numList = listOf1(chooseNum(-1000L, 1000L))
 
   property("sum in one request") = forAll(numList) { (sample: List[Long]) =>
-    sum(sample.map { _.toString })() == sample.sum.toString
+    sum(sample.map { _.toString })() ?= sample.sum.toString
   }
 
   property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
     val res = (promise("0") /: sample) { (p, num) =>
       p.flatMap { cur => sum(Seq(cur, num.toString)) }
     }
-    res() == sample.sum.toString
+    res() ?= sample.sum.toString
   }
 
   property("recursive sum") = forAll(numList) { (sample: List[Long]) =>
@@ -55,6 +55,6 @@ with DispatchCleanup {
     }
     recur(
       sample.map { i => promise(i.toString) }
-    )() == sample.sum.toString
+    )() ?= sample.sum.toString
   }
 }
