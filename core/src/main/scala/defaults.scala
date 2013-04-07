@@ -5,6 +5,5 @@ import org.jboss.netty.util.{Timer, HashedWheelTimer}
 
 object Defaults {
   implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
-  implicit lazy val timer: Timer =
-    new HashedWheelTimer(DaemonThreads.factory)
+  implicit lazy val timer: Timer = InternalDefaults.timer
 }

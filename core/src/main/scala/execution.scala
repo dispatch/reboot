@@ -5,6 +5,11 @@ import com.ning.http.client.{
   AsyncHttpClientConfig
 }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
+
+import org.jboss.netty.channel.socket.nio.{
+  NioClientSocketChannelFactory, NioWorkerPool}
+import org.jboss.netty.util.{Timer,HashedWheelTimer}
+
 import java.util.{concurrent => juc}
 import scala.concurrent.{Future,ExecutionContext}
 
@@ -36,12 +41,24 @@ private [dispatch] object InternalDefaults {
     .setUserAgent("Dispatch/%s" format BuildInfo.version)
     .setAsyncHttpClientProviderConfig(
       new NettyAsyncHttpProviderConfig().addProperty(
-        NettyAsyncHttpProviderConfig.BOSS_EXECUTOR_SERVICE, bossExecutor
+        NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY,
+        nioClientSocketChannelFactory
       )
     ).setRequestTimeoutInMs(-1) // don't timeout streaming connections
     .build
-  lazy val bossExecutor =
-    juc.Executors.newCachedThreadPool(DaemonThreads.factory)
+  lazy val nioClientSocketChannelFactory = {
+    val workerCount = 2 * Runtime.getRuntime().availableProcessors()
+    new NioClientSocketChannelFactory(
+      juc.Executors.newCachedThreadPool(DaemonThreads.factory),
+      1,
+      new NioWorkerPool(
+        juc.Executors.newCachedThreadPool(DaemonThreads.factory),
+        workerCount
+      ),
+      timer
+    )
+  }
+  lazy val timer = new HashedWheelTimer(DaemonThreads.factory)
 }
 
 trait HttpExecutor { self =>
