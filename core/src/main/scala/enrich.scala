@@ -12,13 +12,14 @@ class EnrichedFuture[A](underlying: Future[A]) {
   /** Project promised value into an either containing the value or any
    *  exception thrown retrieving it. Unwraps `cause` of any top-level
    *  ExecutionException */
-  def either(implicit executor: ExecutionContext)
-  : Future[Either[Throwable, A]] =
+  def either: Future[Either[Throwable, A]] = {
+    implicit val ctx = EnrichedFuture.currentThreadContext
+
     underlying.map { res => Right(res) }.recover {
       case exc: ExecutionException => Left(exc.getCause)
       case throwable => Left(throwable)
     }
-
+  }
   /** Create a left projection of a contained either */
   def left[B,C](implicit ev: Future[A] <:< Future[Either[B, C]],
                 executor: ExecutionContext) =
@@ -46,8 +47,10 @@ class EnrichedFuture[A](underlying: Future[A]) {
 
   /** Project promised value into an Option containing the value if retrived
    *  with no exception */
-  def option(implicit executor: ExecutionContext): Future[Option[A]] =
+  def option: Future[Option[A]] = {
+    implicit val ctx = EnrichedFuture.currentThreadContext
     either.map { _.right.toOption }
+  }
 
   def apply() = Await.result(underlying, Duration.Inf)
 
@@ -55,9 +58,21 @@ class EnrichedFuture[A](underlying: Future[A]) {
   def completeOption = 
     for (tried <- underlying.value) yield tried.get
 
-  def print(implicit executor: ExecutionContext) =
-    "Promise(%s)".format(either(executor).completeOption.map {
+  def print =
+    "Future(%s)".format(either.completeOption.map {
       case Left(exc) => "!%s!".format(exc.getMessage)
       case Right(value) => value.toString
     }.getOrElse("-incomplete-"))
+}
+
+object EnrichedFuture {
+  /** Execute on the current thread, for certain cpu-bound operations */
+  private val currentThreadContext = new ExecutionContext {
+    def execute(runnable: Runnable) {
+      runnable.run()
+    }
+    def reportFailure(t: Throwable) {
+      ExecutionContext.defaultReporter(t)
+    }
+  }
 }
