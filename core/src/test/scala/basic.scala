@@ -6,7 +6,7 @@ object BasicSpecification
 extends Properties("Basic")
 with DispatchCleanup {
   import java.net.{URLEncoder,URLDecoder}
-  import Prop._
+  import Prop.{forAll,AnyOperators}
 
   val server = {
     import unfiltered.netty

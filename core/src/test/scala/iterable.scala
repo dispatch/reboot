@@ -5,7 +5,7 @@ import org.scalacheck._
 object IterablePromiseSpecification
 extends Properties("Iterable Promise")
 with DispatchCleanup {
-  import Prop._
+  import Prop.{forAll,AnyOperators}
   import Gen._
 
   val server = { 

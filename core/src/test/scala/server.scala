@@ -5,7 +5,7 @@ import org.scalacheck._
 object ServerSpecification
 extends Properties("Server")
 with DispatchCleanup {
-  import Prop._
+  import Prop.{forAll,AnyOperators}
 
   import dispatch._
 
