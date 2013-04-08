@@ -1,0 +1,65 @@
+### scala.concurrent.Future
+
+From this release forward Dispatch uses the standard `Future`
+interface that was introduced in Scala 2.10 and backported for Scala
+2.9.3. This required some breaking changes in the API, but the
+migration is straightforward.
+
+#### Imports
+
+The shortest import is now this:
+
+    import dispatch._, Defaults._
+
+The `Defaults` object includes an implicit `ExecutionContext` that is
+required to do almost anything, and a `Timer` that is required for
+retry operations. If you prefer to use your own context or timer, do
+not import these.
+
+#### Configuration
+
+Since the execution context is now determined at the call site, the
+relevant parameters from the `Http` case class have been dropped.
+
+#### Deprecation
+
+The type `dispatch.Promise` is now a deprecated alias to
+`scala.concurrent.Future`. The type `dispatch.Future` is another alias
+to `scala.concurrent.Future`. (This allows our wildcard import to
+continue to import all the basic required types.)
+
+#### Enrichment
+
+Dispatch promise's beloved `either`, `option`, and `apply` methods are
+provided through `EnrichedFuture`. They work the same as before.
+
+#### Abort, retry, fail?
+
+The retry functionality has been significantly, necessarily
+altered. It is still undocumented so you probably aren't using it
+anyway, but it has [tests][retry] now!
+
+[retry]: https://github.com/dispatch/reboot/blob/master/core/src/test/scala/retry.scala#L55
+
+### Documentation
+
+The [weather service example][weather] that is used throughout the
+documentation has been updated to use the Weather Underground API,
+instead of the Google weather API that went offline some time ago.
+
+[weather]: http://dispatch.databinder.net/Abstraction+over+future+information.html
+
+### Improvements
+
+* The `url` method supports International Resource Identifiers (URLs
+  with non-ASCII characters), [Issue 40][40]
+* The path builder ( `/` ) conveniently accepts any value type
+  (`AnyVal`) [Issue 43][43]
+
+[40]: https://github.com/dispatch/reboot/issues/40
+[43]: https://github.com/dispatch/reboot/pull/43
+
+### Dependency updates
+
+* async-http-client 1.7.11 (with *Android* compatibility)
+* json4snative, json4sjackson 3.2.4

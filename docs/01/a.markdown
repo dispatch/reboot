@@ -21,6 +21,12 @@ def weatherSvc(loc: Location) = {
 }
 ```
 
+> **Note:** Yes, that's an API key. Use it sparingly to learn
+  Dispatch in the Scala console, but
+  [get your own key](http://www.wunderground.com/weather/api/) if you
+  are building some kind of actual weather application. We may reset
+  this key at any time.
+
 With this method we can bind to a handler that prints out the response
 in the usual way:
 

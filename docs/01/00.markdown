@@ -44,7 +44,7 @@ If the future value isn't available, `print` won't wait:
     scala> Http(svc OK as.String).print
     res1: String = Future(-incomplete-)
 
-> Note: `print` and some other `Future` methods in this documentation
+> **Note:** `print` and some other `Future` methods in this documentation
   are provided implicitly by `dispatch.EnrichedFuture`
 
 ### Future#completeOption
