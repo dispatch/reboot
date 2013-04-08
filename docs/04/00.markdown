@@ -2,7 +2,7 @@ Unraveling for-expressions
 --------------------------
 
 So far, this documentation has relied exclusively on for-expressions
-for transforming promises, composing promises, and deferring side
+for transforming futures, composing futures, and deferring side
 effects. These provide a compact syntax that smooths the rough edges
 of dense, nested function literals. Dispatch is mostly coded, tested,
 and documented with for-expressions to ensure that everything can be
@@ -30,7 +30,7 @@ preferred term these days is for-comprehensions.
 
 ### Break apart complex problems
 
-For non-trivial promise operations, especially when trying to mix with
+For non-trivial future operations, especially when trying to mix with
 Iterables, it may be easier to start with the lower level map,
 flatMap, foreach, and many other methods that for-expressions
 translate into.
@@ -42,7 +42,7 @@ no for-expression police to hunt you down.
 
 ### For-expression (in)completeness
 
-For-expressions can do so many different things that Dispatch promises
+For-expressions can do so many different things that Dispatch futures
 and projections don't support them all. If your cool for-expression
 doesn't work for this reason, feel free to contribute the missing
 methods to Disptach.

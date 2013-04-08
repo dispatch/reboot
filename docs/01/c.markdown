@@ -28,7 +28,6 @@ temps.
 ### Future.sequence
 
 ```scala
-import scala.concurrent.Future
 val hottest =
   for (ts <- Future.sequence(temps))
     yield ts.maxBy { _._1 }
