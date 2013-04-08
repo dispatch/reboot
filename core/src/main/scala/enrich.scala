@@ -3,7 +3,7 @@ package dispatch
 import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
 import juc.TimeUnit
-import scala.concurrent.{Future,ExecutionContext,Await,ExecutionException}
+import scala.concurrent.{ExecutionContext,Await,ExecutionException}
 import scala.concurrent.duration.Duration
 import scala.util.control.Exception.{allCatch,catching}
 

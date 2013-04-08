@@ -20,7 +20,6 @@ with DispatchCleanup {
   }
 
   import dispatch._
-  import Http.promise
   import scala.concurrent.duration.Duration
   import java.util.concurrent.TimeUnit
 

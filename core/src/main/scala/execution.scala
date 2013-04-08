@@ -11,7 +11,7 @@ import org.jboss.netty.channel.socket.nio.{
 import org.jboss.netty.util.{Timer,HashedWheelTimer}
 
 import java.util.{concurrent => juc}
-import scala.concurrent.{Future,ExecutionContext}
+import scala.concurrent.{ExecutionContext}
 
 /** Http executor with defaults */
 case class Http(

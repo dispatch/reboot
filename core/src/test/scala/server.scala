@@ -48,7 +48,7 @@ with DispatchCleanup {
 
   property("Server receieves same answer (from param) from itself") =
     forAll(Gen.alphaStr) { sample =>
-      val res: Promise[String] = Http(
+      val res: Future[String] = Http(
         localhost / "ask" << Map("what" -> "echo",
                                  "echo" -> sample) > as.String
       )

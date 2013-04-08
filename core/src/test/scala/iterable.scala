@@ -2,8 +2,8 @@ package dispatch.spec
 
 import org.scalacheck._
 
-object IterablePromiseSpecification
-extends Properties("Iterable Promise")
+object IterableFutureSpecification
+extends Properties("Iterable Future")
 with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
@@ -28,15 +28,15 @@ with DispatchCleanup {
 
   def localhost = host("127.0.0.1", server.port)
 
-  def split(str: String): Promise[Seq[String]] =
+  def split(str: String): Future[Seq[String]] =
     for (csv <- Http(localhost / "split" << Seq("str" -> str) > as.String))
       yield csv.split(",")
 
-  def value(str: String): Promise[Int] =
+  def value(str: String): Future[Int] =
     for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
 
-  property("iterable promise flatMap") = forAll(Gen.alphaStr) {
+  property("iterable future flatMap") = forAll(Gen.alphaStr) {
   (sample: String) =>
     val values = split(sample).values.flatMap { chr =>
       value(chr)
@@ -44,10 +44,10 @@ with DispatchCleanup {
     values() ?= sample.map { _.toInt }
   }
 
-  property("iterable promise values") = forAll(Gen.alphaStr) {
+  property("iterable future values") = forAll(Gen.alphaStr) {
   (sampleL: String) =>
     val sample = sampleL.take(10) // n^2 concurrent requests
-    val values: Promise[Iterable[(Int,Int)]] = for {
+    val values: Future[Iterable[(Int,Int)]] = for {
       chr1 <- split(sample).values.flatten
       chr2 <- split(sample.reverse).values
       c1 <- value(chr1)
@@ -59,10 +59,10 @@ with DispatchCleanup {
     } yield (c1.toInt, c2.toInt))
   }
 
-  property("iterable promise values on either") = forAll(Gen.alphaStr) {
+  property("iterable future values on either") = forAll(Gen.alphaStr) {
   (sampleL: String) =>
     val sample = sampleL.take(10) // n^2 concurrent requests
-    val values: Promise[Either[Throwable,Iterable[Int]]] = for {
+    val values: Future[Either[Throwable,Iterable[Int]]] = for {
       chr1 <- split(sample).either.right.values
       c1 <- value(chr1)
     } yield Right(c1)

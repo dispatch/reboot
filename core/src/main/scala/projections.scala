@@ -2,7 +2,7 @@ package dispatch
 
 // handy projections
 
-import scala.concurrent.{Future,ExecutionContext}
+import scala.concurrent.{ExecutionContext}
 
 object FutureEither {
 

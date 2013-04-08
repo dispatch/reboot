@@ -22,7 +22,6 @@ with DispatchCleanup {
   }
 
   import dispatch._
-  import Http.promise
 
   def localhost = host("127.0.0.1", server.port)
 
@@ -36,7 +35,7 @@ with DispatchCleanup {
   }
 
   property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
-    val res = (promise("0") /: sample) { (p, num) =>
+    val res = (Future.successful("0") /: sample) { (p, num) =>
       p.flatMap { cur => sum(Seq(cur, num.toString)) }
     }
     res() ?= sample.sum.toString
@@ -44,17 +43,17 @@ with DispatchCleanup {
 
   property("recursive sum") = forAll(numList) { (sample: List[Long]) =>
     @annotation.tailrec
-    def recur(nums: Iterable[Promise[String]]): Promise[String] = {
+    def recur(nums: Iterable[Future[String]]): Future[String] = {
       if (nums.size == 1) nums.head
       else recur(
         nums.grouped(2).map { twos =>
           if (twos.size == 1) twos.head
-          else promise.all(twos).flatMap(sum)
+          else Future.sequence(twos).flatMap(sum)
         }.toIterable
       )
     }
     recur(
-      sample.map { i => promise(i.toString) }
+      sample.map { i => Future.successful(i.toString) }
     )() ?= sample.sum.toString
   }
 }
