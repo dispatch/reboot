@@ -30,8 +30,9 @@ continue to import all the basic required types.)
 
 #### Enrichment
 
-Dispatch promise's beloved `either`, `option`, and `apply` methods are
-provided through `EnrichedFuture`. They work the same as before.
+The beloved `either`, `option`, and `apply` methods of
+`dispatch.Promise` are provided through `EnrichedFuture`. They work
+the same as before.
 
 #### Abort, retry, fail?
 
