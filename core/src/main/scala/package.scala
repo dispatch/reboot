@@ -21,7 +21,7 @@ package object dispatch {
   implicit def enrichFuture[T](future: Future[T]) =
     new EnrichedFuture(future)
 
-  @deprecated("use scala.concurrent.Future", "0.10.0")
+  @deprecated("use dispatch.Future / scala.concurrent.Future", "0.10.0")
   type Promise[+T] = scala.concurrent.Future[T]
 
   /** Type alias to scala.concurrent.Future so you don't have to import */
