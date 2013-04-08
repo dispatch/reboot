@@ -22,5 +22,10 @@ package object dispatch {
     new EnrichedFuture(future)
 
   @deprecated("use scala.concurrent.Future", "0.10.0")
-  type Promise[T] = scala.concurrent.Future[T]
+  type Promise[+T] = scala.concurrent.Future[T]
+
+  /** Type alias to scala.concurrent.Future so you don't have to import */
+  type Future[+T] = scala.concurrent.Future[T]
+
+  val Future = scala.concurrent.Future
 }
