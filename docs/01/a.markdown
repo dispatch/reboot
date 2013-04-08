@@ -89,8 +89,8 @@ understood by the service:
 
 
 ```scala
-for (t <- temperature(Location("Los Angeles","CA")))
-  println(t)
+val la = Location("Los Angeles", "CA")
+for (t <- temperature(la)) println(t)
 ```
 
 The information gathering is now fully abstracted without blocking,

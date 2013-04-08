@@ -1,63 +1,60 @@
-Arbitrarily many promises
--------------------------
+Arbitrarily many futures
+------------------------
 
-The last page dealt with fixed numbers of promises. In the real world,
+The last page dealt with fixed numbers of futures. In the real world,
 we often have to work with unknown quantities.
 
-### Iterables of promises
+### Iterables of futures
 
 Once again using the `temperature` method defined before, we'll create
-a higher-level method to work with its promised values. First, we can
+a higher-level method to work with its future values. First, we can
 work with Scala collections in familiar ways.
 
 ```scala
-val locs = List("New York, USA",
-                "Madrid, Spain",
-                "Seoul, Korea")
+val locs = List(Location("New York", "NY"),
+                Location("Los Angeles", "CA"),
+                Location("Chicago", "IL"))
 val temps =
   for(loc <- locs)
     yield for (t <- temperature(loc))
       yield (t -> loc)
 ```
 
-Now we have a list of promised city names and temperatures:
-`List[Promise[(Int, String)]]`. But if we want to compare them
-together, again without blocking, we want a combined promise of all
+Now we have a list of future city names and temperatures:
+`List[Future[(Float, Location)]]`. But if we want to compare them
+together, again without blocking, we want a combined future of all
 temps.
 
-### Promise.all
+### Future.sequence
 
 ```scala
+import scala.concurrent.Future
 val hottest =
-  for (ts <- Promise.all(temps))
-    yield ts.max
+  for (ts <- Future.sequence(temps))
+    yield ts.maxBy { _._1 }
+hottest()
 ```
 
-The value `ts` is a promise of `Iterable[(Int, String)]`; it is not
-available until all the component promises have completed.
+The value `ts` is a future of `List[(Float, Location)]`; it is not
+available until all the component futures have completed. In the body
+of the for expression we're using `maxBy` to find the highest
+temperature, the first element of the tuple.
 
-### Implicit ordering
+### A future of the hottest
 
-In the body of the for expression we're using `max` on this Iterable
-of pairs. Tuples derive their orderings from their component parts,
-so the max of our tuple `(Int, String)` will be a pair with the
-highest temperature.
-
-### Promising to report the hottest
-
-We can generalize this now into a single method which promises to
+We can generalize this now into a single method which futures to
 return the name of the hottest city that you give it.
 
 ```scala
-def hottest(locs: String*) = {
+def hottest(locs: Location*) = {
   val temps =
     for(loc <- locs)
       yield for (t <- temperature(loc))
        yield (t -> loc)
-  for (ts <- Promise.all(temps))
-    yield ts.max._2
+  for (ts <- Future.sequence(temps))
+    yield ts.maxBy { _._1 }._2
 }
 ```
 
-When everything goes as expected, that promise is fulfilled. The next
+When everything goes as expected, that future is fulfilled. The next
 section is for when things don't go as expected.
