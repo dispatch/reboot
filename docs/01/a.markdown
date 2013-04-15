@@ -1,7 +1,7 @@
 Abstraction over future information
 -------------------------------------
 
-Often, you can the extend the utility of futures with simple
+Often, you can extend the utility of futures with simple
 abstraction. In this example we'll leverage a web service to write an
 internal API that will tell us the temperature in a US city.
 
