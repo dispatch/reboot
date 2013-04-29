@@ -18,7 +18,7 @@ object Cleanup {
     try {
       dirties.foreach { _.cleanup() }
     } catch {
-      case e =>
+      case e: Throwable =>
         println("Error on cleanup")
         e.printStackTrace
     }

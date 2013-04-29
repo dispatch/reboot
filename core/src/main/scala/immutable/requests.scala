@@ -2,6 +2,7 @@ package dispatch.immutable
 
 import java.io.File
 import dispatch.{IDNDomainHelpers, RawUri, UriEncode}
+import scala.concurrent.ExecutionContext.Implicits.global
 import com.ning.http.client.{FluentCaseInsensitiveStringsMap, FluentStringsMap, RequestBuilder}
 
 object HttpRequest {

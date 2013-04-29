@@ -6,6 +6,8 @@ import dispatch.BuildInfo
 import dispatch.immutable._
 import org.scalacheck._
 import dispatch.spec.DispatchCleanup
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 
 object BasicSpecification
 extends Properties("Basic")
@@ -39,40 +41,45 @@ with DispatchCleanup {
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
     )
-    res() =? ("POST" + sample)
+    await(res) =? ("POST" + sample)
   }
 
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.String
     )
-    res() =? ("GET" + sample)
+    await(res) =? ("GET" + sample)
   }
 
   property("GET and get response") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" <<? Map("echo" -> sample)
     )
-    res().getResponseBody =? ("GET" + sample)
+    await(res).getResponseBody =? ("GET" + sample)
   }
 
   property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echopath" / (sample + syms) / sample OK as.String
     )
-    ("GET" + sample + syms) =? res()
+    ("GET" + sample + syms) =? await(res)
   }
 
   property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
     val requesturl = "http://127.0.0.1:%d/echopath/%s".format(server.port, URLEncoder.encode(sample + syms, "utf-8"))
     val res = Http(url(requesturl) / sample OK as.String)
-    res() == ("GET" + sample + syms)
+    await(res) == ("GET" + sample + syms)
   }
 
   property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "agent" > as.String
     )
-    res() =? ("Dispatch/%s" format BuildInfo.version)
+    await(res) =? ("Dispatch/%s" format BuildInfo.version)
   }
+
+  val timeout = Duration(5, "seconds")
+
+  private[this] def await[T](resp: Future[T]) =
+    Await.result(resp, timeout)
 }
