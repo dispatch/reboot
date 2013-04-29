@@ -1,4 +1,5 @@
 package dispatch.immutable
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object :/ extends HostCreation
 object host extends HostCreation
