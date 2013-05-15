@@ -9,10 +9,12 @@ class SigningVerbs(val subject: Req) extends RequestVerbs {
 
   def sign(consumer: ConsumerKey, token: RequestToken = emptyToken) = {
     val calc = new OAuthSignatureCalculator(consumer, token)
-    val req = subject.build
-    val baseurl = req.getUrl().takeWhile { _ != '?' }.mkString("")
-    calc.calculateAndAddSignature(baseurl, req, subject)
-    subject
+    subject{ r =>
+      val req = r.build
+      val baseurl = req.getUrl().takeWhile { _ != '?' }.mkString("")
+      calc.calculateAndAddSignature(baseurl, req, r)
+      r
+    }
   }
 
   def <@(consumer: ConsumerKey, token: RequestToken = emptyToken) =

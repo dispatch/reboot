@@ -27,7 +27,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", server.port)
 
   // a shim until we can update scalacheck to a version that non-alpha strings that don't break Java
   val syms = "&#$@%"

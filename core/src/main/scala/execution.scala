@@ -1,7 +1,7 @@
 package dispatch
 
 import com.ning.http.client.{
-  AsyncHttpClient, RequestBuilder, Request, Response, AsyncHandler,
+  AsyncHttpClient, Request, Response, AsyncHandler,
   AsyncHttpClientConfig
 }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
@@ -73,7 +73,7 @@ trait HttpExecutor { self =>
       Future.sequence(seq)
   }
 
-  def apply(builder: RequestBuilder)
+  def apply(builder: Req)
            (implicit executor: ExecutionContext): Future[Response] =
     apply(builder.build() -> new FunctionHandler(identity))
 

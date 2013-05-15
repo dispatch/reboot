@@ -23,7 +23,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", server.port)
 
   def sum(nums: Iterable[String]) =
     Http(localhost / "sum" << nums.map { "num" -> _ } > as.String)

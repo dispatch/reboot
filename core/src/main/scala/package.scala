@@ -1,8 +1,11 @@
+import com.ning.http.client.RequestBuilder
 import scala.concurrent.Future
 
 package object dispatch {
-  /** Type alias for RequestBuilder, our typical request definitions */
-  type Req = com.ning.http.client.RequestBuilder
+  case class Req(run:RequestBuilder => RequestBuilder){
+    def apply(next:RequestBuilder => RequestBuilder) = Req(run andThen next)
+    def build() = run(new RequestBuilder).build()
+  }
   /** Type alias for Response, avoid need to import */
   type Res = com.ning.http.client.Response
   /** Type alias for URI, avoid need to import */

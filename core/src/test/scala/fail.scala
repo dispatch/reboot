@@ -20,7 +20,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", server.port)
 
   property("yield a Left on not found") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}

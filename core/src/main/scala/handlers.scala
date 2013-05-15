@@ -2,7 +2,7 @@ package dispatch
 
 import com.ning.http.client
 import client.{
-  RequestBuilder, Request, Response, AsyncCompletionHandler, AsyncHandler,
+  Response, AsyncCompletionHandler, AsyncHandler,
   HttpResponseStatus
 }
 
@@ -10,7 +10,7 @@ import client.{
  * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
  * Implied in dispatch package object
  */
-class RequestHandlerTupleBuilder(builder: RequestBuilder) {
+class RequestHandlerTupleBuilder(builder: Req) {
   def OK [T](f: Response => T) =
     (builder.build(), new OkFunctionHandler(f))
   def > [T](f: Response => T) =

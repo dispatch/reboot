@@ -44,7 +44,7 @@ with DispatchCleanup {
     }).start()
   }
 
-  def localhost: Req = host("127.0.0.1", server.port)
+  lazy val localhost: Req = host("127.0.0.1", server.port)
 
   property("Server receieves same answer (from param) from itself") =
     forAll(Gen.alphaStr) { sample =>

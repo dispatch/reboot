@@ -26,7 +26,7 @@ with DispatchCleanup {
   import dispatch._
   import scala.concurrent.Future
 
-  def localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", server.port)
 
   def split(str: String): Future[Seq[String]] =
     for (csv <- Http(localhost / "split" << Seq("str" -> str) > as.String))

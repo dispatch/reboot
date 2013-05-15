@@ -30,7 +30,7 @@ with DispatchCleanup {
   implicit val timer: Timer =
     new HashedWheelTimer(DaemonThreads.factory, 1, TimeUnit.MILLISECONDS)
 
-  def localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", server.port)
 
   // wrapping num in Option because scalacheck is
   // determined to test 0 if the type is int

@@ -2,44 +2,44 @@ package dispatch
 
 import com.ning.http.client.RequestBuilder
 
-class DefaultRequestVerbs(val subject: RequestBuilder)
+class DefaultRequestVerbs(val subject: Req)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
 with HeaderVerbs
 
 trait HostVerbs {
   def apply(host: String) = {
     val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
-    new RequestBuilder().setUrl("http://%s/".format(asciiSafeDomain))
+    Req(_.setUrl("http://%s/".format(asciiSafeDomain)))
   }
 
   def apply(host: String, port: Int) = {
     val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
-    new RequestBuilder().setUrl("http://%s:%d/".format(asciiSafeDomain, port))
+    Req(_.setUrl("http://%s:%d/".format(asciiSafeDomain, port)))
   }
 }
 
 object :/ extends HostVerbs
 object host extends HostVerbs
 
-object url extends (String => RequestBuilder) {
+object url extends (String => Req) {
   def apply(url: String) = {
-    new RequestBuilder().setUrl(RawUri(url).toString)
+    Req(_.setUrl(RawUri(url).toString))
   }
 }
 
 trait RequestVerbs {
-  def subject: RequestBuilder
+  def subject: Req
 }
 
 trait MethodVerbs extends RequestVerbs {
-  def HEAD    = subject.setMethod("HEAD")
-  def GET     = subject.setMethod("GET")
-  def POST    = subject.setMethod("POST")
-  def PUT     = subject.setMethod("PUT")
-  def DELETE  = subject.setMethod("DELETE")
-  def PATCH   = subject.setMethod("PATCH")
-  def TRACE   = subject.setMethod("TRACE")
-  def OPTIONS = subject.setMethod("OPTIONS")
+  def HEAD    = subject(_.setMethod("HEAD"))
+  def GET     = subject(_.setMethod("GET"))
+  def POST    = subject(_.setMethod("POST"))
+  def PUT     = subject(_.setMethod("PUT"))
+  def DELETE  = subject(_.setMethod("DELETE"))
+  def PATCH   = subject(_.setMethod("PATCH"))
+  def TRACE   = subject(_.setMethod("TRACE"))
+  def OPTIONS = subject(_.setMethod("OPTIONS"))
 }
 
 trait UrlVerbs extends RequestVerbs {
@@ -51,14 +51,14 @@ trait UrlVerbs extends RequestVerbs {
       case u if u.endsWith("/") => u + encodedSegment
       case u => u + "/" + encodedSegment
     }
-    subject.setUrl(uri.copy(path=rawPath).toString)
+    subject(_.setUrl(uri.copy(path=rawPath).toString))
   }
-  def / (segment: AnyVal): RequestBuilder = segment match {
+  def / (segment: AnyVal): Req = segment match {
     case unit: Unit => subject
     case other      => this / other.toString
   }
   def secure = {
-    subject.setUrl(RawUri(url).copy(scheme=Some("https")).toString)
+    subject(_.setUrl(RawUri(url).copy(scheme=Some("https")).toString))
   }
 }
 
@@ -66,14 +66,14 @@ trait HeaderVerbs extends RequestVerbs {
   def <:< (hs: Traversable[(String,String)]) =
     (subject /: hs) {
       case (s, (key, value)) =>
-        s.addHeader(key, value)
+        s(_.addHeader(key, value))
     }
 }
 
 trait ParamVerbs extends RequestVerbs {
   private def defaultMethod(method: String) = {
     if (subject.build.getMethod.toUpperCase == "GET")
-      subject.setMethod(method)
+      subject(_.setMethod(method))
     else subject
   }
   /** Adds `params` to the request body. Sets request method
@@ -81,39 +81,39 @@ trait ParamVerbs extends RequestVerbs {
   def << (params: Traversable[(String,String)]) = {
     (defaultMethod("POST") /: params) {
       case (s, (key, value)) =>
-        s.addParameter(key, value)
+        s(_.addParameter(key, value))
     }
   }
   /** Set request body to a given string, set method to POST
    * if currently GET. */
   def << (body: String) = {
-    defaultMethod("POST").setBody(body)
+    defaultMethod("POST")(_.setBody(body))
   }
   /** Set a file as the request body and set method to PUT if it's
     * currently GET. */
   def <<< (file: java.io.File) = {
-    defaultMethod("PUT").setBody(file)
+    defaultMethod("PUT")(_.setBody(file))
   }
   /** Adds `params` as query parameters */
   def <<? (params: Traversable[(String,String)]) =
     (subject /: params) {
       case (s, (key, value)) =>
-        s.addQueryParameter(key, value)
+        s(_.addQueryParameter(key, value))
     }
 }
 
 trait AuthVerbs extends RequestVerbs {
   import com.ning.http.client.Realm.{RealmBuilder,AuthScheme}
   def as(user: String, password: String) =
-    subject.setRealm(new RealmBuilder()
+    subject(_.setRealm(new RealmBuilder()
                      .setPrincipal(user)
                      .setPassword(password)
-                     .build())
+                     .build()))
   def as_!(user: String, password: String) =
-    subject.setRealm(new RealmBuilder()
+    subject(_.setRealm(new RealmBuilder()
                      .setPrincipal(user)
                      .setPassword(password)
                      .setUsePreemptiveAuth(true)
                      .setScheme(AuthScheme.BASIC)
-                     .build())
+                     .build()))
 }
