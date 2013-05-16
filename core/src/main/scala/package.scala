@@ -1,10 +1,11 @@
 import com.ning.http.client.RequestBuilder
-import scala.concurrent.Future
 
 package object dispatch {
   case class Req(run:RequestBuilder => RequestBuilder){
-    def apply(next:RequestBuilder => RequestBuilder) = Req(run andThen next)
+    def underlying(next:RequestBuilder => RequestBuilder) = Req(run andThen next)
     def build() = run(new RequestBuilder).build()
+
+    def ++ (next: Req) = Req(run andThen next.run)
   }
   /** Type alias for Response, avoid need to import */
   type Res = com.ning.http.client.Response
