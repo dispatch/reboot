@@ -45,7 +45,8 @@ object Builds extends sbt.Build {
     
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
-    "ufcheck", file("ufcheck")
+    "ufcheck", file("ufcheck"), settings =
+      Defaults.defaultSettings ++ Seq(scalaVersion := Common.defaultScalaVersion)
   ).dependsOn(scalacheck % "test->compile")
 
   lazy val scalacheck = RootProject(
