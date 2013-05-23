@@ -98,6 +98,7 @@ trait HttpExecutor { self =>
   }
 
   def shutdown() {
+    InternalDefaults.nioClientSocketChannelFactory.releaseExternalResources()
     client.close()
   }
 }
