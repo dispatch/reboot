@@ -5,8 +5,6 @@ import com.ning.http.client.{
   AsyncHttpClientConfig
 }
 
-import org.jboss.netty.util.{Timer,HashedWheelTimer}
-
 import java.util.{concurrent => juc}
 import scala.concurrent.{ExecutionContext}
 
