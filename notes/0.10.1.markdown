@@ -1,0 +1,39 @@
+This release improves the behavior of Dispatch 0.10 when used within
+sbt interactive mode.
+
+### In sbt's process
+
+By default sbt runs its `console`, `run`, and `test` tasks in a JVM
+[shared with sbt itself][running]. Previous releases of Dispatch have,
+for your convenience, marked all background threads as "daemon" so
+that sbt may terminate them when exiting the console even if an `Http`
+instance has not been explicitly shut down.
+
+In Dispatch 0.10.0 this abrupt thread termination triggered
+[runaway CPU usage][cpu] until sbt was exited entirely. 0.10.1
+addresses the problem by explicitly releasing resources when these
+background threads are interrupted.
+
+[cpu]: https://groups.google.com/forum/?fromgroups#!topic/dispatch-scala/CEZg9H32kX8
+
+### External processes
+
+To avoid unwanted side-effects outside of sbt, Dispatch 0.10.1 only
+uses daemon threads when running in sbt's "trap.exit"
+thread-group. Otherwise, it uses a stock async-http-client executor
+configuration.
+
+When you use Dispatch in a forked JVM process in sbt, or outside sbt
+entirely, the process will not exit when its main thread completes
+unless you have shut down all `Http` instances and any other
+background threads. But calls to `System.exit` and process TERM
+signals will, as usual, initiate a JVM shutdown.
+
+### Http#shutdown behavior
+
+The `Http#shutdown` default behavior has been improved by using
+independent executors for each `Http` instance. These may now be shut
+down independently and new instances may be created at any point.
+
+
+[running]: http://www.scala-sbt.org/0.12.3/docs/Detailed-Topics/Running-Project-Code.html
