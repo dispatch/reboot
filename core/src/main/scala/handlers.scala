@@ -10,13 +10,13 @@ import client.{
  * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
  * Implied in dispatch package object
  */
-class RequestHandlerTupleBuilder(builder: Req) {
+class RequestHandlerTupleBuilder(req: Req) {
   def OK [T](f: Response => T) =
-    (builder.build(), new OkFunctionHandler(f))
+    (req.toRequest, new OkFunctionHandler(f))
   def > [T](f: Response => T) =
-    (builder.build(), new FunctionHandler(f))
+    (req.toRequest, new FunctionHandler(f))
   def > [T](h: AsyncHandler[T]) =
-    (builder.build(), h)
+    (req.toRequest, h)
 }
 
 case class StatusCode(code: Int)

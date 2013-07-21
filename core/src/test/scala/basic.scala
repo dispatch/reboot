@@ -44,7 +44,7 @@ with DispatchCleanup {
     val path = if (sample.isEmpty) "" else "/" + sample
     val wiki = "http://wikipedia.com" + path
     val uri = url(wiki)
-    uri.build().getUrl() ?= RawUri(wiki).toString
+    uri.toRequest.getUrl() ?= RawUri(wiki).toString
   }
 
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>

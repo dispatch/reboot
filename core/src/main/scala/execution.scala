@@ -42,9 +42,9 @@ trait HttpExecutor { self =>
       Future.sequence(seq)
   }
 
-  def apply(builder: Req)
+  def apply(req: Req)
            (implicit executor: ExecutionContext): Future[Response] =
-    apply(builder.build() -> new FunctionHandler(identity))
+    apply(req.toRequest -> new FunctionHandler(identity))
 
   def apply[T](pair: (Request, AsyncHandler[T]))
               (implicit executor: ExecutionContext): Future[T] =

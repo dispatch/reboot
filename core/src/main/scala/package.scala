@@ -1,16 +1,18 @@
 import com.ning.http.client.RequestBuilder
 
 package object dispatch {
-  case class Req(run:RequestBuilder => RequestBuilder){
-    def underlying(next:RequestBuilder => RequestBuilder) = Req(run andThen next)
-    def build() = run(new RequestBuilder).build()
-
-    def ++ (next: Req) = Req(run andThen next.run)
-  }
   /** Type alias for Response, avoid need to import */
   type Res = com.ning.http.client.Response
   /** Type alias for URI, avoid need to import */
   type Uri = java.net.URI
+
+  @deprecated("Use `RequestBuilder.underlying` to preserve referential transparency",
+    since="0.11.0")
+  implicit def implyRequestBuilder(req: Req) = req.toRequestBuilder
+
+  @deprecated("Use `RequestBuilder.underlying` to preserve referential transparency",
+    since="0.11.0")
+  implicit def implyReq(builder: RequestBuilder) = Req(_ => builder)
 
   implicit def implyRequestVerbs(builder: Req) =
     new DefaultRequestVerbs(builder)

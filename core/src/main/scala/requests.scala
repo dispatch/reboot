@@ -1,5 +1,16 @@
 package dispatch
 
+import com.ning.http.client.RequestBuilder
+
+/** This wrapper provides referential transparency for the
+  underlying RequestBuilder. */
+case class Req(run: RequestBuilder => RequestBuilder) {
+  def underlying(next: RequestBuilder => RequestBuilder) =
+    Req(run andThen next)
+  def toRequestBuilder = run(new RequestBuilder)
+  def toRequest = toRequestBuilder.build
+}
+
 class DefaultRequestVerbs(val subject: Req)
 extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
 with HeaderVerbs
@@ -41,7 +52,7 @@ trait MethodVerbs extends RequestVerbs {
 }
 
 trait UrlVerbs extends RequestVerbs {
-  def url = subject.build().getUrl
+  def url = subject.toRequest.getUrl
   def / (segment: String) = {
     val uri = RawUri(url)
     val encodedSegment = UriEncode.path(segment)
@@ -70,7 +81,7 @@ trait HeaderVerbs extends RequestVerbs {
 
 trait ParamVerbs extends RequestVerbs {
   private def defaultMethod(method: String) = {
-    if (subject.build().getMethod.toUpperCase == "GET")
+    if (subject.toRequest.getMethod.toUpperCase == "GET")
       subject underlying (_.setMethod(method))
     else subject
   }
