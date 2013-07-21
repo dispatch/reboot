@@ -35,14 +35,16 @@ with DispatchCleanup {
   def cyrillicChars = Gen.choose( 0x0400, 0x04FF) map {_.toChar}
 
   def cyrillic = for {
-      cs <- Gen.listOf(cyrillicChars)
+    cs <- Gen.listOf(cyrillicChars)
   } yield {
-      cs.mkString
+    cs.mkString
   }
 
   property("url() should encode non-ascii chars in the path") = forAll(cyrillic) { (sample: String) =>
-      val uri = url("http://wikipedia.com/"+sample)
-      uri.build().getUrl() ?= RawUri("http://wikipedia.com/"+sample).toString
+    val path = if (sample.isEmpty) "" else "/" + sample
+    val wiki = "http://wikipedia.com" + path
+    val uri = url(wiki)
+    uri.build().getUrl() ?= RawUri(wiki).toString
   }
 
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>

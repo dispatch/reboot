@@ -28,7 +28,7 @@ with DispatchCleanup {
   // to keep the tests fast. These are unlikely to be good settings
   // for an application.
   implicit val timer: Timer =
-    new HashedWheelTimer(DaemonThreads.factory, 1, TimeUnit.MILLISECONDS)
+    new HashedWheelTimer(1, TimeUnit.MILLISECONDS)
 
   val localhost = host("127.0.0.1", server.port)
 

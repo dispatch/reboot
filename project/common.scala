@@ -3,6 +3,8 @@ import sbt._
 object Common {
   import Keys._
 
+  val defaultScalaVersion = "2.10.1"
+
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
       val c = loader.loadClass("unfiltered.spec.Cleanup$")
@@ -11,9 +13,11 @@ object Common {
   )
 
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
-    version := "0.10.0",
+    version := "0.10.1",
 
     crossScalaVersions := Seq("2.9.3", "2.10.1"),
+
+    scalaVersion := defaultScalaVersion,
 
     organization := "net.databinder.dispatch",
 
