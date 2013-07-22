@@ -11,10 +11,6 @@ case class Req(run: RequestBuilder => RequestBuilder) {
   def toRequest = toRequestBuilder.build
 }
 
-class DefaultRequestVerbs(val subject: Req)
-extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
-with HeaderVerbs
-
 trait HostVerbs {
   def apply(host: String) = {
     val asciiSafeDomain = IDNDomainHelpers.safeConvert(host)
