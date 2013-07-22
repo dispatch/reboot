@@ -8,15 +8,11 @@ package object dispatch {
 
   @deprecated("Use `RequestBuilder.underlying` to preserve referential transparency",
     since="0.11.0")
-  implicit def implyRequestBuilder(req: Req) = req.toRequestBuilder
-
-  @deprecated("Use `RequestBuilder.underlying` to preserve referential transparency",
-    since="0.11.0")
   implicit def implyReq(builder: RequestBuilder) = Req(_ => builder)
 
   implicit class DefaultRequestVerbs(val subject: Req)
   extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
-  with HeaderVerbs
+  with HeaderVerbs with RequestBuilderVerbs
 
   /**
    * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
