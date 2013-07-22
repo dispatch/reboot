@@ -10,9 +10,6 @@ package object dispatch {
     since="0.11.0")
   implicit def implyReq(builder: RequestBuilder) = Req(_ => builder)
 
-  implicit def implyRequestVerbs(builder: Req) =
-    new DefaultRequestVerbs(builder)
-
   implicit def implyRequestHandlerTuple(builder: Req) =
     new RequestHandlerTupleBuilder(builder)
 

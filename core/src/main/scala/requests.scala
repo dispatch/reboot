@@ -4,16 +4,15 @@ import com.ning.http.client.RequestBuilder
 
 /** This wrapper provides referential transparency for the
   underlying RequestBuilder. */
-case class Req(run: RequestBuilder => RequestBuilder) {
+case class Req(run: RequestBuilder => RequestBuilder)
+extends MethodVerbs with UrlVerbs with ParamVerbs
+with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
+  def subject = this
   def underlying(next: RequestBuilder => RequestBuilder) =
     Req(run andThen next)
   def toRequestBuilder = run(new RequestBuilder)
   def toRequest = toRequestBuilder.build
 }
-
-class DefaultRequestVerbs(val subject: Req)
-extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
-with HeaderVerbs with RequestBuilderVerbs
 
 trait HostVerbs {
   def apply(host: String) = {
