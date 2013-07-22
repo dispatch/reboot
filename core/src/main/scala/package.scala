@@ -10,29 +10,19 @@ package object dispatch {
     since="0.11.0")
   implicit def implyReq(builder: RequestBuilder) = Req(_ => builder)
 
-  implicit class DefaultRequestVerbs(val subject: Req)
-  extends MethodVerbs with UrlVerbs with ParamVerbs with AuthVerbs
-  with HeaderVerbs with RequestBuilderVerbs
+  implicit def implyRequestVerbs(builder: Req) =
+    new DefaultRequestVerbs(builder)
 
-  /**
-   * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
-   */
-  implicit class RequestHandlerTupleBuilder(req: Req) {
-    import com.ning.http.client.{AsyncHandler,Response}
-    def OK [T](f: Response => T) =
-      (req.toRequest, new OkFunctionHandler(f))
-    def > [T](f: Response => T) =
-      (req.toRequest, new FunctionHandler(f))
-    def > [T](h: AsyncHandler[T]) =
-      (req.toRequest, h)
-  }
+  implicit def implyRequestHandlerTuple(builder: Req) =
+    new RequestHandlerTupleBuilder(builder)
 
-  implicit class RunnableFunction[U](f: () => U) extends java.lang.Runnable {
+
+  implicit def implyRunnable[U](f: () => U) = new java.lang.Runnable {
     def run() { f() }
   }
 
-  implicit class ImplicitEnrichedFuture[T](future: Future[T])
-  extends EnrichedFuture(future)
+  implicit def enrichFuture[T](future: Future[T]) =
+    new EnrichedFuture(future)
 
   @deprecated("use dispatch.Future / scala.concurrent.Future", "0.10.0")
   type Promise[+T] = scala.concurrent.Future[T]

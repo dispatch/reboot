@@ -6,6 +6,19 @@ import client.{
   HttpResponseStatus
 }
 
+/**
+ * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
+ * Implied in dispatch package object
+ */
+class RequestHandlerTupleBuilder(req: Req) {
+  def OK [T](f: Response => T) =
+    (req.toRequest, new OkFunctionHandler(f))
+  def > [T](f: Response => T) =
+    (req.toRequest, new FunctionHandler(f))
+  def > [T](h: AsyncHandler[T]) =
+    (req.toRequest, h)
+}
+
 case class StatusCode(code: Int)
 extends Exception("Unexpected response status: %d".format(code))
 
