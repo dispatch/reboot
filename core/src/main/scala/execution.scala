@@ -33,15 +33,6 @@ object Http extends Http(
 trait HttpExecutor { self =>
   def client: AsyncHttpClient
 
-  object promise {
-    @deprecated("use scala.concurrent.Future.successful", "0.10.0")
-    def apply[T](f: => T) = Future.successful(f)
-    @deprecated("use scala.concurrent.Future.sequence", "0.10.0")
-    def all[T](seq: Iterable[Future[T]])
-              (implicit executor: ExecutionContext) = 
-      Future.sequence(seq)
-  }
-
   def apply(req: Req)
            (implicit executor: ExecutionContext): Future[Response] =
     apply(req.toRequest -> new FunctionHandler(identity))
