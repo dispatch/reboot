@@ -6,13 +6,6 @@ the underlying library. Everything that can be expressed with
 Dispatch's builders and "verbs" can be performed directly on that
 lower level interface.
 
-> Warning: The `RequestBuilder` class is *mutable*. Its instances
-  should not be shared or reused. Be sure to declare all parts of a
-  request definition that you wish to reuse as a `def` rather than a
-  `val`.
-
-[rb]: http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html
-
 ### Domains and paths
 
 Request definitions are initialized with a URL or domain name.
