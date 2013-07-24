@@ -1,0 +1,19 @@
+This release brings referential transparency to the `Req` type by
+making it an immutable builder of `RequestBuilder` — that's right,
+Spring fans, it's a factory-factory.
+
+Previously `Req` was a type alias for the `RequestBuilder` class of
+the underlying async-http-client library. This class is unfortunately
+mutable, leading to unexpected behavior a referenced `val` is reused.
+
+For programs that refer to `RequestBuilder` explicitly, this version
+of Dispatch provides an implicit conversion from `Req` to
+`RequestBuilder`. This conversion reintroduces mutable behavior and is
+is annotated as *deprecated*.
+
+The method `Req.build` is provided for backwards compatibility, but is
+deprecated. Use `toRequest` or `toRequestBuilder` to access the
+underlying interfaces explicitly.
+
+This release also removes the `dispatch.Promise`-bridging methods that
+were deprecated in version 0.10.
