@@ -4,7 +4,7 @@ Spring fans, it's a factory-factory.
 
 Previously `Req` was a type alias for the `RequestBuilder` class of
 the underlying async-http-client library. This class is unfortunately
-mutable, leading to unexpected behavior a referenced `val` is reused.
+mutable, leading to unexpected behavior when an instance is reused.
 
 For programs that refer to `RequestBuilder` explicitly, this version
 of Dispatch provides an implicit conversion from `Req` to
