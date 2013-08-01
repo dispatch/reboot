@@ -9,7 +9,7 @@ object Token extends (Response => Either[String, AccessToken]) {
   def apply(res: Response) = {
     val response = dispatch.as.json4s.Json(res)
     val eth = extractField(response, "access_token").toRight {
-      extractField(response, "error_description").get
+      extractField(response, "error_description").getOrElse("Unknown error")
     }
     for (right <- eth.right) yield AccessToken(right)
   }
