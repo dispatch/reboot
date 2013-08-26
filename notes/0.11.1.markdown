@@ -1,1 +1,2 @@
-Updated Json4s modules from version `2.3.4` to `2.3.5`
+Updated async-http-client dependency from `1.7.16` to `1.7.19`
+Updated Json4s dependencies from version `2.3.4` to `2.3.5`
