@@ -6,7 +6,7 @@ import com.ning.http.client.Response
 
 object Document extends (Response => nodes.Document) {
   def apply(r: Response) =
-    (dispatch.as.String andThen Jsoup.parse)(r)
+    Jsoup.parse(dispatch.as.String(r), r.getUri().toString)
 }
 
 object Query {
@@ -18,5 +18,5 @@ object Query {
 object Clean {
   import org.jsoup.safety.Whitelist
   def apply(wl: Whitelist): Response => String =
-    { r => Jsoup.clean(dispatch.as.String(r), wl) }
+    { r => Jsoup.clean(dispatch.as.String(r), r.getUri().toString, wl) }
 }
