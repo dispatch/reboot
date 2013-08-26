@@ -14,6 +14,9 @@ with DispatchCleanup {
   val SafeFormat =
     """<p><a href="http://example.com/" rel="nofollow">%s</a></p>"""
 
+  val PageWithRelativeLink =
+    """<html><head></head><body><p><a href="/category">%s</a></p></body></html>"""
+
   val server = {
     import unfiltered.netty
     import unfiltered.response._
@@ -24,6 +27,8 @@ with DispatchCleanup {
         Html(<html><head></head><body><div id="echo">{echo}</div></body></html>)
       case Path("/unclean") & Params(Echo(echo)) =>
         HtmlContent ~> ResponseString(UnsafeFormat format echo)
+      case Path("/relative") & Params(Echo(echo)) =>
+        HtmlContent ~> ResponseString(PageWithRelativeLink format echo)
     }).start()
   }
 
@@ -51,5 +56,12 @@ with DispatchCleanup {
         Whitelist.basic)
     )
     clean() == (SafeFormat format sample)
+  }
+
+  property("handle absolute urls on page") = forAll(Gen.alphaStr) { (sample: String) =>
+    val doc = Http(
+      localhost / "relative" <<? Map("echo" -> sample) > as.jsoup.Document
+    )
+    doc().select("a").first().absUrl("href") == (localhost.url + "/category")
   }
 }
