@@ -11,7 +11,7 @@ In one method we'll contain the construction of the request. In this
 case it's an endpoint with all of the parameters in path elements.
 
 ```scala
-import dispatch._, Dispatch._
+import dispatch._, Defaults._
 
 case class Location(city: String, state: String)
 
