@@ -9,7 +9,7 @@ input. If things don't go as planned, the futures will fail.
 
 Failed futures are messy. You may have already seen the mess created
 in playing around with the previous examples. Here we'll make a big
-mess to see happens, and how bad it can get.
+mess to see what happens, and how bad it can get.
 
 ```scala
 import dispatch._, Defaults._
