@@ -84,6 +84,12 @@ trait ParamVerbs extends RequestVerbs {
       subject.setMethod(method)
     else subject
   }
+  private def defaultContentType(mediaType: String, charset: String): Req = {
+    if (!subject.toRequest.getHeaders.containsKey("Content-Type"))
+      subject.setContentType(mediaType, charset)
+    else subject
+  }
+
   /** Adds `params` to the request body. Sets request method
    *  to POST if it is currently GET. */
   def << (params: Traversable[(String,String)]) = {
@@ -92,10 +98,12 @@ trait ParamVerbs extends RequestVerbs {
         s.addParameter(key, value)
     }
   }
-  /** Set request body to a given string, set method to POST
-   * if currently GET. */
+  /** Set request body to a given string,
+   *  - set method to POST if currently GET,
+   *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified. */
   def << (body: String) = {
-    defaultMethod("POST").setBody(body)
+    defaultMethod("POST").defaultContentType("text/plain", "UTF-8").
+      setBody(body)
   }
   /** Set a file as the request body and set method to PUT if it's
     * currently GET. */
@@ -156,6 +164,13 @@ trait RequestBuilderVerbs extends RequestVerbs {
     subject.underlying { _.setBody(data) }
   def setBody(file: java.io.File) =
     subject.underlying { _.setBody(file) }
+  def setBodyEncoding(charset: String) =
+    subject.underlying { _.setBodyEncoding(charset) }
+  def setContentType(mediaType: String, charset: String) =
+    subject.underlying {
+      _.setHeader("Content-Type", mediaType + "; charset=" + charset).
+      setBodyEncoding(charset)
+    }
   def setHeader(name: String, value: String) =
     subject.underlying { _.setHeader(name, value) }
   def setHeaders(headers: Map[String, Seq[String]]) =
