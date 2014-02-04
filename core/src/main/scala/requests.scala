@@ -92,6 +92,11 @@ trait ParamVerbs extends RequestVerbs {
         s.addParameter(key, value)
     }
   }
+  /** Set request body to a given byte array, set method to POST
+   * if currently GET. */
+  def << (body: Array[Byte]) = {
+    defaultMethod("POST").setBody(body)
+  }
   /** Set request body to a given string, set method to POST
    * if currently GET. */
   def << (body: String) = {
