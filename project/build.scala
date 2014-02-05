@@ -15,8 +15,8 @@ object Builds extends sbt.Build {
         ls.Plugin.LsKeys.skipWrite := true,
       publish := { }
       )
-    ).aggregate(core, liftjson, jsoup, tagsoup, 
-      json4sJackson, json4sNative)
+    ).aggregate(core, liftjson, jsoup, tagsoup,
+      json4sJackson, json4sNative, oauth2)
 
   def module(name: String) =
     Project(name,
@@ -47,7 +47,12 @@ object Builds extends sbt.Build {
   lazy val tagsoup = module("tagsoup")
     .dependsOn(core)
     .dependsOn(core % "test->test")
-    
+
+  lazy val oauth2 = module("oauth2")
+    .dependsOn(core)
+    .dependsOn(json4sNative)
+    .dependsOn(core % "test->test")
+
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
     "ufcheck", file("ufcheck"), settings =
