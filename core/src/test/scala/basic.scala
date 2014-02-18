@@ -20,6 +20,8 @@ with DispatchCleanup {
         PlainTextContent ~> ResponseString(req.method + URLDecoder.decode(echo, "utf-8"))
       case req @ Path(Seg("echopath" :: Nil)) =>
         PlainTextContent ~> ResponseString(req.method)
+      case req @ Path(Seg("echobody" :: Nil)) =>
+        PlainTextContent ~> ResponseString(req.method + Body.string(req))
       case Path(Seg("agent" :: Nil)) & UserAgent(agent) =>
         PlainTextContent ~> ResponseString(agent)
     }).start()
@@ -50,6 +52,13 @@ with DispatchCleanup {
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
+    )
+    res() ?= ("POST" + sample)
+  }
+
+  property("POST non-ascii chars body and get response") = forAll(cyrillic) { (sample: String) =>
+    val res = Http(
+      localhost / "echobody" << sample > as.String
     )
     res() ?= ("POST" + sample)
   }

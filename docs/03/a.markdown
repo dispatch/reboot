@@ -45,10 +45,12 @@ parameters to the body at once:
 def myPostWithParams = myRequest << Map("key" -> "value")
 ```
 
-You can also POST an arbitrary string:
+You can also POST an arbitrary string. Be sure to set MIME media type
+and character encoding:
 
 ```scala
-def myPostWithBody = myRequest << """{"key": "value"}"""
+def myRequestAsJson = myRequest.setContentType("application/json", "UTF-8")
+def myPostWithBody = myRequestAsJson << """{"key": "value"}"""
 ```
 
 ### Query parameters
