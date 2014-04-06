@@ -18,15 +18,16 @@ object Builds extends sbt.Build {
     ).aggregate(core, liftjson, jsoup, tagsoup, 
       json4sJackson, json4sNative)
 
-  def module(name: String) =
+  def module(name: String, settings: Seq[Def.Setting[_]] = Seq.empty) =
     Project(name,
             file(name.replace("-", "")),
             settings = Defaults.defaultSettings ++
               Common.settings ++
-              Common.testSettings)
+              Common.testSettings ++
+              settings)
       .dependsOn(ufcheck % "test->test")
 
-  lazy val core = module("core")
+  lazy val core = module("core", xmlDependency)
 
   lazy val liftjson = module("lift-json")
     .dependsOn(core)
@@ -48,6 +49,14 @@ object Builds extends sbt.Build {
     .dependsOn(core)
     .dependsOn(core % "test->test")
     
+  lazy val xmlDependency = libraryDependencies <<= (libraryDependencies, scalaVersion){
+    (dependencies, scalaVersion) =>
+      if(scalaVersion.startsWith("2.11"))
+        ("org.scala-lang.modules" %% "scala-xml" % "1.0.1") +: dependencies
+      else
+        dependencies
+    }
+
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
     "ufcheck", file("ufcheck"), settings =
