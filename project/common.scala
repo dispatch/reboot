@@ -3,7 +3,7 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.10.1"
+  val defaultScalaVersion = "2.10.4"
 
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
@@ -15,7 +15,7 @@ object Common {
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
     version := "0.11.1-SNAPSHOT",
 
-    crossScalaVersions := Seq("2.9.3", "2.10.1"),
+    crossScalaVersions := Seq("2.9.3", "2.10.4", "2.11.0"),
 
     scalaVersion := defaultScalaVersion,
 
