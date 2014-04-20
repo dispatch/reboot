@@ -56,9 +56,5 @@ object Builds extends sbt.Build {
   lazy val ufcheck = Project(
     "ufcheck", file("ufcheck"), settings =
       Defaults.defaultSettings ++ Seq(scalaVersion := Common.defaultScalaVersion)
-  ).dependsOn(scalacheck % "test->compile")
-
-  lazy val scalacheck = RootProject(
-    uri("git://github.com/rickynils/scalacheck.git#e26b9b23d1b37ed18ba4705614a2d47e2df16601")
   )
 }
