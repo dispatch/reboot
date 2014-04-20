@@ -84,7 +84,7 @@ trait ParamVerbs extends RequestVerbs {
       subject.setMethod(method)
     else subject
   }
-  private def defaultContentType(mediaType: String, charset: String): Req = {
+  protected def defaultContentType(mediaType: String, charset: String): Req = {
     if (!subject.toRequest.getHeaders.containsKey("Content-Type"))
       subject.setContentType(mediaType, charset)
     else subject
