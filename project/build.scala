@@ -3,11 +3,6 @@ import sbt._
 object Builds extends sbt.Build {
   import Keys._
 
-
-  override def settings = super.settings ++ Seq(
-    scalaVersion := "2.10.1"
-  )
-
   /** Aggregates tasks for all projects */
   lazy val root = Project(
     "dispatch-all", file("."), settings =
