@@ -49,6 +49,12 @@ with DispatchCleanup {
     uri.toRequest.getUrl() ?= RawUri(wiki).toString
   }
 
+  property("Path segments can be before and after query parameters") = forAll(Gen.alphaStr) { (sample: String) =>
+    val segmentLast = (localhost <<? Map("key" -> "value")) / sample
+    val segmentFirst = localhost / sample <<? Map("key" -> "value")
+    segmentLast.toRequest.getUrl() ?= segmentFirst.toRequest.getUrl()
+  }
+
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
