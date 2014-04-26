@@ -59,7 +59,7 @@ trait UrlVerbs extends RequestVerbs {
       case u if u.endsWith("/") => u + encodedSegment
       case u => u + "/" + encodedSegment
     }
-    subject.setUrl(uri.copy(path=rawPath).toString)
+    subject.setUrl(uri.copy(path=rawPath, query=None).toString)
   }
   def / (segment: AnyVal): Req = segment match {
     case unit: Unit => subject
