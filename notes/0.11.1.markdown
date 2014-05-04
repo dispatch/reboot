@@ -1,2 +1,12 @@
-Updated async-http-client dependency from `1.7.16` to `1.7.19`
-Updated Json4s dependencies from version `2.3.4` to `2.3.5`
+* Updated async-http-client dependency from `1.7.16` to `1.8.8`
+* Updated Json4s dependencies from version `2.3.4` to `3.2.9`
+* Handle absolute refs in jsoup, [PR #64][64]
+* POSTing a String via <<(String) should default to UTF-8 encoded "text/plain" [PR #72][72]
+* Ability to pass byte-array to `<<` [#PR 76][76]
+* Don't duplicate query string if path segments added after [Issue #79][79]
+* Restore `Http` auto-shutdown behavior for sbt 0.13.1+
+
+[64]: https://github.com/dispatch/reboot/pull/64
+[76]: https://github.com/dispatch/reboot/pull/76
+[79]: https://github.com/dispatch/reboot/issues/79
+[72]: https://github.com/dispatch/reboot/pull/72
