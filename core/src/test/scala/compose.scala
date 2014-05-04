@@ -28,7 +28,7 @@ with DispatchCleanup {
   def sum(nums: Iterable[String]) =
     Http(localhost / "sum" << nums.map { "num" -> _ } > as.String)
 
-  val numList = listOf1(chooseNum(-1000L, 1000L))
+  val numList = nonEmptyListOf(chooseNum(-1000L, 1000L))
 
   property("sum in one request") = forAll(numList) { (sample: List[Long]) =>
     sum(sample.map { _.toString })() ?= sample.sum.toString

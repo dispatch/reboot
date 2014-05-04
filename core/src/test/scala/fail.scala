@@ -38,7 +38,7 @@ with DispatchCleanup {
     res() ?= Left(StatusCode(404))
   }
 
-  property("project right on success2") = forAll(Gen.value("foo")) { sample =>
+  property("project right on success2") = forAll(Gen.const("foo")) { sample =>
     val path = Right(sample)
     val eth = for {
       p <- Future.successful(path).right
