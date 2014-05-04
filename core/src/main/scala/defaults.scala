@@ -17,13 +17,16 @@ object Defaults {
 
 private [dispatch] object InternalDefaults {
   /** true if we think we're runing un-forked in an sbt-interactive session */
-  val inTrapExit = (
+  val inSbt = (
     for (group <- Option(Thread.currentThread.getThreadGroup))
-    yield group.getName == "trap.exit"
+    yield (
+      group.getName == "trap.exit" // sbt version <= 0.13.0
+      || group.getName.startsWith("run-main-group") // sbt 0.13.1+
+    )
   ).getOrElse(false)
 
   private lazy val underlying = 
-    if (inTrapExit) SbtProcessDefaults
+    if (inSbt) SbtProcessDefaults
     else BasicDefaults
 
   def client = new AsyncHttpClient(underlying.builder.build())
