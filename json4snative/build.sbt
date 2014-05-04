@@ -3,7 +3,7 @@ name := "dispatch-json4s-native"
 description :=
   "Dispatch module providing json4s native support"
 
-seq(lsSettings :_*)
+Seq(lsSettings :_*)
 
 libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-core" % "3.2.9",
