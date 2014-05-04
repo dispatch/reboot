@@ -135,7 +135,8 @@ trait AuthVerbs extends RequestVerbs {
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {
-  import com.ning.http.client._
+  import com.ning.http.client.{ FluentStringsMap, Part, ProxyServer, Realm, Request }
+  import com.ning.http.client.cookie.Cookie
   import Request.EntityWriter
   import scala.collection.JavaConverters._
   import java.util.Collection

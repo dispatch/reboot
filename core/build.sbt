@@ -3,9 +3,8 @@ name := "dispatch-core"
 description :=
   "Core Dispatch module wrapping sonatype/async-http-client"
 
-libraryDependencies ++= Seq(
-  "com.ning" % "async-http-client" % "1.7.19"
-)
+libraryDependencies +=
+  "com.ning" % "async-http-client" % "1.8.8"
 
 Seq(lsSettings :_*)
 
