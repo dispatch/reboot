@@ -53,6 +53,7 @@ private [dispatch] object InternalDefaults {
       def shutdown() {
         if (shuttingDown.compareAndSet(false, true)) {
           nioClientSocketChannelFactory.releaseExternalResources()
+          timer.stop()
         }
       }
       /** daemon threads that also shut down everything when interrupted! */
@@ -60,6 +61,7 @@ private [dispatch] object InternalDefaults {
         def newThread(runnable: Runnable) = {
           new Thread(runnable) {
             setDaemon(true)
+            /** only reliably called on any thread if all spawned threads are daemon */
             override def interrupt() {
               shutdown()
               super.interrupt()
@@ -80,12 +82,12 @@ private [dispatch] object InternalDefaults {
         )
       }
 
-      BasicDefaults.builder.setAsyncHttpClientProviderConfig(
-        new NettyAsyncHttpProviderConfig().addProperty(
-          NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY,
-          nioClientSocketChannelFactory
-        )
+      val config = new NettyAsyncHttpProviderConfig().addProperty(
+        NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY,
+        nioClientSocketChannelFactory
       )
+      config.setNettyTimer(timer)
+      BasicDefaults.builder.setAsyncHttpClientProviderConfig(config)
     }
     lazy val timer = new HashedWheelTimer(DaemonThreads.factory)
   }
