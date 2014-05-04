@@ -10,7 +10,7 @@ object Builds extends sbt.Build {
         ls.Plugin.LsKeys.skipWrite := true,
       publish := { }
       )
-    ).aggregate(core, liftjson, jsoup, tagsoup, 
+    ).aggregate(core, jsoup, tagsoup, // liftjson - no 2.11 artifact
       json4sJackson, json4sNative)
 
   def module(name: String, settings: Seq[Def.Setting[_]] = Seq.empty) =
