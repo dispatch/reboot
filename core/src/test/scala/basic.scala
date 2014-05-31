@@ -24,6 +24,8 @@ with DispatchCleanup {
         PlainTextContent ~> ResponseString(req.method + Body.string(req))
       case Path(Seg("agent" :: Nil)) & UserAgent(agent) =>
         PlainTextContent ~> ResponseString(agent)
+      case Path(Seg("contenttype" :: Nil)) & RequestContentType(contenttype) =>
+        PlainTextContent ~> ResponseString(contenttype)
     }).start()
   }
 
@@ -109,6 +111,20 @@ with DispatchCleanup {
       localhost / "agent" > as.String
     )
     res() ?= ("Dispatch/%s" format BuildInfo.version)
+  }
+
+  property("Send a default content-type with <<") = forAll(Gen.const("unused")) { (sample: String) =>
+    val res = Http(
+      localhost / "contenttype" << "request body" > as.String
+    )
+    res() ?= ("text/plain; charset=UTF-8")
+  }
+
+  property("Send a custom content type after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
+    val res = Http(
+      (localhost / "contenttype" << "request body").setContentType(sample, "UTF-8") > as.String
+    )
+    res() ?= (sample + "; charset=UTF-8")
   }
 
 }
