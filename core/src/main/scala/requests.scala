@@ -6,18 +6,19 @@ import com.ning.http.client.RequestBuilder
   underlying RequestBuilder. */
 case class Req(
   run: RequestBuilder => RequestBuilder,
-  state: Req.State = Req.State()
+  props: Req.Properties = Req.Properties()
 ) extends MethodVerbs with UrlVerbs with ParamVerbs
 with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
   def subject = this
   def underlying(next: RequestBuilder => RequestBuilder) =
-    Req(run andThen next, state)
-  def toState(next: Req.State => Req.State) =
-    Req(run, next(state))
+    Req(run andThen next, props)
+  def underlying(nextReq: RequestBuilder => RequestBuilder, nextProps: Req.Properties => Req.Properties) =
+    Req(run andThen nextReq, nextProps(props))
+
   def toRequestBuilder = {
     val requestBuilder = run(new RequestBuilder)
     //Body set from String and with no Content-Type will get a default of 'text/plain; charset=UTF-8'
-    if(state.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.containsKey("Content-Type")) {
+    if(props.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.containsKey("Content-Type")) {
       setContentType("text/plain", "UTF-8").run(new RequestBuilder)
     } else {
       requestBuilder
@@ -27,7 +28,7 @@ with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
 }
 
 object Req {
-  final case class State(bodyType: BodyType = NoBody)
+  final case class Properties(bodyType: BodyType = NoBody)
 
   trait BodyType
   final case object NoBody extends BodyType
@@ -173,15 +174,15 @@ trait RequestBuilderVerbs extends RequestVerbs {
       params.mapValues{ _.asJava: Collection[String] }.asJava
     )) }
   def setBody(data: Array[Byte]) =
-    subject.underlying { _.setBody(data) }.toState { _.copy(bodyType = Req.ByteArrayBody) }
+    subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.ByteArrayBody))
   def setBody(dataWriter: EntityWriter, length: Long) =
-    subject.underlying { _.setBody(dataWriter, length) }.toState { _.copy(bodyType = Req.EntityWriterBody) }
+    subject.underlying(rb => rb.setBody(dataWriter, length), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(dataWriter: EntityWriter) =
-    subject.underlying { _.setBody(dataWriter) }.toState { _.copy(bodyType = Req.EntityWriterBody) }
+    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(data: String) =
-    subject.underlying { _.setBody(data) }.toState { _.copy(bodyType = Req.StringBody) }
+    subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.StringBody))
   def setBody(file: java.io.File) =
-    subject.underlying { _.setBody(file) }.toState { _.copy(bodyType = Req.FileBody) }
+    subject.underlying(rb => rb.setBody(file), p => p.copy(bodyType = Req.FileBody))
   def setBodyEncoding(charset: String) =
     subject.underlying { _.setBodyEncoding(charset) }
   def setContentType(mediaType: String, charset: String) =
