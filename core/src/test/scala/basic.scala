@@ -127,4 +127,10 @@ with DispatchCleanup {
     res() ?= (sample + "; charset=UTF-8")
   }
 
+  property("Send a custom content type with <:< after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
+    val res: Future[String] = Http(
+      localhost / "contenttype" << "request body" <:< Map("Content-Type" -> sample) > as.String
+    )
+    res() ?= (sample)
+  }
 }

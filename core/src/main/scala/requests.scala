@@ -4,14 +4,38 @@ import com.ning.http.client.RequestBuilder
 
 /** This wrapper provides referential transparency for the
   underlying RequestBuilder. */
-case class Req(run: RequestBuilder => RequestBuilder)
-extends MethodVerbs with UrlVerbs with ParamVerbs
+case class Req(
+  run: RequestBuilder => RequestBuilder,
+  props: Req.Properties = Req.Properties()
+) extends MethodVerbs with UrlVerbs with ParamVerbs
 with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
   def subject = this
   def underlying(next: RequestBuilder => RequestBuilder) =
-    Req(run andThen next)
-  def toRequestBuilder = run(new RequestBuilder)
+    Req(run andThen next, props)
+  def underlying(nextReq: RequestBuilder => RequestBuilder, nextProps: Req.Properties => Req.Properties) =
+    Req(run andThen nextReq, nextProps(props))
+
+  def toRequestBuilder = {
+    val requestBuilder = run(new RequestBuilder)
+    //Body set from String and with no Content-Type will get a default of 'text/plain; charset=UTF-8'
+    if(props.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.containsKey("Content-Type")) {
+      setContentType("text/plain", "UTF-8").run(new RequestBuilder)
+    } else {
+      requestBuilder
+    }
+  }
   def toRequest = toRequestBuilder.build
+}
+
+object Req {
+  final case class Properties(bodyType: BodyType = NoBody)
+
+  trait BodyType
+  final case object NoBody extends BodyType
+  final case object StringBody extends BodyType
+  final case object ByteArrayBody extends BodyType
+  final case object EntityWriterBody extends BodyType
+  final case object FileBody extends BodyType
 }
 
 trait HostVerbs {
@@ -84,11 +108,6 @@ trait ParamVerbs extends RequestVerbs {
       subject.setMethod(method)
     else subject
   }
-  protected def defaultContentType(mediaType: String, charset: String): Req = {
-    if (!subject.toRequest.getHeaders.containsKey("Content-Type"))
-      subject.setContentType(mediaType, charset)
-    else subject
-  }
 
   /** Adds `params` to the request body. Sets request method
    *  to POST if it is currently GET. */
@@ -102,8 +121,7 @@ trait ParamVerbs extends RequestVerbs {
    *  - set method to POST if currently GET,
    *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified. */
   def << (body: String) = {
-    defaultMethod("POST").defaultContentType("text/plain", "UTF-8").
-      setBody(body)
+    defaultMethod("POST").setBody(body)
   }
   /** Set a file as the request body and set method to PUT if it's
     * currently GET. */
@@ -156,15 +174,15 @@ trait RequestBuilderVerbs extends RequestVerbs {
       params.mapValues{ _.asJava: Collection[String] }.asJava
     )) }
   def setBody(data: Array[Byte]) =
-    subject.underlying { _.setBody(data) }
+    subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.ByteArrayBody))
   def setBody(dataWriter: EntityWriter, length: Long) =
-    subject.underlying { _.setBody(dataWriter, length) }
+    subject.underlying(rb => rb.setBody(dataWriter, length), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(dataWriter: EntityWriter) =
-    subject.underlying { _.setBody(dataWriter) }
+    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(data: String) =
-    subject.underlying { _.setBody(data) }
+    subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.StringBody))
   def setBody(file: java.io.File) =
-    subject.underlying { _.setBody(file) }
+    subject.underlying(rb => rb.setBody(file), p => p.copy(bodyType = Req.FileBody))
   def setBodyEncoding(charset: String) =
     subject.underlying { _.setBodyEncoding(charset) }
   def setContentType(mediaType: String, charset: String) =
