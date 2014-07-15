@@ -10,7 +10,8 @@ object Response {
 }
 
 object String extends (client.Response => String) {
-  /** @return response body as a ISO-8859-1 decoded string */
+  /** @return response body as a string decoded as either the charset provided by
+   *  Content-Type header of the response or ISO-8859-1 */
   def apply(r: client.Response) = r.getResponseBody
 
   /** @return a function that will return response body decoded in the provided charset */
