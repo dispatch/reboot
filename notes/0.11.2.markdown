@@ -1,0 +1,13 @@
+A few fixes and improvements
+
+* Apply a default Content-Type more carefully [#84][84]
+* Update to async http client 1.8.10 [#85][85]
+* Expose ahc's interface for decoding a string response [#88][88]
+* Change key in emptyToken to null so it can be used to request access
+  token [#89][89]
+
+
+[84]: https://github.com/dispatch/reboot/pull/84
+[85]: https://github.com/dispatch/reboot/pull/85
+[88]: https://github.com/dispatch/reboot/pull/88
+[89]: https://github.com/dispatch/reboot/pull/89
