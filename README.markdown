@@ -1,6 +1,8 @@
 Dispatch Reboot
 ---------------
 
+[![Build Status](https://travis-ci.org/dispatch/reboot.svg?branch=0.11.3)](https://travis-ci.org/dispatch/reboot)
+
 Dispatch reboot is a rewrite of the Dispatch library for
 HTTP interaction in Scala, using [async-http-client][async]
 as its underlying transport. For more info, see the
