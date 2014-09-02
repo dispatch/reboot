@@ -4,12 +4,13 @@ Dispatch
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
  release version is [**$version$**]($version_link$).
-
-> For information on Dispatch 0.8.x, see
-  [dispatch-classic](http://dispatch-classic.databinder.net/).
-
+ 
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
-[classic]: http://dispatch-classic.databinder.net/
+
+> This documentation walks through basic functionality of the
+> library. You may also want to refer to its
+> [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/$version$).
+> And for information on Dispatch 0.8.x, see [dispatch-classic](http://dispatch-classic.databinder.net/).
 
 ### Diving in
 
