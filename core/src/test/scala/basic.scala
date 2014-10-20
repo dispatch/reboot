@@ -57,6 +57,12 @@ with DispatchCleanup {
     segmentLast.toRequest.getUrl() ?= segmentFirst.toRequest.getUrl()
   }
 
+  property("Path segments can be optional") = forAll(Gen.alphaStr) { (sample: String) =>
+    val segmentLast = (localhost <<? Map("key" -> "value")) / sample
+    val segmentOptional = localhost /? Some(sample) /? None <<? Map("key" -> "value")
+    segmentLast.toRequest.getUrl ?= segmentOptional.toRequest.getUrl
+  }
+
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
