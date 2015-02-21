@@ -10,8 +10,14 @@ object Builds extends sbt.Build {
         ls.Plugin.LsKeys.skipWrite := true,
       publish := { }
       )
-    ).aggregate(core, jsoup, tagsoup, liftjson,
-      json4sJackson, json4sNative)
+    ).aggregate(
+      core,
+      jsoup,
+      tagsoup,
+      liftjson,
+      json4sJackson,
+      json4sNative
+    )
 
   def module(name: String, settings: Seq[Def.Setting[_]] = Seq.empty) =
     Project(name,
