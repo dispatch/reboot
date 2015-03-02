@@ -5,4 +5,4 @@ description :=
 
 Seq(lsSettings :_*)
 
-libraryDependencies += "org.jsoup" % "jsoup" % "1.7.3"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.8.1"
