@@ -10,11 +10,9 @@ seq(lsSettings :_*)
 libraryDependencies ++= Seq(
   "net.liftweb" %% "lift-json" % "2.6" cross CrossVersion.binaryMapped {
     // Makes update resolution happy, but since w'ere not building for 2.9.3
-    // we won't end up in runtime version hell by doing this. This is needed
-    // because of unfiltered-json's build definition. Changing that may allow
-    // this to go away.
+    // we won't end up in runtime version hell by doing this.
     case "2.9.3" => "2.9.1"
     case x => x
   },
-  "net.databinder" %% "unfiltered-json" % "0.6.7" % "test"
+  "org.mockito" % "mockito-core" % "1.10.19" % "test"
 )
