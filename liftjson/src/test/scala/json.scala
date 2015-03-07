@@ -1,34 +1,23 @@
 package dispatch.spec
 
 import org.scalacheck._
+import net.liftweb.json._
+import JsonDSL._
+import dispatch._
+import com.ning.http.client._
+import org.mockito.Mockito._
 
-object BasicSpecification
-extends Properties("Lift Json")
-with DispatchCleanup {
+object BasicSpecification extends Properties("Lift Json") {
   import Prop.forAll
 
-  import net.liftweb.json._
-  import JsonDSL._
+  property("parse json") = forAll(Gen.alphaStr) { sample =>
+    val mockedResponse = mock(classOf[Response])
+    when(mockedResponse.getResponseBody).thenReturn(compact(render(
+      ("out" -> sample)
+    )))
 
-  val server = {
-    import unfiltered.netty
-    import unfiltered.response._
-    import unfiltered.request._
+    val result = as.lift.Json(mockedResponse)
 
-    object In extends Params.Extract("in", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
-      case Params(In(in)) => Json(("out" -> in))
-    }).start()
-  }
-
-  import dispatch._
-
-  def localhost = host("127.0.0.1", server.port)
-
-  property("parse json") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
-      localhost <:< Map("Accept" -> "application/json") <<? Map("in" -> sample) > as.lift.Json
-    )
-    sample == (for { JObject(fields) <- res(); JField("out", JString(o)) <- fields } yield o).head
+    result == JObject(JField("out", JString(sample)) :: Nil)
   }
 }
