@@ -31,11 +31,11 @@ object Req {
   final case class Properties(bodyType: BodyType = NoBody)
 
   trait BodyType
-  final case object NoBody extends BodyType
-  final case object StringBody extends BodyType
-  final case object ByteArrayBody extends BodyType
-  final case object EntityWriterBody extends BodyType
-  final case object FileBody extends BodyType
+  case object NoBody extends BodyType
+  case object StringBody extends BodyType
+  case object ByteArrayBody extends BodyType
+  case object EntityWriterBody extends BodyType
+  case object FileBody extends BodyType
 }
 
 trait HostVerbs {
@@ -76,6 +76,7 @@ trait MethodVerbs extends RequestVerbs {
 
 trait UrlVerbs extends RequestVerbs {
   def url = subject.toRequest.getUrl
+  def uri = subject.toRequest.getUri
   def / (segment: String) = {
     val uri = RawUri(url)
     val encodedSegment = UriEncode.path(segment)
@@ -161,11 +162,11 @@ trait AuthVerbs extends RequestVerbs {
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {
-  import com.ning.http.client.{ FluentStringsMap, Part, ProxyServer, Realm, Request }
+  import com.ning.http.client.{ FluentStringsMap, ProxyServer, Realm }
+  import com.ning.http.client.multipart.Part
   import com.ning.http.client.cookie.Cookie
-  import Request.EntityWriter
   import scala.collection.JavaConverters._
-  import java.util.Collection
+  import java.util
 
   def addBodyPart(part: Part) =
     subject.underlying { _.addBodyPart(part) }
@@ -174,19 +175,15 @@ trait RequestBuilderVerbs extends RequestVerbs {
   def addHeader(name: String, value: String) =
     subject.underlying { _.addHeader(name, value) }
   def addParameter(key: String, value: String) =
-    subject.underlying { _.addParameter(key, value) }
+    subject.underlying { _.addFormParam(key, value) }
   def addQueryParameter(name: String, value: String) =
-    subject.underlying { _.addQueryParameter(name, value) }
+    subject.underlying { _.addQueryParam(name, value) }
   def setQueryParameters(params: Map[String, Seq[String]]) =
-    subject.underlying { _.setQueryParameters(new FluentStringsMap(
-      params.mapValues{ _.asJava: Collection[String] }.asJava
+    subject.underlying { _.setQueryParams(new FluentStringsMap(
+      params.mapValues{ _.asJava: util.Collection[String] }.asJava
     )) }
   def setBody(data: Array[Byte]) =
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.ByteArrayBody))
-  def setBody(dataWriter: EntityWriter, length: Long) =
-    subject.underlying(rb => rb.setBody(dataWriter, length), p => p.copy(bodyType = Req.EntityWriterBody))
-  def setBody(dataWriter: EntityWriter) =
-    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(data: String) =
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.StringBody))
   def setBody(file: java.io.File) =
@@ -202,11 +199,11 @@ trait RequestBuilderVerbs extends RequestVerbs {
     subject.underlying { _.setHeader(name, value) }
   def setHeaders(headers: Map[String, Seq[String]]) =
     subject.underlying { _.setHeaders(
-      headers.mapValues { _.asJava: Collection[String] }.asJava
+      headers.mapValues { _.asJava: util.Collection[String] }.asJava
     ) }
   def setParameters(parameters: Map[String, Seq[String]]) =
-    subject.underlying { _.setParameters(
-      parameters.mapValues { _.asJava: Collection[String] }.asJava
+    subject.underlying { _.setFormParams(
+      parameters.mapValues { _.asJava: util.List[String] }.asJava
     ) }
   def setMethod(method: String) =
     subject.underlying { _.setMethod(method) }

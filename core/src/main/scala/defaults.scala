@@ -1,17 +1,17 @@
 package dispatch
 
-import scala.concurrent.duration.Duration
-import org.jboss.netty.util.{Timer, HashedWheelTimer}
+import org.jboss.netty.util.{ Timer, HashedWheelTimer }
 import org.jboss.netty.channel.socket.nio.{
   NioClientSocketChannelFactory, NioWorkerPool}
-import java.util.{concurrent => juc}
-import com.ning.http.client.{
-  AsyncHttpClient, AsyncHttpClientConfig
-}
+import java.util.{ concurrent => juc }
+import com.ning.http.client.{AsyncHttpClientConfigDefaults, AsyncHttpClient, AsyncHttpClientConfig}
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 
+import scala.concurrent.ExecutionContext
+
 object Defaults {
-  implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
+  implicit def executor: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
   implicit lazy val timer: Timer = InternalDefaults.timer
 }
 
@@ -41,8 +41,8 @@ private [dispatch] object InternalDefaults {
   private object BasicDefaults extends Defaults {
     lazy val timer = new HashedWheelTimer()
     def builder = new AsyncHttpClientConfig.Builder()
+      .setRequestTimeout(-1) // don't timeout streaming connections
       .setUserAgent("Dispatch/%s" format BuildInfo.version)
-      .setRequestTimeoutInMs(-1) // don't timeout streaming connections
   }
 
   /** Uses daemon threads and tries to exit cleanly when running in sbt  */
@@ -70,7 +70,9 @@ private [dispatch] object InternalDefaults {
         }
       }
       lazy val nioClientSocketChannelFactory = {
-        val workerCount = 2 * Runtime.getRuntime().availableProcessors()
+        val workerCount =
+          AsyncHttpClientConfigDefaults.defaultIoThreadMultiplier() *
+            Runtime.getRuntime.availableProcessors()
         new NioClientSocketChannelFactory(
           juc.Executors.newCachedThreadPool(interruptThreadFactory),
           1,
@@ -82,10 +84,8 @@ private [dispatch] object InternalDefaults {
         )
       }
 
-      val config = new NettyAsyncHttpProviderConfig().addProperty(
-        NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY,
-        nioClientSocketChannelFactory
-      )
+      val config = new NettyAsyncHttpProviderConfig()
+      config.setSocketChannelFactory(nioClientSocketChannelFactory)
       config.setNettyTimer(timer)
       BasicDefaults.builder.setAsyncHttpClientProviderConfig(config)
     }
