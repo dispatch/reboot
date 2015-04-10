@@ -5,8 +5,10 @@ import org.jsoup.nodes
 import com.ning.http.client.Response
 
 object Document extends (Response => nodes.Document) {
-  def apply(r: Response) =
+  def apply(r: Response) = {
     Jsoup.parse(dispatch.as.String(r), r.getUri().toString)
+
+  }
 }
 
 object Query {

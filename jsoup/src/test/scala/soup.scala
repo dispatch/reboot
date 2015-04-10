@@ -62,6 +62,6 @@ with DispatchCleanup {
     val doc = Http(
       localhost / "relative" <<? Map("echo" -> sample) > as.jsoup.Document
     )
-    doc().select("a").first().absUrl("href") == (localhost.url + "/category")
+    doc().select("a").first().absUrl("href") == (localhost.url + "category")
   }
 }

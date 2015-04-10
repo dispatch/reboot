@@ -54,17 +54,18 @@ trait Exchange {
   }
 
   def signedAuthorize(reqToken: RequestToken) = {
-    import com.ning.http.client.FluentStringsMap
+    import com.ning.http.client.Param
+    import java.util.Collections.emptyList
 
     val calc = new OAuthSignatureCalculator(consumer, reqToken)
     val timestamp = System.currentTimeMillis() / 1000L
     val unsigned = url(authorize) <<? Map("oauth_token" -> reqToken.getKey)
     val sig = calc.calculateSignature("GET",
-                                      unsigned.url,
+                                      unsigned.uri,
                                       timestamp,
                                       generateNonce,
-                                      new FluentStringsMap,
-                                      new FluentStringsMap)
+                                      emptyList[Param],
+                                      emptyList[Param])
     (unsigned <<? Map("oauth_signature" -> sig)).url
   }
 
