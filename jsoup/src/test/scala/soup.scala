@@ -40,14 +40,14 @@ with DispatchCleanup {
     val doc = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.jsoup.Document
     )  
-    doc().select("div#echo").first().text() == (sample)
+    doc().select("div#echo").first().text() == sample
   }
 
   property("handle Queries") = forAll(Gen.alphaStr) { (sample: String) =>
     val els = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.jsoup.Query("div")
     )
-    els().first().text() == (sample)
+    els().first().text() == sample
   }
 
   property("handle Cleaning") = forAll(Gen.alphaStr) { (sample: String) =>
@@ -62,6 +62,6 @@ with DispatchCleanup {
     val doc = Http(
       localhost / "relative" <<? Map("echo" -> sample) > as.jsoup.Document
     )
-    doc().select("a").first().absUrl("href") == (localhost.url + "/category")
+    doc().select("a").first().absUrl("href") == (localhost.url + "category")
   }
 }
