@@ -20,7 +20,10 @@ shell and change to an empty or unimportant directory, then paste:
 [sbt]: https://github.com/harrah/xsbt/wiki/
 
     echo 'libraryDependencies += 
-      "net.databinder.dispatch" %% "dispatch-core" % "$version$"' > build.sbt
+      "net.databinder.dispatch" %% "dispatch-core" % "$version$"
+      
+      libraryDependencies += 
+      "ch.qos.logback" % "logback-classic" % "1.1.2"' > build.sbt
     sbt console
 
 After "the internet" has downloaded, you're good to go.
