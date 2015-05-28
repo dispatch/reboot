@@ -1,13 +1,11 @@
 package dispatch
 
-import org.jboss.netty.util.{Timer, HashedWheelTimer}
-import org.jboss.netty.channel.socket.nio.{
-  NioClientSocketChannelFactory, NioWorkerPool}
 import java.util.{concurrent => juc}
-import com.ning.http.client.{
-  AsyncHttpClient, AsyncHttpClientConfig
-}
+
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
+import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig, AsyncHttpClientConfigDefaults}
+import org.jboss.netty.channel.socket.nio.{NioClientSocketChannelFactory, NioWorkerPool}
+import org.jboss.netty.util.{HashedWheelTimer, Timer}
 
 object Defaults {
   implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
@@ -69,7 +67,9 @@ private [dispatch] object InternalDefaults {
         }
       }
       lazy val nioClientSocketChannelFactory = {
-        val workerCount = 2 * Runtime.getRuntime().availableProcessors()
+        val workerCount =
+          AsyncHttpClientConfigDefaults.defaultIoThreadMultiplier() *
+            Runtime.getRuntime.availableProcessors()
         new NioClientSocketChannelFactory(
           juc.Executors.newCachedThreadPool(interruptThreadFactory),
           1,
@@ -81,10 +81,8 @@ private [dispatch] object InternalDefaults {
         )
       }
 
-      val config = new NettyAsyncHttpProviderConfig().addProperty(
-        "socketChannelFactory",
-        nioClientSocketChannelFactory
-      )
+      val config = new NettyAsyncHttpProviderConfig()
+      config.setSocketChannelFactory(nioClientSocketChannelFactory)
       config.setNettyTimer(timer)
       BasicDefaults.builder.setAsyncHttpClientProviderConfig(config)
     }

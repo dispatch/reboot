@@ -1,7 +1,7 @@
 package dispatch
 
-import com.ning.http.client.{FluentStringsMap, BodyGenerator, RequestBuilder}
 import com.ning.http.client.multipart.Part
+import com.ning.http.client.{BodyGenerator, FluentStringsMap, RequestBuilder}
 
 /** This wrapper provides referential transparency for the
   underlying RequestBuilder. */
@@ -32,11 +32,11 @@ object Req {
   final case class Properties(bodyType: BodyType = NoBody)
 
   trait BodyType
-  final case object NoBody extends BodyType
-  final case object StringBody extends BodyType
-  final case object ByteArrayBody extends BodyType
-  final case object EntityWriterBody extends BodyType
-  final case object FileBody extends BodyType
+  case object NoBody extends BodyType
+  case object StringBody extends BodyType
+  case object ByteArrayBody extends BodyType
+  case object BodyGeneratorBody extends BodyType
+  case object FileBody extends BodyType
 }
 
 trait HostVerbs {
@@ -142,7 +142,8 @@ trait ParamVerbs extends RequestVerbs {
 }
 
 trait AuthVerbs extends RequestVerbs {
-  import com.ning.http.client.Realm, Realm.{RealmBuilder,AuthScheme}
+  import com.ning.http.client.Realm
+  import Realm.{AuthScheme, RealmBuilder}
   def as(user: String, password: String): Req =
     this.as(new RealmBuilder()
       .setPrincipal(user)
@@ -162,10 +163,11 @@ trait AuthVerbs extends RequestVerbs {
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {
-  import com.ning.http.client.{ ProxyServer, Realm }
   import com.ning.http.client.cookie.Cookie
+  import com.ning.http.client.{ProxyServer, Realm}
+
   import scala.collection.JavaConverters._
-  import java.util.Collection
+  import java.util
 
   def addBodyPart(part: Part) =
     subject.underlying { _.addBodyPart(part) }
@@ -179,14 +181,12 @@ trait RequestBuilderVerbs extends RequestVerbs {
     subject.underlying { _.addQueryParam(name, value) }
   def setQueryParameters(params: Map[String, Seq[String]]) =
     subject.underlying { _.setQueryParams(new FluentStringsMap(
-      params.mapValues{ _.asJava: Collection[String] }.asJava
+      params.mapValues{ _.asJava: util.Collection[String] }.asJava
     )) }
   def setBody(data: Array[Byte]) =
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.ByteArrayBody))
-  def setBody(dataWriter: BodyGenerator, length: Long) =
-    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
   def setBody(dataWriter: BodyGenerator) =
-    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
+    subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.BodyGeneratorBody))
   def setBody(data: String) =
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.StringBody))
   def setBody(file: java.io.File) =
@@ -202,7 +202,7 @@ trait RequestBuilderVerbs extends RequestVerbs {
     subject.underlying { _.setHeader(name, value) }
   def setHeaders(headers: Map[String, Seq[String]]) =
     subject.underlying { _.setHeaders(
-      headers.mapValues { _.asJava: Collection[String] }.asJava
+      headers.mapValues { _.asJava: util.Collection[String] }.asJava
     ) }
   def setParameters(parameters: Map[String, Seq[String]]) =
     subject.underlying { _.setFormParams(

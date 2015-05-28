@@ -3,11 +3,11 @@ package dispatch.oauth
 import java.util
 
 import com.ning.http.client.Param
-import dispatch._
-
-import scala.concurrent.{Future,ExecutionContext}
 import com.ning.http.client.oauth._
 import com.ning.http.client.uri.Uri
+import dispatch._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 trait SomeHttp {
   def http: HttpExecutor
