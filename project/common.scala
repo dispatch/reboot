@@ -3,7 +3,7 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.11.2"
+  val defaultScalaVersion = "2.11.6"
 
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
@@ -15,14 +15,13 @@ object Common {
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
     version := "0.11.2",
 
-    crossScalaVersions := Seq("2.9.3", "2.10.4", "2.11.2"),
+    crossScalaVersions := Seq("2.10.5", "2.11.6"),
 
     scalaVersion := defaultScalaVersion,
 
     organization := "net.databinder.dispatch",
 
-    homepage :=
-      Some(new java.net.URL("http://dispatch.databinder.net/")),
+    homepage := Some(new java.net.URL("http://dispatch.databinder.net/")),
 
     publishMavenStyle := true,
 
