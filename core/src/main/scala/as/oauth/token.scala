@@ -12,6 +12,7 @@ object Token extends (Response => Either[String, RequestToken]) {
       yield pair.split('=')
     ).collect {
       case Array(key, value) => decode(key) -> decode(value)
+      case Array(key) => decode(key) -> ""
     }
 
   private def tokenDecode(str: String) = {
