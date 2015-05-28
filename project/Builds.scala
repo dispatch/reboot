@@ -15,13 +15,12 @@ object Builds extends sbt.Build {
     publish := { }
   ).aggregate(core, jsoup, tagsoup, liftjson, json4sJackson, json4sNative)
 
-  def module(name: String) =
-    Project(name,  file(name.replace("-", ""))).settings(
-      Defaults.coreDefaultSettings,
-      Common.settings,
-      Common.testSettings,
-      lsSettings
-    ).dependsOn(ufcheck % "test->test")
+  def module(name: String) = Project(name, file(name.replace("-", ""))).settings(
+    Defaults.coreDefaultSettings,
+    Common.settings,
+    Common.testSettings,
+    lsSettings
+  ).dependsOn(ufcheck % "test->test")
 
   lazy val core = module("core").enablePlugins(BuildInfoPlugin).settings(
     xmlDependency,
@@ -39,17 +38,8 @@ object Builds extends sbt.Build {
 
     description := "Dispatch module providing lift json support",
 
-    (skip in compile) <<= scalaVersion { sv => () => sv == "2.9.3" },
-
-    publishArtifact <<= scalaVersion { sv => sv != "2.9.3" },
-
     libraryDependencies ++= Seq(
-      "net.liftweb" %% "lift-json" % "2.6.2" cross CrossVersion.binaryMapped {
-        // Makes update resolution happy, but since w'ere not building for 2.9.3
-        // we won't end up in runtime version hell by doing this.
-        case "2.9.3" => "2.9.1"
-        case x => x
-      },
+      "net.liftweb" %% "lift-json" % "2.6.2",
       "org.mockito" % "mockito-core" % "1.10.19" % "test"
     )
   ).dependsOn(core, core % "test->test")
@@ -94,7 +84,7 @@ object Builds extends sbt.Build {
 
   lazy val xmlDependency = libraryDependencies <<= (libraryDependencies, scalaVersion) {
     (dependencies, scalaVersion) =>
-      if(scalaVersion.startsWith("2.11"))
+      if (scalaVersion.startsWith("2.11"))
         ("org.scala-lang.modules" %% "scala-xml" % "1.0.4") +: dependencies
       else
         dependencies
