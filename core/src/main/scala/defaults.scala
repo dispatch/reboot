@@ -1,6 +1,5 @@
 package dispatch
 
-import scala.concurrent.duration.Duration
 import org.jboss.netty.util.{Timer, HashedWheelTimer}
 import org.jboss.netty.channel.socket.nio.{
   NioClientSocketChannelFactory, NioWorkerPool}
@@ -42,7 +41,7 @@ private [dispatch] object InternalDefaults {
     lazy val timer = new HashedWheelTimer()
     def builder = new AsyncHttpClientConfig.Builder()
       .setUserAgent("Dispatch/%s" format BuildInfo.version)
-      .setRequestTimeoutInMs(-1) // don't timeout streaming connections
+      .setRequestTimeout(-1) // don't timeout streaming connections
   }
 
   /** Uses daemon threads and tries to exit cleanly when running in sbt  */
@@ -83,7 +82,7 @@ private [dispatch] object InternalDefaults {
       }
 
       val config = new NettyAsyncHttpProviderConfig().addProperty(
-        NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY,
+        "socketChannelFactory",
         nioClientSocketChannelFactory
       )
       config.setNettyTimer(timer)
