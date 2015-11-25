@@ -81,4 +81,14 @@ If you wish to supply a string instead of a file, use a `setBody`
 method of the [RequestBuilder][rb] class. Its variants support a
 number of input types and do not imply a particular HTTP method.
 
+### General verbs
+Request headers can be added directly to the request through the `addHeader(key, value)` method on the request itself or through a scala method `<:<`.
+
+```scala
+val token = "xxx"
+val myGetRequest = myRequest <:< Map("Authorization" -> ("Bearer " + token))
+```
+Using `<:<` iterates through the map and calls `addHeader` on the request. You get a new request object back because the dispatch request object conceptually is a referentially transparent wrapper around the async-http-client request object. You can build up a basic request object with the headers that you want and re-use it throughout your program. 
+
+
 [rb]: http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html
