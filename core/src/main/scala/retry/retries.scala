@@ -3,7 +3,7 @@ package dispatch.retry
 import scala.concurrent.{Future,ExecutionContext}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
-import org.jboss.netty.util.Timer
+import io.netty.util.Timer
 
 import dispatch._
 

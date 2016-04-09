@@ -1,5 +1,7 @@
 package dispatch.spec
 
+import java.nio.charset.Charset
+
 import org.scalacheck._
 
 object BasicSpecification
@@ -128,7 +130,7 @@ with DispatchCleanup {
 
   property("Send a custom content type after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
     val res = Http(
-      (localhost / "contenttype" << "request body").setContentType(sample, "UTF-8") > as.String
+      (localhost / "contenttype" << "request body").setContentType(sample, Charset.forName("UTF-8")) > as.String
     )
     res() ?= (sample + "; charset=UTF-8")
   }
