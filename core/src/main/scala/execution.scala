@@ -1,25 +1,23 @@
 package dispatch
 
-import com.ning.http.client.{
-  AsyncHttpClient, Request, Response, AsyncHandler,
-  AsyncHttpClientConfig
-}
-
+import org.asynchttpclient._
 import java.util.{concurrent => juc}
-import scala.concurrent.{ExecutionContext}
+
+import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 /** Http executor with defaults */
 case class Http(
   client: AsyncHttpClient = InternalDefaults.client
 ) extends HttpExecutor {
-  import AsyncHttpClientConfig.Builder
+  import DefaultAsyncHttpClientConfig.Builder
 
   /** Replaces `client` with a new instance configured using the withBuilder
-      function. The current client config is the builder's prototype.  */
+      function. */
   def configure(withBuilder: Builder => Builder) =
     copy(client =
-      new AsyncHttpClient(withBuilder(
-        new AsyncHttpClientConfig.Builder(client.getConfig)
+      new DefaultAsyncHttpClient(withBuilder(
+        new DefaultAsyncHttpClientConfig.Builder(InternalDefaults.config)
       ).build)
     )
 }
@@ -47,7 +45,7 @@ trait HttpExecutor { self =>
     val lfut = client.executeRequest(request, handler)
     val promise = scala.concurrent.Promise[T]()
     lfut.addListener(
-      () => promise.complete(util.Try(lfut.get())),
+      () => promise.complete(Try(lfut.get())),
       new juc.Executor {
         def execute(runnable: Runnable) {
           executor.execute(runnable)

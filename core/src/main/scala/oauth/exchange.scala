@@ -2,12 +2,13 @@ package dispatch.oauth
 
 import java.util
 
-import com.ning.http.client.Param
 import dispatch._
+import org.asynchttpclient._
+import org.asynchttpclient.oauth._
+import org.asynchttpclient.uri.Uri
+import org.asynchttpclient.util.Base64
 
-import scala.concurrent.{Future,ExecutionContext}
-import com.ning.http.client.oauth._
-import com.ning.http.client.uri.Uri
+import scala.concurrent.{ExecutionContext, Future}
 
 trait SomeHttp {
   def http: HttpExecutor
@@ -38,7 +39,7 @@ trait Exchange {
 
   def generateNonce = nonceBuffer.synchronized {
     random.nextBytes(nonceBuffer)
-    com.ning.http.util.Base64.encode(nonceBuffer)
+    Base64.encode(nonceBuffer)
   }
 
   def message[A](promised: Future[A], ctx: String)
