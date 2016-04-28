@@ -6,6 +6,6 @@ description :=
 Seq(lsSettings :_*)
 
 libraryDependencies ++= Seq(
-  "net.liftweb" %% "lift-json" % "2.6",
+  "net.liftweb" %% "lift-json" % "2.6.3",
   "org.mockito" % "mockito-core" % "1.10.19" % "test"
 )
