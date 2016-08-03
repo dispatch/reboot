@@ -19,6 +19,19 @@ object Common {
 
     scalaVersion := defaultScalaVersion,
 
+    scalacOptions in (Compile) ++= Seq(
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      // "-Xfatal-warnings",
+      "-Xlint",
+      "-Yno-adapted-args",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-value-discard",
+      "-Xfuture"
+    ),
+
     organization := "net.databinder.dispatch",
 
     homepage :=
