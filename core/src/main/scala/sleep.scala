@@ -12,7 +12,7 @@ object SleepFuture {
     val promise = scala.concurrent.Promise[T]()
 
     val sleepTimeout = timer.newTimeout(new TimerTask {
-      def run(timeout: Timeout) {
+      def run(timeout: Timeout) = {
         promise.complete(util.Try(todo))
         ()
       }

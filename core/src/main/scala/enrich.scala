@@ -68,10 +68,10 @@ class EnrichedFuture[A](underlying: Future[A]) {
 object EnrichedFuture {
   /** Execute on the current thread, for certain cpu-bound operations */
   private val currentThreadContext = new ExecutionContext {
-    def execute(runnable: Runnable) {
+    def execute(runnable: Runnable) = {
       runnable.run()
     }
-    def reportFailure(t: Throwable) {
+    def reportFailure(t: Throwable) = {
       ExecutionContext.defaultReporter(t)
     }
   }
