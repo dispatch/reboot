@@ -9,6 +9,7 @@ object Json {
     new StringsByLine[Unit] {
       def onStringBy(string: String) {
         f(parse(string, true))
+        ()
       }
       def onCompleted = ()
     }

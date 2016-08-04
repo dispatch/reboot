@@ -15,7 +15,7 @@ package object dispatch {
 
 
   implicit def implyRunnable[U](f: () => U) = new java.lang.Runnable {
-    def run() { f() }
+    def run() { f(); () }
   }
 
   implicit def enrichFuture[T](future: Future[T]) =

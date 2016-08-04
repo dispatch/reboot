@@ -9,6 +9,7 @@ object Lines {
     new stream.StringsByLine[Unit] {
       def onStringBy(string: String) {
         f(string)
+        ()
       }
       def onCompleted = ()
     }

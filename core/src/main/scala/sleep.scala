@@ -14,6 +14,7 @@ object SleepFuture {
     val sleepTimeout = timer.newTimeout(new TimerTask {
       def run(timeout: Timeout) {
         promise.complete(util.Try(todo))
+        ()
       }
     }, d.length, d.unit)
 

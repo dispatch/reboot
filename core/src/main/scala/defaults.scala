@@ -54,6 +54,7 @@ private [dispatch] object InternalDefaults {
           nioClientSocketChannelFactory.releaseExternalResources()
           timer.stop()
         }
+        ()
       }
       /** daemon threads that also shut down everything when interrupted! */
       lazy val interruptThreadFactory = new juc.ThreadFactory {
