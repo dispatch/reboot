@@ -19,7 +19,7 @@ trait Strings[T] extends AsyncHandler[T] {
     } charset = cs
     state
   }
-  def onString(str: String)
+  def onString(str: String): Unit
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
     if (state == CONTINUE) {
       onString(new String(bodyPart.getBodyPartBytes, charset))
@@ -36,7 +36,7 @@ trait StringsBy[T] extends Strings[T] {
 
   def divider: String
 
-  def onStringBy(string: String)
+  def onStringBy(string: String): Unit
 
   def onString(string: String) = {
     val strings = (buffer + string).split(divider, -1)
