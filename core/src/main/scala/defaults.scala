@@ -49,7 +49,7 @@ private [dispatch] object InternalDefaults {
     def builder = {
       val shuttingDown = new juc.atomic.AtomicBoolean(false)
 
-      def shutdown() = {
+      def shutdown(): Unit = {
         if (shuttingDown.compareAndSet(false, true)) {
           nioClientSocketChannelFactory.releaseExternalResources()
           timer.stop()
