@@ -52,7 +52,7 @@ object UriEncode {
   )
   val segmentValid = (';' +: pchar).toSet
 
-  private val validMarkers = (0 to segmentValid.max) map { i => segmentValid(i.toChar) } toArray
+  private val validMarkers = (0 to segmentValid.max).map(i => segmentValid(i.toChar)).toArray
   private def isValidChar(ch: Char) = (ch < validMarkers.length) && validMarkers(ch)
 
   def path(pathSegment: String, encoding: String = "UTF-8") = {
