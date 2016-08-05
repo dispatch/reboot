@@ -34,6 +34,14 @@ object Common {
       "-Xfuture"
     ),
 
+    scalacOptions in (Test) ~= { (opts: Seq[String]) =>
+      opts.diff(
+        Seq(
+          "-Xlint"
+        )
+      )
+    },
+
     organization := "net.databinder.dispatch",
 
     homepage :=
