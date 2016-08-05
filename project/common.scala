@@ -24,6 +24,7 @@ object Common {
       "-feature",
       "-unchecked",
       "-language:higherKinds",
+      "-language:implicitConversions",
       // "-Xfatal-warnings",
       "-Xlint",
       "-Yno-adapted-args",
