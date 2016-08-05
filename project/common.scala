@@ -23,6 +23,7 @@ object Common {
       "-deprecation",
       "-feature",
       "-unchecked",
+      "-language:higherKinds",
       // "-Xfatal-warnings",
       "-Xlint",
       "-Yno-adapted-args",
