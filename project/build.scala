@@ -50,17 +50,14 @@ object Builds extends sbt.Build {
     .dependsOn(core)
     .dependsOn(core % "test->test")
     
-  lazy val xmlDependency = libraryDependencies <<= (libraryDependencies, scalaVersion){
-    (dependencies, scalaVersion) =>
-      if(scalaVersion.startsWith("2.11"))
-        ("org.scala-lang.modules" %% "scala-xml" % "1.0.1") +: dependencies
-      else
-        dependencies
-    }
+  lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.6")
 
   /** Util module for using unfiltered with scalacheck */
   lazy val ufcheck = Project(
-    "ufcheck", file("ufcheck"), settings =
-      Defaults.defaultSettings ++ Seq(scalaVersion := Common.defaultScalaVersion)
+    "ufcheck", file("ufcheck")
+  ).settings(
+    scalaVersion := Common.defaultScalaVersion
   )
+
+  scalacOptions ++= Seq( "-unchecked", "-deprecation" )
 }
