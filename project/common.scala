@@ -3,7 +3,7 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.11.5"
+  val defaultScalaVersion = "2.12.1"
 
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
@@ -15,7 +15,7 @@ object Common {
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
     version := "0.11.3",
 
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    crossScalaVersions := Seq("2.11.8", "2.12.1"),
 
     scalaVersion := defaultScalaVersion,
 
@@ -38,7 +38,7 @@ object Common {
 
     licenses := Seq("LGPL v3" -> url("http://www.gnu.org/licenses/lgpl.txt")),
 
-    pomExtra := (
+    pomExtra :=
       <scm>
         <url>git@github.com:dispatch/reboot.git</url>
         <connection>scm:git:git@github.com:dispatch/reboot.git</connection>
@@ -49,6 +49,6 @@ object Common {
           <name>Nathan Hamblen</name>
           <url>http://twitter.com/n8han</url>
         </developer>
-      </developers>)
+      </developers>
   )
 }
