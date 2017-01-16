@@ -144,11 +144,10 @@ with DispatchCleanup {
     forAll(Gen.mapOf(Gen.zip(
       Gen.alphaStr.suchThat(_.nonEmpty),
       Gen.alphaStr
-    ))) { (sample : Map[String, String]) =>
+    )).suchThat(_.nonEmpty)) { (sample : Map[String, String]) =>
       val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
-      val expectedStr = if (expectedParams.nonEmpty) "?" + expectedParams.mkString("&") else ""
       val req = localhost.setBody("").setContentType("text/plain", "UTF-8") <<? sample
-      req.toRequest.getUrl ?= "http://127.0.0.1:%d/%s".format(server.port, expectedStr)
+      req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
     }
   }
 }
