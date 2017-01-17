@@ -42,6 +42,7 @@ private [dispatch] object InternalDefaults {
     def builder = new AsyncHttpClientConfig.Builder()
       .setUserAgent("Dispatch/%s" format BuildInfo.version)
       .setRequestTimeout(-1) // don't timeout streaming connections
+      .setUseProxyProperties(true)
   }
 
   /** Uses daemon threads and tries to exit cleanly when running in sbt  */
