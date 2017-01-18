@@ -21,7 +21,7 @@ object FutureEither {
         _.left.map(f)
       }
 
-    def foreach[U](f: A => U) {
+    def foreach[U](f: A => U) = {
       underlying.foreach { _.left.foreach(f) }
     }
   }
@@ -39,7 +39,7 @@ object FutureEither {
         _.right.map(f)
       }
 
-    def foreach(f: B => Unit) {
+    def foreach(f: B => Unit) = {
       underlying.foreach { _.right.foreach(f) }
     }
     def values[A1 >: A, C]
@@ -61,7 +61,7 @@ object FutureIterable {
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B])
     : Future[Iterable[B]] =
       underlying.map { _.map(f) }.map { _.flatten }
-    def foreach(f: A => Unit) {
+    def foreach(f: A => Unit) = {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
@@ -77,7 +77,7 @@ object FutureIterable {
       }
     def map[B](f: A => B): Future[Iterable[B]] =
       underlying.map { _.map(f) }
-    def foreach(f: A => Unit) {
+    def foreach(f: A => Unit) = {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
@@ -114,7 +114,7 @@ object FutureRightIterable {
       underlying.flatMap { iter =>
         Future.successful(Right(iter.map(f).flatten))
       }
-    def foreach(f: A => Unit) {
+    def foreach(f: A => Unit) = {
       underlying.foreach { _.foreach(f) }
     }
     def withFilter(p: A => Boolean) =
@@ -132,7 +132,7 @@ object FutureRightIterable {
       underlying.flatMap { iter =>
         Future.successful(Right(iter.map(f)))
     }
-    def foreach(f: A => Unit) {
+    def foreach(f: A => Unit) = {
       underlying.foreach { _.foreach(f) }
     }
     def flatten = new Flatten(parent, underlying)

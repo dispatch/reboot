@@ -49,11 +49,12 @@ private [dispatch] object InternalDefaults {
     def builder = {
       val shuttingDown = new juc.atomic.AtomicBoolean(false)
 
-      def shutdown() {
+      def shutdown(): Unit = {
         if (shuttingDown.compareAndSet(false, true)) {
           nioClientSocketChannelFactory.releaseExternalResources()
           timer.stop()
         }
+        ()
       }
       /** daemon threads that also shut down everything when interrupted! */
       lazy val interruptThreadFactory = new juc.ThreadFactory {
@@ -61,7 +62,7 @@ private [dispatch] object InternalDefaults {
           new Thread(runnable) {
             setDaemon(true)
             /** only reliably called on any thread if all spawned threads are daemon */
-            override def interrupt() {
+            override def interrupt() = {
               shutdown()
               super.interrupt()
             }

@@ -26,7 +26,7 @@ with DispatchCleanup {
     val doc = Http(
       localhost / "echo" <<? Map("echo" -> sample) > as.tagsoup.NodeSeq
     )
-    (doc() \\ "div" find (n => (n \ "@id" text) == "echo") map (_.text) mkString) == (sample)
+    (doc() \\ "div").find (n => (n \ "@id").text == "echo").map (_.text) .mkString == (sample)
   }
 
 }

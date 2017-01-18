@@ -19,6 +19,29 @@ object Common {
 
     scalaVersion := defaultScalaVersion,
 
+    scalacOptions in (Compile) ++= Seq(
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      // "-Xfatal-warnings",
+      "-Xlint",
+      "-Yno-adapted-args",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-value-discard",
+      "-Xfuture"
+    ),
+
+    scalacOptions in (Test) ~= { (opts: Seq[String]) =>
+      opts.diff(
+        Seq(
+          "-Xlint"
+        )
+      )
+    },
+
     organization := "net.databinder.dispatch",
 
     homepage :=

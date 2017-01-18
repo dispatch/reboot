@@ -9,7 +9,7 @@ trait Strings[T] extends AsyncHandler[T] {
   @volatile private var charset = "iso-8859-1"
   @volatile private var state = CONTINUE
 
-  def onThrowable(t: Throwable) { }
+  def onThrowable(t: Throwable) = { }
   def onCompleted(): T
   def onStatusReceived(status: HttpResponseStatus) = state
   def onHeadersReceived(headers: HttpResponseHeaders) = {
@@ -19,14 +19,14 @@ trait Strings[T] extends AsyncHandler[T] {
     } charset = cs
     state
   }
-  def onString(str: String)
+  def onString(str: String): Unit
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
     if (state == CONTINUE) {
       onString(new String(bodyPart.getBodyPartBytes, charset))
     }
     state
   }
-  def stop() {
+  def stop() = {
     state = ABORT
   }
 }
@@ -36,9 +36,9 @@ trait StringsBy[T] extends Strings[T] {
 
   def divider: String
 
-  def onStringBy(string: String)
+  def onStringBy(string: String): Unit
 
-  def onString(string: String) {
+  def onString(string: String) = {
     val strings = (buffer + string).split(divider, -1)
     strings.take(strings.length - 1).filter { !_.isEmpty }.foreach(onStringBy)
     buffer = strings.last
