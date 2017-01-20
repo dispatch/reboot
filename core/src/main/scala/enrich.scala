@@ -4,7 +4,7 @@ import com.ning.http.client.ListenableFuture
 import java.util.{concurrent => juc}
 import juc.TimeUnit
 import scala.concurrent.{ExecutionContext,Await,ExecutionException}
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.util.control.Exception.{allCatch,catching}
 
 class EnrichedFuture[A](underlying: Future[A]) {
@@ -52,7 +52,7 @@ class EnrichedFuture[A](underlying: Future[A]) {
     either.map { _.right.toOption }
   }
 
-  def apply() = Await.result(underlying, Duration.Inf)
+  def apply() = Await.result(underlying, Duration(3,SECONDS))
 
   /** Some value if promise is complete, otherwise None */
   def completeOption = 
