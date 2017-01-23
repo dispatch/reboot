@@ -22,6 +22,9 @@ with DispatchCleanup {
         PlainTextContent ~> ResponseString(req.method)
       case req @ Path(Seg("echobody" :: Nil)) =>
         PlainTextContent ~> ResponseString(req.method + Body.string(req))
+      case req @ Path(Seg("echoquery" :: Nil)) & QueryParams(queryParams) =>
+        val params = queryParams.flatMap { case (k, vs) => vs.map(v => k + "=" + v) }.mkString("&")
+        PlainTextContent ~> ResponseString(req.method + params)
       case Path(Seg("agent" :: Nil)) & UserAgent(agent) =>
         PlainTextContent ~> ResponseString(agent)
       case Path(Seg("contenttype" :: Nil)) & RequestContentType(contenttype) =>
@@ -68,6 +71,16 @@ with DispatchCleanup {
       localhost / "echo" << Map("echo" -> sample) > as.String
     )
     res() ?= ("POST" + sample)
+  }
+
+  property("POST json with query params") = forAll(Gen.alphaStr) { (value: String) =>
+    val headers = Map("Content-Type" -> "application/json")
+    val params = Map("key" -> value)
+    val body = """{"foo":"bar"}"""
+    val res = Http(
+      localhost / "echoquery" <:< headers <<? params << body OK  as.String
+    )
+    res() ?= ("POST" + "key=" + value)
   }
 
   property("POST non-ascii chars body and get response") = forAll(cyrillic) { (sample: String) =>
