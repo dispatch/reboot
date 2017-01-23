@@ -10,24 +10,24 @@ import scala.concurrent.{ExecutionContext}
 
 /** Http executor with defaults */
 case class Http(
-  client: AsyncHttpClient = InternalDefaults.client
+  builder: AsyncHttpClientConfig.Builder = InternalDefaults.builder
 ) extends HttpExecutor {
   import AsyncHttpClientConfig.Builder
 
-  /** Replaces `client` with a new instance configured using the withBuilder
+  lazy val client = new AsyncHttpClient(builder.build)
+
+  /** Replaces `builder` with a new config built using the withBuilder
       function. The current client config is the builder's prototype.  */
-  def configure(withBuilder: Builder => Builder) =
-    copy(client =
-      new AsyncHttpClient(withBuilder(
-        new AsyncHttpClientConfig.Builder(client.getConfig)
-      ).build)
-    )
+  def configure(withBuilder: Builder => Builder) = {
+    val newBuilder = new Builder(this.builder.build)
+    copy(builder = withBuilder(newBuilder))
+  }
 }
 
 /** Singleton default Http executor, can be used directly or altered
  *  with its case-class `copy` */
 object Http extends Http(
-  InternalDefaults.client
+  InternalDefaults.builder
 )
 
 trait HttpExecutor { self =>

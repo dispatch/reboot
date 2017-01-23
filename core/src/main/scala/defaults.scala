@@ -28,7 +28,7 @@ private [dispatch] object InternalDefaults {
     if (inSbt) SbtProcessDefaults
     else BasicDefaults
 
-  def client = new AsyncHttpClient(underlying.builder.build())
+  lazy val builder = underlying.builder
   lazy val timer = underlying.timer
 
   private trait Defaults {
