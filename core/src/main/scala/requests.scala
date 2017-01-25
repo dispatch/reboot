@@ -2,8 +2,9 @@ package dispatch
 
 import java.nio.charset.Charset
 
+import io.netty.handler.codec.http.cookie.Cookie
+import io.netty.handler.codec.http.{DefaultHttpHeaders, HttpHeaders}
 import org.asynchttpclient.Realm.AuthScheme
-import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.request.body.generator.BodyGenerator
 import org.asynchttpclient.request.body.multipart.Part
@@ -162,8 +163,6 @@ trait AuthVerbs extends RequestVerbs {
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {
-  import java.util.Collection
-
   import scala.collection.JavaConverters._
 
   def addBodyPart(part: Part) =
@@ -198,9 +197,11 @@ trait RequestBuilderVerbs extends RequestVerbs {
   def setHeader(name: String, value: String) =
     subject.underlying { _.setHeader(name, value) }
   def setHeaders(headers: Map[String, Seq[String]]) =
-    subject.underlying { _.setHeaders(
-      headers.mapValues { _.asJava: Collection[String] }.asJava
-    ) }
+    subject.underlying {
+      val httpHeaders: HttpHeaders = new DefaultHttpHeaders()
+      headers.foreach(h => httpHeaders.add(h._1, h._2.asJava))
+      _.setHeaders(httpHeaders)
+    }
   def setParameters(parameters: Map[String, Seq[String]]) =
     subject.underlying { _.setFormParams(
       parameters.mapValues { _.asJava: java.util.List[String] }.asJava

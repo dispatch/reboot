@@ -9,6 +9,7 @@ import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.Base64
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.matching.Regex
 
 trait SomeHttp {
   def http: HttpExecutor
@@ -58,18 +59,26 @@ trait Exchange {
     for (eth <- message(promised, "request token")) yield eth.joinRight
   }
 
-  def signedAuthorize(reqToken: RequestToken) = {
+  def signedAuthorize(reqToken: RequestToken): String = {
 
     val calc = new OAuthSignatureCalculator(consumer, reqToken)
-    val timestamp = System.currentTimeMillis() / 1000L
     val unsigned = url(authorize) <<? Map("oauth_token" -> reqToken.getKey)
-    val sig = calc.calculateSignature("GET",
-                                      Uri.create(unsigned.url),
-                                      timestamp,
-                                      generateNonce,
-                                      new util.ArrayList[Param](),
-                                      new util.ArrayList[Param]())
-    (unsigned <<? Map("oauth_signature" -> sig)).url
+
+    val reqBuilder: RequestBuilder = new RequestBuilder
+    reqBuilder.setUrl(unsigned.url)
+
+    val req: Request = reqBuilder.build()
+    calc.calculateAndAddSignature(req, reqBuilder)
+
+    val authHeader = reqBuilder.build().getHeaders.get(OAuthSignatureCalculator.HEADER_AUTHORIZATION)
+    val pattern = ".*[, ]oauth_signature=\"(.*)\".*".r
+
+    val authSignature :String = authHeader match {
+      case pattern(signature : String) => signature
+      case _ => "" // no match
+    }
+
+    (unsigned <<? Map("oauth_signature" -> authSignature)).url
   }
 
   def fetchAccessToken(reqToken: RequestToken, verifier: String)
