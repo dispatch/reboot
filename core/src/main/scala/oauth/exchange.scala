@@ -1,15 +1,11 @@
 package dispatch.oauth
 
-import java.util
-
 import dispatch._
 import org.asynchttpclient._
 import org.asynchttpclient.oauth._
-import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.Base64
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.matching.Regex
 
 trait SomeHttp {
   def http: HttpExecutor
@@ -21,7 +17,9 @@ trait SomeConsumer {
 
 trait SomeEndpoints {
   def requestToken: String
+
   def accessToken: String
+
   def authorize: String
 }
 
@@ -35,7 +33,7 @@ trait Exchange {
     with SomeCallback
     with SomeEndpoints =>
   private val random = new java.util.Random(System.identityHashCode(this) +
-                                            System.currentTimeMillis)
+    System.currentTimeMillis)
   private val nonceBuffer = Array.fill[Byte](16)(0)
 
   def generateNonce = nonceBuffer.synchronized {
@@ -44,14 +42,14 @@ trait Exchange {
   }
 
   def message[A](promised: Future[A], ctx: String)
-                (implicit executor: ExecutionContext)  =
+                (implicit executor: ExecutionContext) =
     for (exc <- promised.either.left)
       yield "Unexpected problem fetching %s:\n%s".format(ctx, exc.getMessage)
 
   def fetchRequestToken(implicit executor: ExecutionContext)
-  : Future[Either[String,RequestToken]] = {
+  : Future[Either[String, RequestToken]] = {
     val promised = http(
-      url(requestToken) 
+      url(requestToken)
         << Map("oauth_callback" -> callback)
         <@ (consumer)
         > as.oauth.Token
@@ -73,8 +71,8 @@ trait Exchange {
     val authHeader = reqBuilder.build().getHeaders.get(OAuthSignatureCalculator.HEADER_AUTHORIZATION)
     val pattern = ".*[, ]oauth_signature=\"(.*)\".*".r
 
-    val authSignature :String = authHeader match {
-      case pattern(signature : String) => signature
+    val authSignature: String = authHeader match {
+      case pattern(signature: String) => signature
       case _ => "" // no match
     }
 
@@ -83,7 +81,7 @@ trait Exchange {
 
   def fetchAccessToken(reqToken: RequestToken, verifier: String)
                       (implicit executor: ExecutionContext)
-  : Future[Either[String,RequestToken]]  = {
+  : Future[Either[String, RequestToken]] = {
     val promised = http(
       url(accessToken)
         << Map("oauth_verifier" -> verifier)
