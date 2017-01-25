@@ -1,34 +1,39 @@
 package dispatch
 
-import org.asynchttpclient._
 import java.util.{concurrent => juc}
+
+import org.asynchttpclient._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 /** Http executor with defaults */
 case class Http(
-  client: AsyncHttpClient = InternalDefaults.client
-) extends HttpExecutor {
+                 clientBuilder: DefaultAsyncHttpClientConfig.Builder = InternalDefaults.clientBuilder
+               ) extends HttpExecutor {
+
   import DefaultAsyncHttpClientConfig.Builder
 
-  /** Replaces `client` with a new instance configured using the withBuilder
-      function. */
-  def configure(withBuilder: Builder => Builder) =
-    copy(client =
-      new DefaultAsyncHttpClient(withBuilder(
-        new DefaultAsyncHttpClientConfig.Builder(InternalDefaults.config)
-      ).build)
-    )
+  lazy val client = new DefaultAsyncHttpClient(clientBuilder.build)
+
+  /*§*
+    * Replaces `clientBuilder` with a new config built using the withBuilder function.
+    * The current client config is the builder's prototype.
+    */
+  def configure(withBuilder: Builder => Builder): Http = {
+    val newBuilder = new Builder(this.clientBuilder.build)
+    copy(clientBuilder = withBuilder(newBuilder))
+  }
 }
 
 /** Singleton default Http executor, can be used directly or altered
- *  with its case-class `copy` */
+  * with its case-class `copy` */
 object Http extends Http(
-  InternalDefaults.client
+  InternalDefaults.clientBuilder
 )
 
-trait HttpExecutor { self =>
+trait HttpExecutor {
+  self =>
   def client: AsyncHttpClient
 
   def apply(req: Req)
@@ -40,8 +45,8 @@ trait HttpExecutor { self =>
     apply(pair._1, pair._2)
 
   def apply[T]
-    (request: Request, handler: AsyncHandler[T])
-    (implicit executor: ExecutionContext): Future[T] = {
+  (request: Request, handler: AsyncHandler[T])
+  (implicit executor: ExecutionContext): Future[T] = {
     val lfut = client.executeRequest(request, handler)
     val promise = scala.concurrent.Promise[T]()
     lfut.addListener(
