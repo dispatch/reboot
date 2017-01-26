@@ -32,6 +32,9 @@ trait Exchange {
     with SomeConsumer
     with SomeCallback
     with SomeEndpoints =>
+
+  private val oauthSignaturePattern = ".*[, ]oauth_signature=\"([A-Za-z0-9%._~()'!*:@,;-]*)\".*".r
+
   private val random = new java.util.Random(System.identityHashCode(this) +
     System.currentTimeMillis)
   private val nonceBuffer = Array.fill[Byte](16)(0)
@@ -69,10 +72,9 @@ trait Exchange {
     calc.calculateAndAddSignature(req, reqBuilder)
 
     val authHeader = reqBuilder.build().getHeaders.get(OAuthSignatureCalculator.HEADER_AUTHORIZATION)
-    val pattern = ".*[, ]oauth_signature=\"(.*)\".*".r
 
     val authSignature: String = authHeader match {
-      case pattern(signature: String) => signature
+      case oauthSignaturePattern(signature: String) => signature
       case _ => "" // no match
     }
 
