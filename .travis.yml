@@ -7,6 +7,7 @@ scala:
   - 2.11.5
 jdk:
   - openjdk7
+  - oraclejdk8
 addons:
   hosts:
     - dummy
