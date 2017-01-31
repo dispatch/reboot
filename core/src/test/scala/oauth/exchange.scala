@@ -1,4 +1,4 @@
-package oauth
+package dispatch.oauth.spec
 
 import com.ning.http.client.oauth.{ConsumerKey, RequestToken}
 import org.scalacheck.Prop.forAll
@@ -11,7 +11,7 @@ import org.scalacheck.Properties
   * @since 25-01-2017
   *
   */
-object ExchangeSpec extends Properties("String") {
+object ExchangeSpecification extends Properties("String") {
 
   private val safeChars = "[A-Za-z0-9%._~()'!*:@,;-]*"
   private val urlPattern = s"(.*)[?]oauth_token=($safeChars)[&]oauth_signature=($safeChars)".r
