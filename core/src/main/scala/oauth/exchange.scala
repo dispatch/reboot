@@ -1,6 +1,7 @@
 package dispatch.oauth
 
 import dispatch._
+import io.netty.handler.codec.http.HttpHeaderNames
 import org.asynchttpclient._
 import org.asynchttpclient.oauth._
 import org.asynchttpclient.util.Base64
@@ -71,7 +72,7 @@ trait Exchange {
     val req: Request = reqBuilder.build()
     calc.calculateAndAddSignature(req, reqBuilder)
 
-    val authHeader = reqBuilder.build().getHeaders.get(OAuthSignatureCalculator.HEADER_AUTHORIZATION)
+    val authHeader = reqBuilder.build().getHeaders.get(HttpHeaderNames.AUTHORIZATION)
 
     val authSignature: String = authHeader match {
       case oauthSignaturePattern(signature: String) => signature
