@@ -6,7 +6,7 @@ description :=
 Seq(lsSettings: _*)
 
 libraryDependencies ++= Seq(
-  "org.json4s" %% "json4s-jackson" % "3.4.2",
+  "org.json4s" %% "json4s-jackson" % "3.5.1",
   "ws.unfiltered" %% "unfiltered-netty-server" % "0.9.0-beta2" % "test"
 )
 
