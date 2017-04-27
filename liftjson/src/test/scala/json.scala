@@ -12,9 +12,9 @@ object BasicSpecification extends Properties("Lift Json") {
 
   property("parse json") = forAll(Gen.alphaStr) { sample =>
     val mockedResponse = mock(classOf[Response])
-    when(mockedResponse.getResponseBody).thenReturn(compact(render(
+    when(mockedResponse.getResponseBody).thenReturn(compactRender(
       ("out" -> sample)
-    )))
+    ))
 
     val result = as.lift.Json(mockedResponse)
 

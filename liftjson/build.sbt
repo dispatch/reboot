@@ -3,6 +3,8 @@ name := "dispatch-lift-json"
 description :=
   "Dispatch module providing lift json support"
 
+scalacOptions += "-Xfatal-warnings"
+
 Seq(lsSettings :_*)
 
 libraryDependencies ++= Seq(

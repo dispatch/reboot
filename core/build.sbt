@@ -10,7 +10,7 @@ Seq(lsSettings :_*)
 
 Seq(buildInfoSettings:_*)
 
-sourceGenerators in Compile <+= buildInfo
+sourceGenerators in Compile += buildInfo.taskValue
 
 buildInfoKeys := Seq[BuildInfoKey](version)
 
