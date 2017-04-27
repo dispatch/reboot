@@ -5,7 +5,7 @@ description :=
 
 Seq(lsSettings :_*)
 
-val json4sVersion = "3.4.2"
+val json4sVersion = "3.5.1"
 
 libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-core" % json4sVersion,
