@@ -17,7 +17,7 @@ with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
     Req(run andThen nextReq, nextProps(props))
 
   def toRequestBuilder = {
-    val requestBuilder = run(new RequestBuilder)
+    def requestBuilder = run(new RequestBuilder)
     //Body set from String and with no Content-Type will get a default of 'text/plain; charset=UTF-8'
     if(props.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.containsKey("Content-Type")) {
       setContentType("text/plain", "UTF-8").run(new RequestBuilder)
