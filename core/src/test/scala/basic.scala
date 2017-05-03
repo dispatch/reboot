@@ -161,7 +161,7 @@ with DispatchCleanup {
       Gen.alphaStr
     )).suchThat(_.nonEmpty)) { (sample : Map[String, String]) =>
       val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
-      val req = localhost.setBody("").setContentType("text/plain", "UTF-8") <<? sample
+      val req = localhost.setBody("").setContentType("text/plain", Charset.forName("UTF-8")) <<? sample
       req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
     }
   }
