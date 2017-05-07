@@ -3,12 +3,11 @@ name := "dispatch-lift-json"
 description :=
   "Dispatch module providing lift json support"
 
-seq(lsSettings :_*)
+scalacOptions += "-Xfatal-warnings"
 
-libraryDependencies <++= scalaVersion( sv =>
-  Seq(sv.split("[.-]").toList match {
-    case "2" :: "9" :: _ =>
-      "net.liftweb" % "lift-json_2.9.2" % "2.5-RC6"
-    case _ => "net.liftweb" %% "lift-json" % "2.5-RC6"
-  }, "net.databinder" %% "unfiltered-json" % "0.6.7" % "test")
+Seq(lsSettings :_*)
+
+libraryDependencies ++= Seq(
+  "net.liftweb" %% "lift-json" % "3.0.1",
+  "org.mockito" % "mockito-core" % "1.10.19" % "test"
 )

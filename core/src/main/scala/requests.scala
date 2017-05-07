@@ -17,7 +17,7 @@ with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
     Req(run andThen nextReq, nextProps(props))
 
   def toRequestBuilder = {
-    val requestBuilder = run(new RequestBuilder)
+    def requestBuilder = run(new RequestBuilder)
     //Body set from String and with no Content-Type will get a default of 'text/plain; charset=UTF-8'
     if(props.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.containsKey("Content-Type")) {
       setContentType("text/plain", "UTF-8").run(new RequestBuilder)
@@ -90,6 +90,10 @@ trait UrlVerbs extends RequestVerbs {
     case unit: Unit => subject
     case other      => this / other.toString
   }
+
+  def /? (segmentOpt: Option[String]): Req =
+    segmentOpt.map(this / _) getOrElse subject
+
   def secure = {
     subject.setUrl(RawUri(url).copy(scheme=Some("https")).toString)
   }
@@ -138,19 +142,23 @@ trait ParamVerbs extends RequestVerbs {
 }
 
 trait AuthVerbs extends RequestVerbs {
-  import com.ning.http.client.Realm.{RealmBuilder,AuthScheme}
-  def as(user: String, password: String) =
-    subject.setRealm(new RealmBuilder()
+  import com.ning.http.client.Realm, Realm.{RealmBuilder,AuthScheme}
+  def as(user: String, password: String): Req =
+    this.as(new RealmBuilder()
       .setPrincipal(user)
       .setPassword(password)
       .build())
-  def as_!(user: String, password: String) =
-    subject.setRealm(new RealmBuilder()
+  /** Basic auth, use with care. */
+  def as_!(user: String, password: String): Req =
+    this.as(new RealmBuilder()
       .setPrincipal(user)
       .setPassword(password)
       .setUsePreemptiveAuth(true)
       .setScheme(AuthScheme.BASIC)
       .build())
+
+  def as(realm: Realm) = subject.setRealm(realm)
+
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {

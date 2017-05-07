@@ -7,8 +7,9 @@ import org.json4s.native.JsonMethods._
 object Json {
   def apply[T](f: JValue => T) =
     new StringsByLine[Unit] {
-      def onStringBy(string: String) {
+      def onStringBy(string: String) = {
         f(parse(string, true))
+        ()
       }
       def onCompleted = ()
     }

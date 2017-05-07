@@ -57,6 +57,12 @@ with DispatchCleanup {
     segmentLast.toRequest.getUrl() ?= segmentFirst.toRequest.getUrl()
   }
 
+  property("Path segments can be optional") = forAll(Gen.alphaStr) { (sample: String) =>
+    val segmentLast = (localhost <<? Map("key" -> "value")) / sample
+    val segmentOptional = localhost /? Some(sample) /? None <<? Map("key" -> "value")
+    segmentLast.toRequest.getUrl ?= segmentOptional.toRequest.getUrl
+  }
+
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http(
       localhost / "echo" << Map("echo" -> sample) > as.String
@@ -132,5 +138,16 @@ with DispatchCleanup {
       localhost / "contenttype" << "request body" <:< Map("Content-Type" -> sample) > as.String
     )
     res() ?= (sample)
+  }
+
+  property("Set query params with <<? after setBody(String) and setContentType") = {
+    forAll(Gen.mapOf(Gen.zip(
+      Gen.alphaStr.suchThat(_.nonEmpty),
+      Gen.alphaStr
+    )).suchThat(_.nonEmpty)) { (sample : Map[String, String]) =>
+      val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
+      val req = localhost.setBody("").setContentType("text/plain", "UTF-8") <<? sample
+      req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
+    }
   }
 }

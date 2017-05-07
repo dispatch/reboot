@@ -3,7 +3,7 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.10.4"
+  val defaultScalaVersion = "2.12.2"
 
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
@@ -13,11 +13,34 @@ object Common {
   )
 
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
-    version := "0.11.2",
+    version := "0.12.0",
 
-    crossScalaVersions := Seq("2.9.3", "2.10.4", "2.11.5"),
+    crossScalaVersions := Seq("2.11.8", "2.12.2"),
 
     scalaVersion := defaultScalaVersion,
+
+    scalacOptions in (Compile) ++= Seq(
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      // "-Xfatal-warnings",
+      "-Xlint",
+      "-Yno-adapted-args",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-value-discard",
+      "-Xfuture"
+    ),
+
+    scalacOptions in (Test) ~= { (opts: Seq[String]) =>
+      opts.diff(
+        Seq(
+          "-Xlint"
+        )
+      )
+    },
 
     organization := "net.databinder.dispatch",
 
@@ -26,10 +49,10 @@ object Common {
 
     publishMavenStyle := true,
 
-    publishTo <<= version { (v: String) =>
+    publishTo := {
       val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT")) 
-        Some("snapshots" at nexus + "content/repositories/snapshots") 
+      if (version.value.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
@@ -38,7 +61,7 @@ object Common {
 
     licenses := Seq("LGPL v3" -> url("http://www.gnu.org/licenses/lgpl.txt")),
 
-    pomExtra := (
+    pomExtra :=
       <scm>
         <url>git@github.com:dispatch/reboot.git</url>
         <connection>scm:git:git@github.com:dispatch/reboot.git</connection>
@@ -49,6 +72,6 @@ object Common {
           <name>Nathan Hamblen</name>
           <url>http://twitter.com/n8han</url>
         </developer>
-      </developers>)
+      </developers>
   )
 }

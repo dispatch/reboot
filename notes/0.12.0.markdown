@@ -1,0 +1,6 @@
+A few fixes and improvements
+
+* Support for Scala 2.12.x (2.9.x support has been removed)
+* Lot of major libraries updated due to requiring Scala 2.12.x support
+
+[135]: https://github.com/dispatch/reboot/pull/135
