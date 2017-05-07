@@ -1,21 +1,25 @@
 package dispatch.stream
 
-import com.ning.http.client._
-import com.ning.http.util.AsyncHttpProviderUtils.parseCharset
+import java.nio.charset.Charset
+
+import io.netty.handler.codec.http.HttpHeaders
+import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
+import org.asynchttpclient._
+import org.asynchttpclient.util.HttpUtils
 
 trait Strings[T] extends AsyncHandler[T] {
-  import AsyncHandler.STATE._
+  import AsyncHandler.State._
 
-  @volatile private var charset = "iso-8859-1"
+  @volatile private var charset = Charset.forName("iso-8859-1")
   @volatile private var state = CONTINUE
 
   def onThrowable(t: Throwable) = { }
   def onCompleted(): T
   def onStatusReceived(status: HttpResponseStatus) = state
-  def onHeadersReceived(headers: HttpResponseHeaders) = {
+  def onHeadersReceived(headers: HttpHeaders) = {
     for {
-      ct <- Option(headers.getHeaders.getFirstValue("content-type"))
-      cs <- Option(parseCharset(ct))
+      ct <- Option(headers.get(CONTENT_TYPE))
+      cs <- Option(HttpUtils.parseCharset(ct))
     } charset = cs
     state
   }

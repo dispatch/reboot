@@ -1,6 +1,6 @@
 package dispatch.oauth.spec
 
-import com.ning.http.client.oauth.{ConsumerKey, RequestToken}
+import org.asynchttpclient.oauth.{ConsumerKey, RequestToken}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Properties
 

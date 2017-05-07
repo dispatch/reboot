@@ -4,7 +4,7 @@ description :=
   "Core Dispatch module wrapping sonatype/async-http-client"
 
 libraryDependencies +=
-  "com.ning" % "async-http-client" % "1.9.11"
+  "org.asynchttpclient" % "async-http-client" % "2.1.0-alpha17"
 
 Seq(lsSettings :_*)
 
