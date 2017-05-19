@@ -17,6 +17,7 @@ case class Http(
   /** Replaces `client` with a new instance configured using the withBuilder
       function. The current client config is the builder's prototype.  */
   def configure(withBuilder: Builder => Builder) =
+    shutdown()
     copy(client =
       new AsyncHttpClient(withBuilder(
         new AsyncHttpClientConfig.Builder(client.getConfig)
