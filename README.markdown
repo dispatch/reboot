@@ -11,6 +11,10 @@ as its underlying transport. For more info, see the
 [docs]: http://dispatch.databinder.net/Dispatch.html
 [async]: https://github.com/AsyncHttpClient/async-http-client
 
+### Dependencies
+* [Async HTTP client](https://github.com/AsyncHttpClient/async-http-client)
+* JDK 8, as required by the Async HTTP client library
+
 ### Mailing List
 
 There's a [mailing list for Dispatch][mail]. Please mail the list **before opening

@@ -1,8 +1,9 @@
 package dispatch.oauth.spec
 
-import com.ning.http.client.oauth.{ConsumerKey, RequestToken}
+import org.asynchttpclient.oauth.{ConsumerKey, RequestToken}
+import org.scalacheck.Gen.listOf
 import org.scalacheck.Prop.forAll
-import org.scalacheck.Properties
+import org.scalacheck.{Gen, Properties}
 
 /**
   * Tests for oauth / exchange.
@@ -16,7 +17,9 @@ object ExchangeSpecification extends Properties("String") {
   private val safeChars = "[A-Za-z0-9%._~()'!*:@,;-]*"
   private val urlPattern = s"(.*)[?]oauth_token=($safeChars)[&]oauth_signature=($safeChars)".r
 
-  property("signedAuthorize") = forAll { (keyValue: String, tokenValue: String) =>
+  private val validKeyString: Gen[String] = listOf(Gen.alphaNumChar).map(_.mkString)
+
+  property("signedAuthorize") = forAll(validKeyString, validKeyString) { (keyValue: String, tokenValue: String) =>
     import dispatch._
     import dispatch.oauth._
 

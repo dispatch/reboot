@@ -1,5 +1,7 @@
 package dispatch.spec
 
+import java.nio.charset.Charset
+
 import org.scalacheck._
 
 object BasicSpecification
@@ -22,6 +24,9 @@ with DispatchCleanup {
         PlainTextContent ~> ResponseString(req.method)
       case req @ Path(Seg("echobody" :: Nil)) =>
         PlainTextContent ~> ResponseString(req.method + Body.string(req))
+      case req @ Path(Seg("echoquery" :: Nil)) & QueryParams(queryParams) =>
+        val params = queryParams.flatMap { case (k, vs) => vs.map(v => k + "=" + v) }.mkString("&")
+        PlainTextContent ~> ResponseString(req.method + params)
       case Path(Seg("agent" :: Nil)) & UserAgent(agent) =>
         PlainTextContent ~> ResponseString(agent)
       case Path(Seg("contenttype" :: Nil)) & RequestContentType(contenttype) =>
@@ -68,6 +73,16 @@ with DispatchCleanup {
       localhost / "echo" << Map("echo" -> sample) > as.String
     )
     res() ?= ("POST" + sample)
+  }
+
+  property("POST json with query params") = forAll(Gen.alphaStr) { (value: String) =>
+    val headers = Map("Content-Type" -> "application/json")
+    val params = Map("key" -> value)
+    val body = """{"foo":"bar"}"""
+    val res = Http(
+      localhost / "echoquery" <:< headers <<? params << body OK  as.String
+    )
+    res() ?= ("POST" + "key=" + value)
   }
 
   property("POST non-ascii chars body and get response") = forAll(cyrillic) { (sample: String) =>
@@ -128,7 +143,7 @@ with DispatchCleanup {
 
   property("Send a custom content type after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
     val res = Http(
-      (localhost / "contenttype" << "request body").setContentType(sample, "UTF-8") > as.String
+      (localhost / "contenttype" << "request body").setContentType(sample, Charset.forName("UTF-8")) > as.String
     )
     res() ?= (sample + "; charset=UTF-8")
   }
@@ -146,7 +161,7 @@ with DispatchCleanup {
       Gen.alphaStr
     )).suchThat(_.nonEmpty)) { (sample : Map[String, String]) =>
       val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
-      val req = localhost.setBody("").setContentType("text/plain", "UTF-8") <<? sample
+      val req = localhost.setBody("").setContentType("text/plain", Charset.forName("UTF-8")) <<? sample
       req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
     }
   }

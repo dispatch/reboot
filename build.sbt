@@ -48,9 +48,7 @@ lazy val tagsoup = module("tagsoup")
 lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %% "scala-xml" % "1.0.6")
 
 /** Util module for using unfiltered with scalacheck */
-lazy val ufcheck = Project(
-  "ufcheck", file("ufcheck")
-).settings(
+lazy val ufcheck = project.in(file("ufcheck")).settings(
   scalaVersion := Common.defaultScalaVersion
 )
 
