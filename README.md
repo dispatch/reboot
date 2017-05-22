@@ -3,6 +3,12 @@ Dispatch Reboot
 
 [![Build Status](https://travis-ci.org/dispatch/reboot.svg?branch=master)](https://travis-ci.org/dispatch/reboot)
 
+Latest `version`: [![Maven][mavenImg]][mavenLink]
+
+[mavenImg]: https://img.shields.io/maven-central/v/net.databinder.dispatch/dispatch-core_2.12.svg
+[mavenLink]: https://mvnrepository.com/artifact/net.databinder.dispatch/dispatch-core_2.12
+
+
 Dispatch reboot is a rewrite of the Dispatch library for
 HTTP interaction in Scala, using [async-http-client][async]
 as its underlying transport. For more info, see the
