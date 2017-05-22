@@ -4,7 +4,7 @@ description :=
   "Core Dispatch module wrapping async-http-client"
 
 libraryDependencies +=
-  "org.asynchttpclient" % "async-http-client" % "2.0.32"
+  "org.asynchttpclient" % "async-http-client" % "2.1.0-alpha19"
 
 Seq(lsSettings :_*)
 

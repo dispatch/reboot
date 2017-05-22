@@ -1,7 +1,7 @@
 package dispatch.oauth
 
 import dispatch._
-import io.netty.handler.codec.http.HttpHeaders
+import io.netty.handler.codec.http.HttpHeaderNames
 import org.asynchttpclient._
 import org.asynchttpclient.oauth._
 import org.asynchttpclient.util.Base64
@@ -33,6 +33,9 @@ trait Exchange {
     with SomeConsumer
     with SomeCallback
     with SomeEndpoints =>
+
+  private val oauthSignaturePattern = ".*[, ]oauth_signature=\"([A-Za-z0-9%._~()'!*:@,;-]*)\".*".r
+
   private val random = new java.util.Random(System.identityHashCode(this) +
     System.currentTimeMillis)
   private val nonceBuffer = Array.fill[Byte](16)(0)
@@ -69,11 +72,10 @@ trait Exchange {
     val req: Request = reqBuilder.build()
     calc.calculateAndAddSignature(req, reqBuilder)
 
-    val authHeader = reqBuilder.build().getHeaders.get(HttpHeaders.Names.AUTHORIZATION.toLowerCase)
-    val pattern = ".*[, ]oauth_signature=\"(.*)\".*".r
+    val authHeader = reqBuilder.build().getHeaders.get(HttpHeaderNames.AUTHORIZATION)
 
     val authSignature: String = authHeader match {
-      case pattern(signature: String) => signature
+      case oauthSignaturePattern(signature: String) => signature
       case _ => "" // no match
     }
 
