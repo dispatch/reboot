@@ -48,7 +48,7 @@ case class Http(
    * underlying client for this instance is closed before the new instance is created.
    */
   def closeAndConfigure(withBuilder: Builder => Builder): Http = {
-    client.close()
+    this.shutdown()
     unsafeConfigure(withBuilder)
   }
 }
