@@ -14,14 +14,41 @@ case class Http(
 ) extends HttpExecutor {
   import AsyncHttpClientConfig.Builder
 
-  /** Replaces `client` with a new instance configured using the withBuilder
-      function. The current client config is the builder's prototype.  */
-  def configure(withBuilder: Builder => Builder) =
+  /**
+   * Returns a new instance replacing the underlying `client` with a new instance that is configured
+   * using the `withBuilder` provided. The current client config is the builder's prototype.
+   *
+   * As of Dispatch 0.12.2, it is recommended that you use [[closeAndConfigure]] instead to prevent
+   * the automatic resource link that using this method will cause. However, if you expect to be
+   * able to ''continue'' using this Http instance after
+   *
+   * In Dispatch 0.13.x, this will be changed such that it only causes a resource link if you've
+   * actually used the Http client.
+   */
+  @deprecated("This method is known to cause a resource leak in Dispatch 0.12.x. If you don't need to continue using the original Http instance after invoking this, you should switch to using closeAndConfigure.", "0.12.2")
+  def configure(withBuilder: Builder => Builder): Http = {
+    unsafeConfigure(withBuilder)
+  }
+
+  // Internal, unsafe method that wraps the previous behavior of configure s othat we can invoke
+  // it from closeAndConfigure without triggering our own deprecation warning.
+  private[this] def unsafeConfigure(withBuilder: Builder => Builder): Http ={
     copy(client =
       new AsyncHttpClient(withBuilder(
         new AsyncHttpClientConfig.Builder(client.getConfig)
       ).build)
     )
+  }
+
+  /**
+   * Returns a new instance replacing the underlying `client` with a new instance that is configured
+   * using the `withBuilder` provided. The current client config is the builder's prototype. The
+   * underlying client for this instance is closed before the new instance is created.
+   */
+  def closeAndConfigure(withBuilder: Builder => Builder): Http = {
+    client.close()
+    unsafeConfigure(withBuilder)
+  }
 }
 
 /** Singleton default Http executor, can be used directly or altered
@@ -61,4 +88,3 @@ trait HttpExecutor { self =>
     client.close()
   }
 }
-
