@@ -23,9 +23,11 @@ case class Http(
    * able to ''continue'' using this Http instance after
    *
    * In Dispatch 0.13.x, this will be changed such that it only causes a resource link if you've
-   * actually used the Http client.
+   * actually used the Http client, but the method is still deprecated and is one that we're
+   * planning to remove. If you need this functionality in the long term, it is recommended that you
+   * change your code to invoke the `.copy` method on the `Http` case class directly.
    */
-  @deprecated("This method is known to cause a resource leak in Dispatch 0.12.x. If you don't need to continue using the original Http instance after invoking this, you should switch to using closeAndConfigure.", "0.12.2")
+  @deprecated("This method is deprecated and will be removed in a future version of dispatch. This method is known to cause a resource leak in Dispatch 0.12.x. If you don't need to continue using the original Http instance after invoking this, you should switch to using closeAndConfigure.", "0.12.2")
   def configure(withBuilder: Builder => Builder): Http = {
     unsafeConfigure(withBuilder)
   }
