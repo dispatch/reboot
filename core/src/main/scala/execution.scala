@@ -87,6 +87,19 @@ object Http {
     val newBuilder = new Builder(defaultClientBuilder.build)
     Http(withBuilder(newBuilder))
   }
+
+  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  def apply(req: Req)
+           (implicit executor: ExecutionContext): Future[Response] = default.apply(req)
+
+  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  def apply[T](pair: (Request, AsyncHandler[T]))
+              (implicit executor: ExecutionContext): Future[T] = default.apply(pair)
+
+  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  def apply[T]
+    (request: Request, handler: AsyncHandler[T])
+    (implicit executor: ExecutionContext): Future[T] = default.apply(request, handler)
 }
 
 trait HttpExecutor {
