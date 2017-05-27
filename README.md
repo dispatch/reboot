@@ -17,6 +17,17 @@ as its underlying transport. For more info, see the
 [docs]: http://dispatch.databinder.net/Dispatch.html
 [async]: https://github.com/AsyncHttpClient/async-http-client
 
+### Supported Versions & AHC
+
+There are two currently supported versions of Dispatch. The version of Async HTTP Client you need
+to use will largely dictate what version you should use in larger projects. Those versions are:
+
+* [`0.12.x`](https://github.com/dispatch/reboot/tree/0.12.x) series: Uses AHC 1.9.x
+* [`0.13.x`](https://github.com/dispatch/reboot/tree/master) series: Uses AHC 2.0.x
+
+We are also publishing snapshots of the [`0.14.x`](https://github.com/dispatch/reboot/tree/master_with_ahc2.1)
+series to Sonatype Snapshots that are built against the AHC 2.1.x alpha builds.
+
 ### Dependencies
 * [Async HTTP client](https://github.com/AsyncHttpClient/async-http-client)
 * JDK 8, as required by the Async HTTP client library
