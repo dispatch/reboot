@@ -57,7 +57,27 @@ case class Http(
  *  with its case-class `copy` */
 object Http extends Http(
   InternalDefaults.client
-)
+) {
+  /**
+   * The default executor. Invoking this val will shutdown the client created by the Http singleton.
+   */
+  lazy val default = {
+    this.closeAndConfigure(builder => builder)
+  }
+
+  @deprecated("Using the Http singleton directly will not be allowed in Dispatch 0.13.x. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  override def apply(req: Req)
+           (implicit executor: ExecutionContext): Future[Response] = super.apply(req)
+
+  @deprecated("Using the Http singleton directly will not be allowed in Dispatch 0.13.x. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  override def apply[T](pair: (Request, AsyncHandler[T]))
+              (implicit executor: ExecutionContext): Future[T] = super.apply(pair)
+
+  @deprecated("Using the Http singleton directly will not be allowed in Dispatch 0.13.x. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
+  override def apply[T]
+    (request: Request, handler: AsyncHandler[T])
+    (implicit executor: ExecutionContext): Future[T] = super.apply(request, handler)
+}
 
 trait HttpExecutor { self =>
   def client: AsyncHttpClient
