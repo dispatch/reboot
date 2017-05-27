@@ -8,7 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -39,7 +39,7 @@ with DispatchCleanup {
   class RetryCounter {
     private val retried = new java.util.concurrent.atomic.AtomicInteger
     def succeedOn(successRetry: Int)() = {
-      Http(localhost << Map("echo" -> retried.getAndIncrement.toString)
+      Http.default(localhost << Map("echo" -> retried.getAndIncrement.toString)
            OK as.String).either.map { eth =>
         eth.right.flatMap { numstr =>
           val num = numstr.toInt

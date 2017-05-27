@@ -9,7 +9,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -21,7 +21,7 @@ with DispatchCleanup {
         req.respond(PlainTextContent ~> ResponseString(echo))
       case req @ Path("/ask") & Params(Echo(echo) & What(what)) =>
         for {
-          e <- Http(
+          e <- Http.default(
             localhost / what << Map("echo" -> echo) OK as.String
           ).either
         } {
@@ -32,7 +32,7 @@ with DispatchCleanup {
         }
       case req @ Path("/ask") & Params(What(what)) & EchoHeader(echo) =>
         for {
-          e <- Http(
+          e <- Http.default(
             localhost / what << Map("echo" -> echo) OK as.String
           ).either
         } {
@@ -48,7 +48,7 @@ with DispatchCleanup {
 
   property("Server receieves same answer (from param) from itself") =
     forAll(Gen.alphaStr) { sample =>
-      val res: Future[String] = Http(
+      val res: Future[String] = Http.default(
         localhost / "ask" << Map("what" -> "echo",
                                  "echo" -> sample) > as.String
       )
@@ -57,7 +57,7 @@ with DispatchCleanup {
 
   property("Server receives same answer (from header) from itself") =
     forAll(Gen.alphaStr) { sample =>
-      val res = Http(
+      val res = Http.default(
         (localhost / "ask") << Map("what" -> "echo") <:< Map("echo" -> sample) > as.String
       )
       res() ?= sample
@@ -66,7 +66,7 @@ with DispatchCleanup {
   property("Backend failure produces error response") =
     forAll(Gen.alphaStr.suchThat { _ != "echo"}, Gen.alphaStr) {
       (sample1, sample2) =>
-        val res = Http(
+        val res = Http.default(
           localhost / "ask" << Map("what" -> sample1,
                                    "echo" -> sample2) OK as.String
         ).either

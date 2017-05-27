@@ -69,7 +69,7 @@ with DispatchCleanup {
   }
 
   property("POST and handle") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "echo" << Map("echo" -> sample) > as.String
     )
     res() ?= ("POST" + sample)
@@ -79,28 +79,28 @@ with DispatchCleanup {
     val headers = Map("Content-Type" -> "application/json")
     val params = Map("key" -> value)
     val body = """{"foo":"bar"}"""
-    val res = Http(
+    val res = Http.default(
       localhost / "echoquery" <:< headers <<? params << body OK  as.String
     )
     res() ?= ("POST" + "key=" + value)
   }
 
   property("POST non-ascii chars body and get response") = forAll(cyrillic) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "echobody" << sample > as.String
     )
     res() ?= ("POST" + sample)
   }
 
   property("GET and handle") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "echo" <<? Map("echo" -> sample) > as.String
     )
     res() ?= ("GET" + sample)
   }
 
   property("GET and get response") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "echo" <<? Map("echo" -> sample)
     )
     res().getResponseBody ?= ("GET" + sample)
@@ -108,7 +108,7 @@ with DispatchCleanup {
 
   property("GET with encoded path") = forAll(Gen.alphaStr) { (sample: String) =>
     // (second sample in request path is ignored)
-    val res = Http(
+    val res = Http.default(
       localhost / "echopath" / (sample + syms) / sample OK as.String
     )
     ("GET" + sample + syms) ?= res()
@@ -116,40 +116,40 @@ with DispatchCleanup {
 
   property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
     val requesturl = "http://127.0.0.1:%d/echopath/%s".format(server.port, URLEncoder.encode(sample + syms, "utf-8"))
-    val res = Http(url(requesturl) / sample OK as.String)
+    val res = Http.default(url(requesturl) / sample OK as.String)
     res() == ("GET" + sample + syms)
   }
 
   property("OPTIONS and handle") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost.OPTIONS / "echo" <<? Map("echo" -> sample) > as.String
     )
     res() ?= ("OPTIONS" + sample)
   }
 
   property("Send Dispatch/%s User-Agent" format BuildInfo.version) = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "agent" > as.String
     )
     res() ?= ("Dispatch/%s" format BuildInfo.version)
   }
 
   property("Send a default content-type with <<") = forAll(Gen.const("unused")) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost / "contenttype" << "request body" > as.String
     )
     res() ?= ("text/plain; charset=UTF-8")
   }
 
   property("Send a custom content type after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       (localhost / "contenttype" << "request body").setContentType(sample, Charset.forName("UTF-8")) > as.String
     )
     res() ?= (sample + "; charset=UTF-8")
   }
 
   property("Send a custom content type with <:< after <<") = forAll(Gen.oneOf("application/json", "application/foo")) { (sample: String) =>
-    val res: Future[String] = Http(
+    val res: Future[String] = Http.default(
       localhost / "contenttype" << "request body" <:< Map("Content-Type" -> sample) > as.String
     )
     res() ?= (sample)

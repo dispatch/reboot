@@ -8,7 +8,7 @@ object UriSpecification extends Properties("Uri") {
    *  because it implements completely different functionality: query parameter decoding
    */
   property("encode-decode") = Prop.forAll { (path: String) =>
-    !path.contains(":") ==> { 
+    !path.contains(":") ==> {
       new java.net.URI(dispatch.UriEncode.path(path)).getPath == path
     } // else Prop.throws(classOf[java.net.URISyntaxException])
   }

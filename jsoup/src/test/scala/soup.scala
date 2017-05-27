@@ -37,21 +37,21 @@ with DispatchCleanup {
   def localhost = host("127.0.0.1", server.port)
 
   property("handle Documents") = forAll(Gen.alphaStr) { (sample: String) =>
-    val doc = Http(
+    val doc = Http.default(
       localhost / "echo" <<? Map("echo" -> sample) > as.jsoup.Document
-    )  
+    )
     doc().select("div#echo").first().text() == sample
   }
 
   property("handle Queries") = forAll(Gen.alphaStr) { (sample: String) =>
-    val els = Http(
+    val els = Http.default(
       localhost / "echo" <<? Map("echo" -> sample) > as.jsoup.Query("div")
     )
     els().first().text() == sample
   }
 
   property("handle Cleaning") = forAll(Gen.alphaStr) { (sample: String) =>
-    val clean = Http(
+    val clean = Http.default(
       localhost / "unclean" <<? Map("echo" -> sample) > as.jsoup.Clean(
         Whitelist.basic)
     )
@@ -59,7 +59,7 @@ with DispatchCleanup {
   }
 
   property("handle absolute urls on page") = forAll(Gen.alphaStr) { (sample: String) =>
-    val doc = Http(
+    val doc = Http.default(
       localhost / "relative" <<? Map("echo" -> sample) > as.jsoup.Document
     )
     doc().select("a").first().absUrl("href") == (localhost.url + "category")
