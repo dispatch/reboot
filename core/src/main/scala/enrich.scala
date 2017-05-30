@@ -48,7 +48,7 @@ class EnrichedFuture[A](underlying: Future[A]) {
     either.map { _.right.toOption }
   }
 
-  def apply() = Await.result(underlying, Duration.Inf)
+  def apply(duration: Duration = Duration.Inf) = Await.result(underlying, duration)
 
   /** Some value if promise is complete, otherwise None */
   def completeOption = 
