@@ -1,0 +1,36 @@
+Immutable Requests
+-----------------
+
+Dispatch's underlying [RequestBuilder][rb] implementation is mutable. This
+mutability can lead to overwritten data when making requests. This is
+especially true for dispatch, because it is a library for making
+asynchronous requests.
+
+[rb]: http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html
+
+The `dispatch.immutable` package implements an immutable `RequestBuilder`
+pattern. It prevents accidentally overwriting data when creating new
+requests from the same host. Instead of modifying an existing
+`RequestBuilder`, `dispatch.immutable` creates a new copy of the request
+before appending new information to it. This means that the original
+builder remains unchanged.
+
+```scala
+import dispatch.immutable._
+
+val req = :/ ("example.com")
+req / "users" // Note: req is not modified here.
+```
+
+Present are some methods on every HttpRequest. They are on the underlying
+layer, but are hidden on the immutable layer to maintain immutability. They
+are also build to act the same way as the regular non-immutable dispatch layer
+does.
+
+* `setUrl` and `setMethod` take a `String`
+* `addPath` (symbol: `/`) and `removePath`
+* `addHeaders` (symbol: `<:<`) and `removeHeaders`
+* `addQueryParams` (symbol: `<<?`) and `removeQueryParams`
+* `addPostParams` (symbol: `<<`) and `removePostParams`
+* `addPutBody` (symbol: `<<<`) takes a `java.io.File` or `String`
+* `secure` (to turn a request into its https equivalent) and `isSecure` to return a Boolean if the request is carried over https
