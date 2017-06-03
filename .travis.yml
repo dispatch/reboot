@@ -1,8 +1,8 @@
 before_script:
   - "echo $JAVA_OPTS"
   - "export JAVA_OPTS='-Xmx512m -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M'"
-  - sudo chmod +x /usr/local/bin/sbt
 language: scala
+sudo: false
 scala:
   - 2.11.8
   - 2.12.2
