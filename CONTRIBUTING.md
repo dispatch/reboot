@@ -23,7 +23,8 @@ work. This is largely to ensure that your work isn't a) something that someone e
 working on and b) is in line with the long term plans for Dispatch.
 
 Before we accept your contribution, you'll need to sign the CLA that's appropriate for your
-situation:
+situation. Please read and execute the appropreate CLA for your situation. The link to sign
+the CLA can be found at the bottom of the document:
 
 * Please use the [Individual CLA](https://github.com/dispatch/reboot/blob/master/cla/individual-cla.md)
   if you're contributing on your own behalf.
