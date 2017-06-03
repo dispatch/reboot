@@ -24,7 +24,7 @@ object ExchangeSpecification extends Properties("String") {
     import dispatch.oauth._
 
     trait DropboxHttp extends SomeHttp {
-      def http: HttpExecutor = Http
+      def http: HttpExecutor = Http.default
     }
 
     trait DropboxConsumer extends SomeConsumer {

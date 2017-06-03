@@ -8,7 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -25,14 +25,14 @@ with DispatchCleanup {
   property("yield a Left on not found") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
-    val res = Http(localhost / sample OK as.String).either
+    val res = Http.default(localhost / sample OK as.String).either
     res() ?= Left(StatusCode(404))
   }
 
   property("project left on failure") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}
   ) { sample =>
-    val res = Http(localhost / sample OK as.String).either.right.map {
+    val res = Http.default(localhost / sample OK as.String).either.right.map {
       _ => "error"
     }
     res() ?= Left(StatusCode(404))
@@ -42,8 +42,8 @@ with DispatchCleanup {
     val path = Right(sample)
     val eth = for {
       p <- Future.successful(path).right
-      res <- Http(localhost / p OK as.String).either.right
-      res2 <- Http(localhost / p OK as.String).either.right
+      res <- Http.default(localhost / p OK as.String).either.right
+      res2 <- Http.default(localhost / p OK as.String).either.right
     } yield res2.length
     eth() ?= Right(3)
   }
@@ -56,8 +56,8 @@ with DispatchCleanup {
     val eth = for {
       g <- Future.successful(good).right
       b <- Future.successful(bad).right
-      res <- Http(localhost / g OK as.String).either.right
-      res2 <- Http(localhost / b OK as.String).either.right
+      res <- Http.default(localhost / g OK as.String).either.right
+      res2 <- Http.default(localhost / b OK as.String).either.right
     } yield res2
     eth() ?= Left(StatusCode(404))
   }

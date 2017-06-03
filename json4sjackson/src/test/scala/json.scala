@@ -39,7 +39,7 @@ with DispatchCleanup {
   def localhost = host("127.0.0.1", server.port)
 
   property("parse json") = forAll(Gen.alphaStr) { (sample: String) =>
-    val res = Http(
+    val res = Http.default(
       localhost <:< Map("Accept" -> "application/json") <<? Map("in" -> sample) > as.json4s.Json
     )
     sample == (for { JObject(fields) <- res(); JField("out", JString(o)) <- fields } yield o).head

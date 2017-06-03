@@ -8,7 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -26,7 +26,7 @@ with DispatchCleanup {
   val localhost = host("127.0.0.1", server.port)
 
   def sum(nums: Iterable[String]) =
-    Http(localhost / "sum" << nums.map { "num" -> _ } > as.String)
+    Http.default(localhost / "sum" << nums.map { "num" -> _ } > as.String)
 
   val numList = nonEmptyListOf(chooseNum(-1000L, 1000L))
 
