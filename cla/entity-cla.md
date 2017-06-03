@@ -143,4 +143,8 @@ provision and which is enforceable. The terms and conditions set forth in this A
 notwithstanding any failure of essential purpose of this Agreement or any limited remedy to the
 maximum extent possible under law.
 
+## Signature
+
+Sign this CLA at this URL: https://goo.gl/forms/wyOpkwxpLOAtd3Ag2
+
 Harmony (HA-CLA-E-LIST) Version 1.0 // Dispatch CLI-E 1.0
