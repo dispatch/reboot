@@ -5,6 +5,6 @@ trait DispatchCleanup extends unfiltered.spec.ServerCleanup {
 
   override def cleanup() = {
     super.cleanup()
-    dispatch.Http.shutdown()
+    dispatch.Http.default.shutdown()
   }
 }

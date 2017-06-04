@@ -8,7 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
-  val server = { 
+  val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
@@ -29,11 +29,11 @@ with DispatchCleanup {
   val localhost = host("127.0.0.1", server.port)
 
   def split(str: String): Future[Seq[String]] =
-    for (csv <- Http(localhost / "split" << Seq("str" -> str) > as.String))
+    for (csv <- Http.default(localhost / "split" << Seq("str" -> str) > as.String))
       yield csv.split(",")
 
   def value(str: String): Future[Int] =
-    for (v <- Http(localhost / "value" << Seq("chr" -> str) > as.String))
+    for (v <- Http.default(localhost / "value" << Seq("chr" -> str) > as.String))
       yield v.toInt
 
   property("iterable future flatMap") = forAll(Gen.alphaStr) {
