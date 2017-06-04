@@ -8,7 +8,7 @@ this document for information about how you can contribute to Dispatch.
 Dispatch maintains a [mailing
 list](https://groups.google.com/forum/?fromgroups#!forum/dispatch-scala)
 where you're free to ask any questions you have about how to use Dispatch.
-The mailing list is monitored by @farmdawgnation, Dispatch's current
+The mailing list is monitored by [@farmdawgnation][fdn], Dispatch's current
 mainainer, and a handful of Dispatch users.
 
 You're also free to [open an issue](https://github.com/dispatch/reboot/issues)
