@@ -18,9 +18,9 @@ on the project and we'll be happy to look into your issue.
 
 If you're interested in making contributions to Dispatch, we'd be glad to have your help! For
 anything beyond obvious bug fixes, before you're off to the races, please make sure there's an open
-issue representing the work you'd like to do and that @farmdawgnation has agreed to have you do the
-work. This is largely to ensure that your work isn't a) something that someone else is already
-working on and b) is in line with the long term plans for Dispatch.
+issue representing the work you'd like to do and that [@farmdawgnation][fdn] has agreed to have you
+do the work. This is largely to ensure that your work isn't a) something that someone else is
+already working on and b) is in line with the long term plans for Dispatch.
 
 Before we accept your contribution, you'll need to sign the CLA that's appropriate for your
 situation. Please read and execute the appropreate CLA for your situation. The link to sign
@@ -41,4 +41,6 @@ the meantime.
 
 A condition of contributing to Dispatch is that you own your contribution. If you do not own your
 contribution you should obtain written permission from the owner of the contribution and present
-that in an email to @farmdawgnation _before_ signing the CLA.
+that in an email to [@farmdawgnation][fdn] _before_ signing the CLA.
+
+[fdn]: https://github.com/farmdawgnation
