@@ -3,6 +3,8 @@ package dispatch.as
 import dispatch._
 
 import com.ning.http.client
+import org.asynchttpclient.handler.resumable._
+import java.io._
 import java.nio.charset.Charset
 
 object Response {
@@ -28,11 +30,16 @@ object Bytes extends (client.Response => Array[Byte]) {
 }
 
 object File extends {
-  def apply(file: java.io.File) =
-    (new client.resumable.ResumableAsyncHandler with OkHandler[Nothing])
-      .setResumableListener(
-        new client.extra.ResumableRandomAccessFileListener(
-          new java.io.RandomAccessFile(file, "rw")
-        )
-      )
+  def apply(file: java.io.File) = {
+    val fileHandler = new RandomAccessFile(file, "rw")
+
+    val resumableHandler = new ResumableAsyncHandler
+        with OkHandler[asynchttpclient.Response]
+        with CloseResourcesOnThrowableHandler[asynchttpclient.Response] {
+      override lazy val closeable = Seq(fileHandler)
+    }
+
+    resumableHandler
+      .setResumableListener(new ResumableRandomAccessFileListener(fileHandler))
+  }
 }
