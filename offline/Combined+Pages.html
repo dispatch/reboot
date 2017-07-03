@@ -1,0 +1,1260 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html manifest="pamflet.manifest">
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Combined Pages</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Contents+in+Depth.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="#Dispatch">Dispatch</a></div><ol class="toc"> <li><div><a href="#Bargaining+with+futures">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="#Abstraction+over+future+information">Abstraction over future information</a></div></li><li><div><a href="#Working+with+multiple+futures">Working with multiple futures</a></div></li><li><div><a href="#Arbitrarily+many+futures">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="#A+future+of+success+and+failure">A future of success and failure</a></div><ol class="toc"> <li><div><a href="#Success+as+the+only+option">Success as the only option</a></div></li><li><div><a href="#Either+type+will+do">Either type will do</a></div></li><li><div><a href="#Either+Future">Either Future</a></div></li> </ol></li><li><div><a href="#Defining+requests">Defining requests</a></div><ol class="toc"> <li><div><a href="#HTTP+methods+and+parameters">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="#Unraveling+for-expressions">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="#Dispatch">Dispatch</a></div><ol class="toc"> <li><div><a href="#Bargaining+with+futures">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="#Abstraction+over+future+information">Abstraction over future information</a></div></li><li><div><a href="#Working+with+multiple+futures">Working with multiple futures</a></div></li><li><div><a href="#Arbitrarily+many+futures">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="#A+future+of+success+and+failure">A future of success and failure</a></div><ol class="toc"> <li><div><a href="#Success+as+the+only+option">Success as the only option</a></div></li><li><div><a href="#Either+type+will+do">Either type will do</a></div></li><li><div><a href="#Either+Future">Either Future</a></div></li> </ol></li><li><div><a href="#Defining+requests">Defining requests</a></div><ol class="toc"> <li><div><a href="#HTTP+methods+and+parameters">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="#Unraveling+for-expressions">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li> </ol></div></div><h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
+ a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
+ release version is <a href="https://github.com/dispatch/reboot/releases/tag/v0.13.0"><strong>0.13.0</strong></a>.
+</p><blockquote><p>This documentation walks through basic functionality of the
+library. You may also want to refer to its
+<a href="http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0">scaladocs</a>.
+And for information on Dispatch 0.8.x, see <a href="http://dispatch-classic.databinder.net/">dispatch-classic</a>.
+</p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you have <a href="https://github.com/harrah/xsbt/wiki/">sbt</a> installed, Dispatch is two steps away. Open a
+shell and change to an empty or unimportant directory, then paste:
+</p><pre><code>echo 'libraryDependencies +=
+  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot; % &quot;0.13.0&quot;
+
+  libraryDependencies +=
+  &quot;ch.qos.logback&quot; % &quot;logback-classic&quot; % &quot;1.1.2&quot;' &gt; build.sbt
+sbt console
+</code></pre><p>After “the internet” has downloaded, you’re good to go.
+</p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val svc = url(&quot;http://api.hostip.info/country.php&quot;)
+val country = Http.default(svc OK as.String)
+</code></pre><p>The above defines and initiates a request to the given host where 2xx
+responses are handled as a string. Since Dispatch is fully
+asynchronous, <code>country</code> represents a <em>future</em> of the string rather
+than the string itself.
+</p><h3 id="Deferring+action">Deferring action<a href="#Deferring+action" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can act on the response once it’s available with a
+<em>for-expression</em>.
+</p><pre><code class="prettyprint lang-scala">for (c &lt;- country)
+  println(c)
+</code></pre><p>This for-expression applies to any <em>successful</em> response that is
+eventually produced. If no successful response is produced, nothing is
+printed. This is how for-expressions work in general. Consider a more
+familiar example:
+</p><pre><code class="prettyprint lang-scala">val opt: Option[String] = None
+for (o &lt;- opt)
+  println(o)
+</code></pre><p>An <em>option</em> may or may not contain a value, just like a future may or
+may not produce a successful response. But while any given option
+already knows what it is, a future may not. So the future behaves
+asynchronously in for-expressions, to avoid holding up operations
+subsequent that do not depend on its value.
+</p><h3 id="Demanding+answers">Demanding answers<a href="#Demanding+answers" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As with options, you can require that a future value be available at
+any time:
+</p><pre><code class="prettyprint lang-scala">val c = country()
+</code></pre><p>But the wise use of futures defers this operation as long as is
+practical, or doesn’t perform it at all. To see how, keep reading.
+</p><h2 id="Bargaining+with+futures">Bargaining with futures<a href="#Bargaining+with+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Applying a future is like taking a hostage. Your demands might be met
+in time, but until they are you’re sitting around doing nothing other
+than guarding a prisoner.
+</p><p>So we don’t like to take hostages or apply futures, but what good is
+a future if you can’t do anything with its value? Luckily, you can do
+plenty. You just have to be flexible about when things happen.
+</p><h3 id="Transformations">Transformations<a href="#Transformations" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>A future is like an option that doesn’t know what it is yet; that
+doesn’t stop it from transforming into something else. We could
+transform an option of a string into an option of its length. Same
+goes for futures.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val svc = url(&quot;http://api.hostip.info/country.php&quot;)
+val country = Http.default(svc OK as.String)
+val length = for (c &lt;- country) yield c.length
+</code></pre><p>The <code>length</code> value is a future of integer.
+</p><h3 id="Future%23print">Future#print<a href="#Future%23print" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you pasted the above into a console, you probably saw something
+like this in the output:
+</p><pre><code>country: scala.concurrent.Future[String] =
+  scala.concurrent.impl.Promise$DefaultPromise@4929b5a5
+length: scala.concurrent.Future[Int] =
+  scala.concurrent.impl.Promise$DefaultPromise@581fa0fe
+</code></pre><p>Not too helpful right? The <code>print</code> method makes a nicer string:
+</p><pre><code>scala&gt; country.print
+res0: String = Future(US)
+</code></pre><p>If the future value isn’t available, <code>print</code> won’t wait:
+</p><pre><code>scala&gt; Http.default(svc OK as.String).print
+res1: String = Future(-incomplete-)
+</code></pre><blockquote><p><strong>Note:</strong> <code>print</code> and some other <code>Future</code> methods in this documentation
+  are provided implicitly by <code>dispatch.EnrichedFuture</code>
+</p></blockquote><h3 id="Future%23completeOption">Future#completeOption<a href="#Future%23completeOption" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>How does <code>print</code> work on unknown values? It uses an option. You can
+use the same technique to access the integer value, <em>if it’s
+available</em>.
+</p><pre><code class="prettyprint lang-scala">val lengthNow = length.completeOption.getOrElse(-1)
+</code></pre><p>But most of the time, you want to operate on values that are known to
+be available. In the next pages we’ll see how far we can go in this
+direction by transforming futures.
+</p><h2 id="Abstraction+over+future+information">Abstraction over future information<a href="#Abstraction+over+future+information" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Often, you can extend the utility of futures with simple
+abstraction. In this example we’ll leverage a web service to write an
+internal API that will tell us the temperature in a US city.
+</p><h3 id="Palling+around+with+Weather+Underground">Palling around with Weather Underground<a href="#Palling+around+with+Weather+Underground" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In one method we’ll contain the construction of the request. In this
+case it’s an endpoint with all of the parameters in path elements.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+
+case class Location(city: String, state: String)
+
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; /
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><blockquote><p><strong>Note:</strong> Yes, that’s an API key. Use it sparingly to learn
+  Dispatch in the Scala console, but
+  <a href="http://www.wunderground.com/weather/api/">get your own key</a> if you
+  are building some kind of actual weather application. We may reset
+  this key at any time.
+</p></blockquote><p>With this method we can bind to a handler that prints out the response
+in the usual way:
+</p><pre><code class="prettyprint lang-scala">val nyc = Location(&quot;New York&quot;, &quot;NY&quot;)
+for (str &lt;- Http.default(weatherSvc(nyc) OK as.String))
+  println(str)
+</code></pre><p>If you’re pasting along in the Scala console, you’ll see a bunch of
+raw XML.
+</p><h3 id="Parsing+XML">Parsing XML<a href="#Parsing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, dispatch has another built-in handler for services that
+respond in this format.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location) =
+  Http.default(weatherSvc(loc) OK as.xml.Elem)
+</code></pre><p>This method returns a future <code>scala.xml.Elem</code>. Note that Dispatch
+handlers, like <code>as.String</code> and <code>as.xml.Elem</code>, mimic the name of the
+type they produce. They’re all under the package <code>dispatch.as</code> where
+you can access them without additional imports.
+</p><h3 id="Traversing+XML">Traversing XML<a href="#Traversing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>At this stage we’re working with a higher abstraction. The <code>Http.default</code>
+instance used to perform the request has become an implementation
+detail that <code>weatherXml</code> callers need not concern themselves with. We
+can use our new method to print a nicely formatted response.
+</p><pre><code class="prettyprint lang-scala">def printer = new scala.xml.PrettyPrinter(90, 2)
+for (xml &lt;- weatherXml(nyc))
+  println(printer.format(xml))
+</code></pre><p>Looking at the structure of the document, we can extract the
+temperature of the location in degrees Celsius by searching for the
+element “temp_c” using the <code>\\</code> method of <code>xml.Elem</code>.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.head
+}
+</code></pre><h3 id="Temperature+of+the+future">Temperature of the future<a href="#Temperature+of+the+future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>With this we can create another high-level access method:
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xml &lt;- weatherXml(loc))
+    yield extractTemp(xml)
+</code></pre><p>And now we have at hand the future temperature of any location
+understood by the service:
+</p><pre><code class="prettyprint lang-scala">val la = Location(&quot;Los Angeles&quot;, &quot;CA&quot;)
+for (t &lt;- temperature(la)) println(t)
+</code></pre><p>The information gathering is now fully abstracted without blocking,
+but what happens if we want to compare several temperatures?
+</p><h2 id="Working+with+multiple+futures">Working with multiple futures<a href="#Working+with+multiple+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>If we want to compare the future temperature in New York to Madrid,
+we might apply both futures to compare the eventual values. We
+certainly can’t make a good comparison if only one or zero of the
+values are available right now.
+</p><p>But if taking one hostage is bad, taking <em>n</em> hostages is worse. Higher
+demands take longer to be met and the cost of monitoring each
+prisoner, or applied future, increases.
+</p><h3 id="Independent+futures">Independent futures<a href="#Independent+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, we don’t have to apply futures to work with their values. We
+can stage operations to occur as soon as those values are
+available—even with more than one future.
+</p><p>First, we’ll assign some future temperatures using the methods
+defined on the last page.
+</p><pre><code class="prettyprint lang-scala">val nycTemp = temperature(nyc)
+val laTemp = temperature(la)
+</code></pre><p>Dispatch is already working to fulfill both futures. But assuming as
+we must that their values are not available, we can still lay out work
+for them to do:
+</p><pre><code class="prettyprint lang-scala">for {
+  n &lt;- nycTemp
+  m &lt;- laTemp
+} {
+  if (n &gt; m) println(&quot;It's hotter in New York&quot;)
+  else  println(&quot;It's at least as hot in L.A.&quot;)
+}
+</code></pre><p>Like all for-expressions used with futures, this one doesn’t block on
+I/O at any point. We’re effectively chaining callbacks for the time
+when both futures say they are available.
+</p><h3 id="Yielding+combined+results">Yielding combined results<a href="#Yielding+combined+results" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But this isn’t a very flexible procedure. Let’s generalize it by
+yielding a future value.
+</p><pre><code class="prettyprint lang-scala">def tempCompare(locA: Location, locB: Location) = {
+  val pa = temperature(locA)
+  val pb = temperature(locB)
+  for {
+    a &lt;- pa
+    b &lt;- pb
+  } yield a.compare(b)
+}
+</code></pre><p>Now we have a method for the future of an integer indicating the
+relative temperatures of places <em>a</em> and <em>b</em>.
+</p><h3 id="Dependent+futures+and+concurrency">Dependent futures and concurrency<a href="#Dependent+futures+and+concurrency" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You might be tempted to refactor the comparison method into a shorter
+expression.
+</p><pre><code class="prettyprint lang-scala">def sequentialTempCompare(locA: Location, locB: Location) =
+  for {
+    a &lt;- temperature(locA)
+    b &lt;- temperature(locB)
+  } yield a.compare(b)
+</code></pre><p>It’s still non-blocking, but it <em>doesn’t perform the two requests in
+parallel</em>. To understand why, think about the bindings of the values
+<em>a</em> and <em>b</em>. They both represent future values.
+</p><p>Although the above expression <code>temperature(locB)</code> doesn’t reference
+the value of <em>a</em>, <strong>it could</strong>. Since <em>a</em> is known we must be in the
+future: we must be in deferred code.
+</p><p>And that’s exactly the case. Each clause of the for-expression on a
+future represents a future callback. This is necessary for cases
+where one future value depends on another. Independent futures
+should be assigned outside for-expressions to maximize concurrency.
+</p><h2 id="Arbitrarily+many+futures">Arbitrarily many futures<a href="#Arbitrarily+many+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>The last page dealt with fixed numbers of futures. In the real world,
+we often have to work with unknown quantities.
+</p><h3 id="Iterables+of+futures">Iterables of futures<a href="#Iterables+of+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Once again using the <code>temperature</code> method defined before, we’ll create
+a higher-level method to work with its future values. First, we can
+work with Scala collections in familiar ways.
+</p><pre><code class="prettyprint lang-scala">val locs = List(Location(&quot;New York&quot;, &quot;NY&quot;),
+                Location(&quot;Los Angeles&quot;, &quot;CA&quot;),
+                Location(&quot;Chicago&quot;, &quot;IL&quot;))
+val temps =
+  for(loc &lt;- locs)
+    yield for (t &lt;- temperature(loc))
+      yield (t -&gt; loc)
+</code></pre><p>Now we have a list of future city names and temperatures:
+<code>List[Future[(Float, Location)]]</code>. But if we want to compare them
+together, again without blocking, we want a combined future of all
+temps.
+</p><h3 id="Future.sequence">Future.sequence<a href="#Future.sequence" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">val hottest =
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }
+hottest()
+</code></pre><p>The value <code>ts</code> is a future of <code>List[(Float, Location)]</code>; it is not
+available until all the component futures have completed. In the body
+of the for expression we’re using <code>maxBy</code> to find the highest
+temperature, the first element of the tuple.
+</p><h3 id="A+future+of+the+hottest">A future of the hottest<a href="#A+future+of+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can generalize this now into a single method which futures to
+return the name of the hottest city that you give it.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (t &lt;- temperature(loc))
+       yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }._2
+}
+</code></pre><p>When everything goes as expected, that future is fulfilled. The next
+section is for when things don’t go as expected.
+</p><h2 id="A+future+of+success+and+failure">A future of success and failure<a href="#A+future+of+success+and+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>So far we’ve made a lot of futures depending on network operations
+that might fail, and remote services that may not care for our
+input. If things don’t go as planned, the futures will fail.
+</p><h3 id="Failed+futures">Failed futures<a href="#Failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Failed futures are messy. You may have already seen the mess created
+in playing around with the previous examples. Here we’ll make a big
+mess to see what happens, and how bad it can get.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http.default(host(&quot;example.com&quot;) OK as.String)
+</code></pre><p>So far, so good? We’ve made a request that will fail the <em>OK</em> test
+with a redirect status code, but this failure hasn’t happened yet
+from the software’s perspective.
+</p><h3 id="Future%23print+for+failed+futures">Future#print for failed futures<a href="#Future%23print+for+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If we have the console print its string representation a moment later,
+we’ll see the problem:
+</p><pre><code>scala&gt; str.print
+res0: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Applying+failed+futures">Applying failed futures<a href="#Applying+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But we’re still holding have a future of string. What happens if we
+demand the string?
+</p><pre><code>scala&gt; str()
+dispatch.StatusCode: Unexpected response status: 302
+    at dispatch.OkHandler$class.onStatusReceived(handlers.scala:37)
+    at dispatch.OkFunctionHandler.onStatusReceived(handlers.scala:29)
+    ...
+</code></pre><p>The exception was thrown in the thread that demanded the value, since
+there is no way to supply it.
+</p><h3 id="Transforming+broken+futures">Transforming broken futures<a href="#Transforming+broken+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Broken futures carry their exceptions through transformations:
+</p><pre><code>val length = for (s &lt;- str) yield s.length
+length.print
+</code></pre><p>Printing yields the same result as before.
+</p><pre><code>res54: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Deferred+failed+futures">Deferred failed futures<a href="#Deferred+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And if you ask for operations on the completed future, nothing
+happens.
+</p><pre><code>scala&gt; for (s &lt;- str) println(s)
+</code></pre><p>How can we safely build on futures that depend on uncertain network
+operations?
+</p><h3 id="Planning+for+failure">Planning for failure<a href="#Planning+for+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>The solution is to avoid breaking futures and throwing exceptions by
+planning for failure. In the next pages we’ll see very simple and very
+rich ways of doing that.
+</p><h2 id="Success+as+the+only+option">Success as the only option<a href="#Success+as+the+only+option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Earlier we compared futures to options. The network operation at the
+center of things may or may not have completed: that’s the temporal
+uncertainty and it can be thought of an option, and even transformed
+into one with the <code>completeOption</code> method.
+</p><p>Beyond that we don’t know if a completed future will produce an error
+or a useful response. We can also think of that uncertainty, and model
+it in code, as an option. By transferring the uncertainty from the
+future to a contained option, we make a future that will never fail.
+</p><h3 id="Future%23option">Future#option<a href="#Future%23option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http.default(host(&quot;example.com&quot;) OK as.String).option
+</code></pre><p>The type assigned is <code>str: Future[Option[String]]</code>. When the future
+completes, its value will be a future of <code>None</code> since the request
+will fail. The failure exception is captured and discarded by the
+underlying code.
+</p><p>With this we can write higher level interfaces that encompass the
+possibility of failure.
+</p><h3 id="Optional+weather">Optional weather<a href="#Optional+weather" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s make the weather interface from the previous section a little
+more resilient.
+</p><pre><code class="prettyprint lang-scala">case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; /
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+def weatherXml(loc: Location) =
+  Http.default(weatherSvc(loc) OK as.xml.Elem).option
+</code></pre><p>Now any connection, status, or parsing error will produce a <code>None</code>.
+</p><h3 id="Optional+temperature">Optional temperature<a href="#Optional+temperature" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll make a slight change to the extraction method.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption
+}
+</code></pre><p>Instead of calling <code>head</code> which throws an exception if there are no
+matching elements, we call <code>headOption</code>. This meshes with a revised
+temperature method.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlOpt &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlOpt
+      t &lt;- extractTemp(xml)
+    } yield t
+</code></pre><p>This returns the future of some temperature value, or <code>None</code> if an
+error occurs at any point.
+</p><h3 id="Optional+hotness">Optional hotness<a href="#Optional+hotness" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And with that, we can rewrite <code>hottest</code> to provide the highest
+successful result, or <code>None</code>.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tOpt &lt;- temperature(loc))
+        yield for (t &lt;- tOpt)
+          yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = ts.flatten
+    for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }
+  }
+}
+</code></pre><p>If the nested for-expressions throw you for a loop, keep in mind that
+futures are not themselves Iterable. You’re dealing with unrelated
+types, even if they share some philosophical opinions. They can’t be
+haphazardly mixed in the same for-expression.
+</p><p>But as the <em>for</em>s unroll we end up with a future of some city name,
+or <code>None</code>—exactly what we want. Give it a try with some real and fake
+city names.
+</p><h3 id="Unknown+error">Unknown error<a href="#Unknown+error" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>This version of temperature ranking is much more resilient than the
+last, but it still leaves something to be desired. We don’t know from
+the result value which cities, if any, were excluded from
+consideration, and we don’t know why.
+</p><p>In the next section we’ll explore <code>Either</code>, a favorite type of those
+who plan for both failure and success.
+</p><h2 id="Either+type+will+do">Either type will do<a href="#Either+type+will+do" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p><code>Either</code> is a container of fixed size like <code>Option</code>, but which always
+contains a value of one of two types. As an abstract type either
+refers to its two possible typed values as “left” and “right”.
+</p><h3 id="Either+an+error+or+success">Either an error or success<a href="#Either+an+error+or+success" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In the particular and common case of error handling, the either’s
+<em>left</em> should always be used for failure information. This can be
+anything from an error message to an application-specific error
+object. It’s the either’s type <em>A</em>.
+</p><p>The either’s <em>right</em> value of type <em>B</em> is for its content on
+success. Thus, any given either used for error handling should tell
+you the desired result, or the reason it has failed.
+</p><h3 id="Average+or+failure">Average or failure<a href="#Average+or+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As a trivial example, let’s implement a method to return the average
+of some integers.
+</p><pre><code class="prettyprint lang-scala">def average(nums: Traversable[Int]) = {
+  if (nums.isEmpty) Left(&quot;Can't average emptiness&quot;)
+  else Right(nums.sum / nums.size)
+}
+</code></pre><p>This method produces an error message when given an empty collection
+of integers to average, otherwise the average integer.
+</p><h3 id="Top+of+the+class">Top of the class<a href="#Top+of+the+class" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can use this failure-aware average method as part of a larger
+calculation.
+</p><pre><code class="prettyprint lang-scala">val johnny = List(85, 60, 90)
+val sarah  = List(88, 65, 85)
+val billy  = List.empty[Int]
+
+for {
+  j &lt;- average(johnny).right
+  s &lt;- average(sarah).right
+  b &lt;- average(billy).right
+} yield List(j, s, b).max
+</code></pre><p>The for-expression above requires successful averages (a <em>right</em>
+projection on each either) in order to yield a right result. Since
+Billy’s average results in a <em>left</em>, the entire expression evaluates
+to that error.
+</p><pre><code>res0: Either[java.lang.String,Int] = Left(Can't average emptiness)
+</code></pre><h3 id="Why+not+eject%3F">Why not eject?<a href="#Why+not+eject%3F" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Of course, exceptions have the same ability demonstrated here: you can
+embed information in them and act on it when they’re
+caught. Exceptions are easy to handle when you have a straightforward
+thread of computation. In asynchronous programming, you don’t.
+</p><p>Think of exceptions as an ejection seat. They allow you to escape from
+failure without planning ahead. On the downside, somebody’s got to
+perform the rescue operation to get you home, which could range in
+difficulty from easy to impossible. With asynchronous callbacks it’s
+as if you’re flying over enemy territory, or into orbit. The cost and
+complexity of recovering an ejected body becomes prohibitive.
+</p><p>But the use of <em>either</em> for error handling is like having a plan to
+fly home no matter what goes wrong. You may not be carrying a
+successful payload but at least you’ll return safely with information.
+</p><h3 id="Understanding+either">Understanding either<a href="#Understanding+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you don’t understand <code>Either</code>, seek out some more explanations and
+examples before continuing. Dispatch’s richest forms of error handling
+use this type directly and imitate it in important ways.
+</p><h2 id="Either+Future">Either Future<a href="#Either+Future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Now that you understand <em>either</em>, you can use it within a Dispatch
+future to fully control and represent error conditions.
+</p><h3 id="Future%23either">Future#either<a href="#Future%23either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Much like <code>Future#option</code>, the either method returns a future that
+catches any exception that occurs in performing the request and
+handling its response. But unlike option, either holds on to its
+captured exception.
+</p><h3 id="Weather+with+either">Weather with either<a href="#Weather+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s take up our weather service one more time and write an app that
+can not only fail gracefully but tell you what went wrong. First we
+define the service endpoint, as before.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; /
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><h3 id="Projections+on+futures">Projections on futures<a href="#Projections+on+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>A future of either doesn’t know whether it’s a <em>left</em> or <em>right</em>
+until it is completed, so it can’t have methods like <code>isLeft</code> and
+<code>isRight</code>.
+</p><p>What you can do is project against eventual leftness and rightness.
+All futures of either have methods <code>left</code> and <code>right</code> which act much
+the same as those methods on either itself. They return a projection
+which you then use to transform one side of the either.
+</p><p>The example below uses a left projection. Bulky type annotations are
+included in this text for clarity.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location):
+  Future[Either[String, xml.Elem]] = {
+  val res: Future[Either[Throwable, xml.Elem]] =
+    Http.default(weatherSvc(loc) OK as.xml.Elem).either
+  for (exc &lt;- res.left)
+    yield &quot;Can't connect to weather service: \n&quot; +
+      exc.getMessage
+}
+</code></pre><p>In this updated <code>weatherXml</code> method, we get a future of either as
+<code>res</code>. Then, we act on a left projection of that future to transform
+any exception into a string error message.
+</p><h3 id="Handling+missing+input">Handling missing input<a href="#Handling+missing+input" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Next, we’ll issue a useful error message if we fail to find the
+expected temperature element.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem):
+  Either[String,Float] = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption.toRight {
+    &quot;Temperature missing in service response&quot;
+  }
+}
+</code></pre><p>This uses the handy <code>Option#toRight</code> method which bridges the gap
+between options and eithers.
+</p><h3 id="Composing+with+either">Composing with either<a href="#Composing+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Finally, we can write a smarter <code>temperature</code> method that composes the
+smarter low-level methods.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlEither &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlEither.right
+      t &lt;- extractTemp(xml).right
+    } yield t
+</code></pre><p>This is fairly similar to the version created with option. You’ll
+recall that we can’t haphazardly mix futures with other types in for
+expressions, because a future <em>is not</em> an Iterable or an
+either. However, if you want to be a little bit fancy you can condense
+these operations by making everything a future.
+</p><h3 id="Composing+futures+of+either">Composing futures of either<a href="#Composing+futures+of+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>When everything is a future of either, you can compose with a single
+for expression. We can’t make futures into their contained type
+without blocking, but we can go the other way: anything can be made
+into a future of itself with <code>Future#apply</code>.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location):
+Future[Either[String,Float]] = {
+  for {
+    xml &lt;- weatherXml(loc).right
+    t &lt;- Future.successful(extractTemp(xml)).right
+  } yield t
+}
+</code></pre><p>Composing with a single for-expression is <em>awesome</em>, but don’t get too
+stuck on the idea. Sometimes it’s just not possible or worth the
+trouble. But in this case, it provides the nicest error handling yet.
+</p><h3 id="Testing+the+error+handling">Testing the error handling<a href="#Testing+the+error+handling" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can try out the new method to see how it behaves with valid and
+invalid input.
+</p><pre><code>scala&gt; temperature(Location(&quot;New York&quot;,&quot;NY&quot;))()
+res8: Either[String,Float] = Right(11.9)
+
+scala&gt; temperature(Location(&quot;nowhere&quot;,&quot;NO&quot;))()
+res5: Either[String,Float] =
+  Left(Temperature missing in service response)
+</code></pre><p>For an unknown city name, we got back a response without a usable
+temperature element. Good to know!
+</p><h3 id="Hottness+to+the+max">Hottness to the max<a href="#Hottness+to+the+max" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Now we’ll bring it all together with an error-aware hotness method.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tEither &lt;- temperature(loc))
+        yield (loc, tEither)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = for ((loc, Right(t)) &lt;- ts)
+      yield (t, loc)
+    val max = for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }._2
+    val errors = for ((loc, Left(err)) &lt;- ts)
+      yield (loc, err)
+    (max, errors)
+  }
+}
+</code></pre><p>This method returns a future of a 2-tuple, including an option of the
+max and Iterable of any errors. With this you can know which city was
+the hottest, as well as which inputs failed and why.
+</p><h3 id="Testing+the+hottest">Testing the hottest<a href="#Testing+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To make sure this all works, give it some valid and invalid cities.
+</p><pre><code>scala&gt; hottest(Location(&quot;New York&quot;,&quot;NY&quot;),
+               Location(&quot;Chicago&quot;, &quot;IL&quot;),
+               Location(&quot;nowhere&quot;, &quot;NO&quot;),
+               Location(&quot;Los Angeles&quot;, &quot;CA&quot;))()
+res6: (Option[Location], Seq[(Location, String)]) =
+(Some(Location(Los Angeles,CA)),
+ArrayBuffer((Location(nowhere,NO),
+            Temperature missing in service response)))
+</code></pre><p>In real applications, string is not usually a rich enough error
+type; you may want the app to behave differently for different kinds
+of errors. For that you can bubble up case classes and objects that
+represent the kind of error and retain any useful data.
+</p><h2 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Dispatch requests are defined using the <a href="http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html">RequestBuilder</a> class of
+the underlying library. Everything that can be expressed with
+Dispatch’s builders and “verbs” can be performed directly on that
+lower level interface.
+</p><h3 id="Domains+and+paths">Domains and paths<a href="#Domains+and+paths" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Request definitions are initialized with a URL or domain name.
+</p><h4 id="Free-form+URLs">Free-form URLs<a href="#Free-form+URLs" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>The function <code>url</code> belongs to the <code>dispatch</code> package. It is typically
+imported by wildcard. If it becomes shadowed by a local <code>url</code> value,
+you can always refer to it as <code>dispatch.url</code>.
+</p><pre><code class="prettyprint lang-scala">val myRequest = url(&quot;http://example.com/some/path&quot;)
+</code></pre><p>With this builder it is up to the application to construct valid URLs.
+</p><h4 id="Explicit+host+builder">Explicit host builder<a href="#Explicit+host+builder" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>To dynamically build up requests, Dispatch provides a number of
+builders and verbs (symbolic methods). First, you need a host.
+</p><pre><code class="prettyprint lang-scala">val myHost = host(&quot;example.com&quot;)
+</code></pre><p>A port can be specified as a second parameter.
+</p><pre><code class="prettyprint lang-scala">val myHost = host(&quot;example.com&quot;, 8888)
+</code></pre><p>When no port is specified, the protocol default is used.
+</p><h4 id="Using+HTTPS">Using HTTPS<a href="#Using+HTTPS" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>When using the host builder, the <code>secure</code> method specifies that the
+HTTPS must be used for the request.
+</p><pre><code class="prettyprint lang-scala">val mySecureHost = host(&quot;example.com&quot;).secure
+</code></pre><h4 id="Appending+path+elements">Appending path elements<a href="#Appending+path+elements" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>Path elements may be added to requests with the <code>/</code> method.
+</p><pre><code class="prettyprint lang-scala">val myRequest = myHost / &quot;some&quot; / &quot;path&quot;
+</code></pre><p>Each added element is URL-encoded, so that spaces and non-ASCII
+letters may be added freely. A forward-slash will also be encoded such
+that it does not serve as a path-separator; the <code>/</code> method is for
+appending <em>single</em> path elements.
+</p><h2 id="HTTP+methods+and+parameters">HTTP methods and parameters<a href="#HTTP+methods+and+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Having defined a request endpoint using either <code>url</code>, or <code>host</code> and
+the path-appending verb, you may now wish to change the HTTP method
+from its default of GET.
+</p><h3 id="HTTP+methods">HTTP methods<a href="#HTTP+methods" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Methods may be specified with correspondingly named request-building
+methods.
+</p><pre><code class="prettyprint lang-scala">def myPost = myRequest.POST
+</code></pre><p>Other HTTP methods can be specified in the same way.
+</p><pre><code class="prettyprint lang-scala">HEAD
+GET
+POST
+PUT
+DELETE
+PATCH
+TRACE
+OPTIONS
+</code></pre><h3 id="POST+parameters">POST parameters<a href="#POST+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To add form-encoded parameters to the request body, you can use
+<code>RequestBuilder#addParameter</code> method.
+</p><pre><code class="prettyprint lang-scala">def myPostWithParams = myPost.addParameter(&quot;key&quot;, &quot;value&quot;)
+</code></pre><h3 id="POST+verb">POST verb<a href="#POST+verb" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>The <code>&lt;&lt;</code> verb sets the request method to POST and adds form-encoded
+parameters to the body at once:
+</p><pre><code class="prettyprint lang-scala">def myPostWithParams = myRequest &lt;&lt; Map(&quot;key&quot; -&gt; &quot;value&quot;)
+</code></pre><p>You can also POST an arbitrary string. Be sure to set MIME media type
+and character encoding:
+</p><pre><code class="prettyprint lang-scala">def myRequestAsJson = myRequest.setContentType(&quot;application/json&quot;, &quot;UTF-8&quot;)
+def myPostWithBody = myRequestAsJson &lt;&lt; &quot;&quot;&quot;{&quot;key&quot;: &quot;value&quot;}&quot;&quot;&quot;
+</code></pre><h3 id="Query+parameters">Query parameters<a href="#Query+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Query parameters can be appended to request paths regardless of the
+method. These should be added after all path elements.
+</p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest.addQueryParameter(&quot;key&quot;, &quot;value&quot;)
+</code></pre><p>You can also add query parameters with the <code>&lt;&lt;?</code> verb.
+</p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest &lt;&lt;? Map(&quot;key&quot; -&gt; &quot;value&quot;)
+</code></pre><h3 id="PUT+a+file">PUT a file<a href="#PUT+a+file" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Similar to the POST verb, Dispatch supplies a <code>&lt;&lt;&lt;</code> verb to apply the
+PUT method and set a <code>java.io.File</code> as the request body.
+</p><pre><code class="prettyprint lang-scala">def myPut = myRequest &lt;&lt;&lt; myFile
+</code></pre><p>If you wish to supply a string instead of a file, use a <code>setBody</code>
+method of the <a href="http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html">RequestBuilder</a> class. Its variants support a
+number of input types and do not imply a particular HTTP method.
+</p><h2 id="Unraveling+for-expressions">Unraveling for-expressions<a href="#Unraveling+for-expressions" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>So far, this documentation has relied exclusively on for-expressions
+for transforming futures, composing futures, and deferring side
+effects. These provide a compact syntax that smooths the rough edges
+of dense, nested function literals. Dispatch is mostly coded, tested,
+and documented with for-expressions to ensure that everything can be
+expressed neatly.
+</p><p>On the flip side, for-expressions <strong>can seem like black magic</strong>. They’re
+extremely powerful and incorporate features of the Scala language and
+standard library. What’s <em>really happening</em> won’t be at all apparent
+to beginners.  If it compiles it tends to work, but when it doesn’t
+compile the type errors can be a great mystery.
+</p><h3 id="Read+about+for-expressions">Read about for-expressions<a href="#Read+about+for-expressions" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>It’s never too early or too late to learn more about
+for-expressions. Chapter 10 of <a href="http://www.scala-lang.org/sites/default/files/linuxsoft_archives/docu/files/ScalaByExample.pdf">Scala by Example</a> provides an
+explanation that is both gentle and comprehensive. You can’t read it
+enough.
+</p><h4 id="What+are+for-comprehensions%3F">What are for-comprehensions?<a href="#What+are+for-comprehensions%3F" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>For-expressions and for-comprehensions are the same thing. The
+preferred term these days is for-comprehensions.
+</p><h3 id="Break+apart+complex+problems">Break apart complex problems<a href="#Break+apart+complex+problems" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>For non-trivial future operations, especially when trying to mix with
+Iterables, it may be easier to start with the lower level map,
+flatMap, foreach, and many other methods that for-expressions
+translate into.
+</p><p>Once you get things working with these, you can probably translate it
+into a for-expression. Maybe by rereading Chapter 10 of <em>Scala by
+Example</em>. Or you can leave it using the lower level methods. There are
+no for-expression police to hunt you down.
+</p><h3 id="For-expression+%28in%29completeness">For-expression (in)completeness<a href="#For-expression+%28in%29completeness" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>For-expressions can do so many different things that Dispatch futures
+and projections don’t support them all. If your cool for-expression
+doesn’t work for this reason, feel free to contribute the missing
+methods to Disptach.
+</p><h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
+ a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
+ release version is <a href="https://github.com/dispatch/reboot/releases/tag/v0.13.0"><strong>0.13.0</strong></a>.
+</p><blockquote><p>This documentation walks through basic functionality of the
+library. You may also want to refer to its
+<a href="http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0">scaladocs</a>.
+And for information on Dispatch 0.8.x, see <a href="http://dispatch-classic.databinder.net/">dispatch-classic</a>.
+</p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you have <a href="https://github.com/harrah/xsbt/wiki/">sbt</a> installed, Dispatch is two steps away. Open a
+shell and change to an empty or unimportant directory, then paste:
+</p><pre><code>echo 'libraryDependencies += 
+  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot; % &quot;0.13.0&quot;
+  
+  libraryDependencies += 
+  &quot;ch.qos.logback&quot; % &quot;logback-classic&quot; % &quot;1.1.2&quot;' &gt; build.sbt
+sbt console
+</code></pre><p>After “the internet” has downloaded, you’re good to go.
+</p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val svc = url(&quot;http://api.hostip.info/country.php&quot;)
+val country = Http(svc OK as.String)
+</code></pre><p>The above defines and initiates a request to the given host where 2xx
+responses are handled as a string. Since Dispatch is fully
+asynchronous, <code>country</code> represents a <em>future</em> of the string rather
+than the string itself.
+</p><h3 id="Deferring+action">Deferring action<a href="#Deferring+action" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can act on the response once it’s available with a
+<em>for-expression</em>.
+</p><pre><code class="prettyprint lang-scala">for (c &lt;- country)
+  println(c)
+</code></pre><p>This for-expression applies to any <em>successful</em> response that is
+eventually produced. If no successful response is produced, nothing is
+printed. This is how for-expressions work in general. Consider a more
+familiar example:
+</p><pre><code class="prettyprint lang-scala">val opt: Option[String] = None
+for (o &lt;- opt)
+  println(o)
+</code></pre><p>An <em>option</em> may or may not contain a value, just like a future may or
+may not produce a successful response. But while any given option
+already knows what it is, a future may not. So the future behaves
+asynchronously in for-expressions, to avoid holding up operations
+subsequent that do not depend on its value.
+</p><h3 id="Demanding+answers">Demanding answers<a href="#Demanding+answers" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As with options, you can require that a future value be available at
+any time:
+</p><pre><code class="prettyprint lang-scala">val c = country()
+</code></pre><p>But the wise use of futures defers this operation as long as is
+practical, or doesn’t perform it at all. To see how, keep reading.
+</p><h2 id="Bargaining+with+futures">Bargaining with futures<a href="#Bargaining+with+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Applying a future is like taking a hostage. Your demands might be met
+in time, but until they are you’re sitting around doing nothing other
+than guarding a prisoner.
+</p><p>So we don’t like to take hostages or apply futures, but what good is
+a future if you can’t do anything with its value? Luckily, you can do
+plenty. You just have to be flexible about when things happen.
+</p><h3 id="Transformations">Transformations<a href="#Transformations" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>A future is like an option that doesn’t know what it is yet; that
+doesn’t stop it from transforming into something else. We could
+transform an option of a string into an option of its length. Same
+goes for futures.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val svc = url(&quot;http://api.hostip.info/country.php&quot;)
+val country = Http.default(svc OK as.String)
+val length = for (c &lt;- country) yield c.length
+</code></pre><p>The <code>length</code> value is a future of integer.
+</p><h3 id="Future%23print">Future#print<a href="#Future%23print" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you pasted the above into a console, you probably saw something
+like this in the output:
+</p><pre><code>country: scala.concurrent.Future[String] =
+  scala.concurrent.impl.Promise$DefaultPromise@4929b5a5
+length: scala.concurrent.Future[Int] =
+  scala.concurrent.impl.Promise$DefaultPromise@581fa0fe
+</code></pre><p>Not too helpful right? The <code>print</code> method makes a nicer string:
+</p><pre><code>scala&gt; country.print
+res0: String = Future(US)
+</code></pre><p>If the future value isn’t available, <code>print</code> won’t wait:
+</p><pre><code>scala&gt; Http.default(svc OK as.String).print
+res1: String = Future(-incomplete-)
+</code></pre><blockquote><p><strong>Note:</strong> <code>print</code> and some other <code>Future</code> methods in this documentation
+  are provided implicitly by <code>dispatch.EnrichedFuture</code>
+</p></blockquote><h3 id="Future%23completeOption">Future#completeOption<a href="#Future%23completeOption" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>How does <code>print</code> work on unknown values? It uses an option. You can
+use the same technique to access the integer value, <em>if it’s
+available</em>.
+</p><pre><code class="prettyprint lang-scala">val lengthNow = length.completeOption.getOrElse(-1)
+</code></pre><p>But most of the time, you want to operate on values that are known to
+be available. In the next pages we’ll see how far we can go in this
+direction by transforming futures.
+</p><h2 id="Abstraction+over+future+information">Abstraction over future information<a href="#Abstraction+over+future+information" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Often, you can extend the utility of futures with simple
+abstraction. In this example we’ll leverage a web service to write an
+internal API that will tell us the temperature in a US city.
+</p><h3 id="Palling+around+with+Weather+Underground">Palling around with Weather Underground<a href="#Palling+around+with+Weather+Underground" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In one method we’ll contain the construction of the request. In this
+case it’s an endpoint with all of the parameters in path elements.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+
+case class Location(city: String, state: String)
+
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><blockquote><p><strong>Note:</strong> Yes, that’s an API key. Use it sparingly to learn
+  Dispatch in the Scala console, but
+  <a href="http://www.wunderground.com/weather/api/">get your own key</a> if you
+  are building some kind of actual weather application. We may reset
+  this key at any time.
+</p></blockquote><p>With this method we can bind to a handler that prints out the response
+in the usual way:
+</p><pre><code class="prettyprint lang-scala">val nyc = Location(&quot;New York&quot;, &quot;NY&quot;)
+for (str &lt;- Http(weatherSvc(nyc) OK as.String))
+  println(str)
+</code></pre><p>If you’re pasting along in the Scala console, you’ll see a bunch of
+raw XML.
+</p><h3 id="Parsing+XML">Parsing XML<a href="#Parsing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, dispatch has another built-in handler for services that
+respond in this format.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location) =
+  Http(weatherSvc(loc) OK as.xml.Elem)
+</code></pre><p>This method returns a future <code>scala.xml.Elem</code>. Note that Dispatch
+handlers, like <code>as.String</code> and <code>as.xml.Elem</code>, mimic the name of the
+type they produce. They’re all under the package <code>dispatch.as</code> where
+you can access them without additional imports.
+</p><h3 id="Traversing+XML">Traversing XML<a href="#Traversing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>At this stage we’re working with a higher abstraction. The <code>Http</code>
+instance used to perform the request has become an implementation
+detail that <code>weatherXml</code> callers need not concern themselves with. We
+can use our new method to print a nicely formatted response.
+</p><pre><code class="prettyprint lang-scala">def printer = new scala.xml.PrettyPrinter(90, 2)
+for (xml &lt;- weatherXml(nyc))
+  println(printer.format(xml))
+</code></pre><p>Looking at the structure of the document, we can extract the
+temperature of the location in degrees Celsius by searching for the
+element “temp_c” using the <code>\\</code> method of <code>xml.Elem</code>.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.head
+}
+</code></pre><h3 id="Temperature+of+the+future">Temperature of the future<a href="#Temperature+of+the+future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>With this we can create another high-level access method:
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xml &lt;- weatherXml(loc))
+    yield extractTemp(xml)
+</code></pre><p>And now we have at hand the future temperature of any location
+understood by the service:
+</p><pre><code class="prettyprint lang-scala">val la = Location(&quot;Los Angeles&quot;, &quot;CA&quot;)
+for (t &lt;- temperature(la)) println(t)
+</code></pre><p>The information gathering is now fully abstracted without blocking,
+but what happens if we want to compare several temperatures?
+</p><h2 id="Working+with+multiple+futures">Working with multiple futures<a href="#Working+with+multiple+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>If we want to compare the future temperature in New York to Madrid,
+we might apply both futures to compare the eventual values. We
+certainly can’t make a good comparison if only one or zero of the
+values are available right now.
+</p><p>But if taking one hostage is bad, taking <em>n</em> hostages is worse. Higher
+demands take longer to be met and the cost of monitoring each
+prisoner, or applied future, increases.
+</p><h3 id="Independent+futures">Independent futures<a href="#Independent+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, we don’t have to apply futures to work with their values. We
+can stage operations to occur as soon as those values are
+available—even with more than one future.
+</p><p>First, we’ll assign some future temperatures using the methods
+defined on the last page.
+</p><pre><code class="prettyprint lang-scala">val nycTemp = temperature(nyc)
+val laTemp = temperature(la)
+</code></pre><p>Dispatch is already working to fulfill both futures. But assuming as
+we must that their values are not available, we can still lay out work
+for them to do:
+</p><pre><code class="prettyprint lang-scala">for {
+  n &lt;- nycTemp
+  m &lt;- laTemp
+} {
+  if (n &gt; m) println(&quot;It's hotter in New York&quot;)
+  else  println(&quot;It's at least as hot in L.A.&quot;)
+}
+</code></pre><p>Like all for-expressions used with futures, this one doesn’t block on
+I/O at any point. We’re effectively chaining callbacks for the time
+when both futures say they are available.
+</p><h3 id="Yielding+combined+results">Yielding combined results<a href="#Yielding+combined+results" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But this isn’t a very flexible procedure. Let’s generalize it by
+yielding a future value.
+</p><pre><code class="prettyprint lang-scala">def tempCompare(locA: Location, locB: Location) = {
+  val pa = temperature(locA)
+  val pb = temperature(locB)
+  for {
+    a &lt;- pa
+    b &lt;- pb
+  } yield a.compare(b)
+}
+</code></pre><p>Now we have a method for the future of an integer indicating the
+relative temperatures of places <em>a</em> and <em>b</em>.
+</p><h3 id="Dependent+futures+and+concurrency">Dependent futures and concurrency<a href="#Dependent+futures+and+concurrency" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You might be tempted to refactor the comparison method into a shorter
+expression.
+</p><pre><code class="prettyprint lang-scala">def sequentialTempCompare(locA: Location, locB: Location) =
+  for {
+    a &lt;- temperature(locA)
+    b &lt;- temperature(locB)
+  } yield a.compare(b)
+</code></pre><p>It’s still non-blocking, but it <em>doesn’t perform the two requests in
+parallel</em>. To understand why, think about the bindings of the values
+<em>a</em> and <em>b</em>. They both represent future values.
+</p><p>Although the above expression <code>temperature(locB)</code> doesn’t reference
+the value of <em>a</em>, <strong>it could</strong>. Since <em>a</em> is known we must be in the
+future: we must be in deferred code.
+</p><p>And that’s exactly the case. Each clause of the for-expression on a
+future represents a future callback. This is necessary for cases
+where one future value depends on another. Independent futures
+should be assigned outside for-expressions to maximize concurrency.
+</p><h2 id="Arbitrarily+many+futures">Arbitrarily many futures<a href="#Arbitrarily+many+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>The last page dealt with fixed numbers of futures. In the real world,
+we often have to work with unknown quantities.
+</p><h3 id="Iterables+of+futures">Iterables of futures<a href="#Iterables+of+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Once again using the <code>temperature</code> method defined before, we’ll create
+a higher-level method to work with its future values. First, we can
+work with Scala collections in familiar ways.
+</p><pre><code class="prettyprint lang-scala">val locs = List(Location(&quot;New York&quot;, &quot;NY&quot;),
+                Location(&quot;Los Angeles&quot;, &quot;CA&quot;),
+                Location(&quot;Chicago&quot;, &quot;IL&quot;))
+val temps =
+  for(loc &lt;- locs)
+    yield for (t &lt;- temperature(loc))
+      yield (t -&gt; loc)
+</code></pre><p>Now we have a list of future city names and temperatures:
+<code>List[Future[(Float, Location)]]</code>. But if we want to compare them
+together, again without blocking, we want a combined future of all
+temps.
+</p><h3 id="Future.sequence">Future.sequence<a href="#Future.sequence" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">val hottest =
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }
+hottest()
+</code></pre><p>The value <code>ts</code> is a future of <code>List[(Float, Location)]</code>; it is not
+available until all the component futures have completed. In the body
+of the for expression we’re using <code>maxBy</code> to find the highest
+temperature, the first element of the tuple.
+</p><h3 id="A+future+of+the+hottest">A future of the hottest<a href="#A+future+of+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can generalize this now into a single method which futures to
+return the name of the hottest city that you give it.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (t &lt;- temperature(loc))
+       yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }._2
+}
+</code></pre><p>When everything goes as expected, that future is fulfilled. The next
+section is for when things don’t go as expected.
+</p><h2 id="A+future+of+success+and+failure">A future of success and failure<a href="#A+future+of+success+and+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>So far we’ve made a lot of futures depending on network operations
+that might fail, and remote services that may not care for our
+input. If things don’t go as planned, the futures will fail.
+</p><h3 id="Failed+futures">Failed futures<a href="#Failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Failed futures are messy. You may have already seen the mess created
+in playing around with the previous examples. Here we’ll make a big
+mess to see what happens, and how bad it can get.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http(host(&quot;example.com&quot;) OK as.String)
+</code></pre><p>So far, so good? We’ve made a request that will fail the <em>OK</em> test
+with a redirect status code, but this failure hasn’t happened yet
+from the software’s perspective.
+</p><h3 id="Future%23print+for+failed+futures">Future#print for failed futures<a href="#Future%23print+for+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If we have the console print its string representation a moment later,
+we’ll see the problem:
+</p><pre><code>scala&gt; str.print
+res0: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Applying+failed+futures">Applying failed futures<a href="#Applying+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But we’re still holding have a future of string. What happens if we
+demand the string?
+</p><pre><code>scala&gt; str()
+dispatch.StatusCode: Unexpected response status: 302
+    at dispatch.OkHandler$class.onStatusReceived(handlers.scala:37)
+    at dispatch.OkFunctionHandler.onStatusReceived(handlers.scala:29)
+    ...
+</code></pre><p>The exception was thrown in the thread that demanded the value, since
+there is no way to supply it.
+</p><h3 id="Transforming+broken+futures">Transforming broken futures<a href="#Transforming+broken+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Broken futures carry their exceptions through transformations:
+</p><pre><code>val length = for (s &lt;- str) yield s.length
+length.print
+</code></pre><p>Printing yields the same result as before.
+</p><pre><code>res54: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Deferred+failed+futures">Deferred failed futures<a href="#Deferred+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And if you ask for operations on the completed future, nothing
+happens.
+</p><pre><code>scala&gt; for (s &lt;- str) println(s)
+</code></pre><p>How can we safely build on futures that depend on uncertain network
+operations?
+</p><h3 id="Planning+for+failure">Planning for failure<a href="#Planning+for+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>The solution is to avoid breaking futures and throwing exceptions by
+planning for failure. In the next pages we’ll see very simple and very
+rich ways of doing that.
+</p><h2 id="Success+as+the+only+option">Success as the only option<a href="#Success+as+the+only+option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Earlier we compared futures to options. The network operation at the
+center of things may or may not have completed: that’s the temporal
+uncertainty and it can be thought of an option, and even transformed
+into one with the <code>completeOption</code> method.
+</p><p>Beyond that we don’t know if a completed future will produce an error
+or a useful response. We can also think of that uncertainty, and model
+it in code, as an option. By transferring the uncertainty from the
+future to a contained option, we make a future that will never fail.
+</p><h3 id="Future%23option">Future#option<a href="#Future%23option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http(host(&quot;example.com&quot;) OK as.String).option
+</code></pre><p>The type assigned is <code>str: Future[Option[String]]</code>. When the future
+completes, its value will be a future of <code>None</code> since the request
+will fail. The failure exception is captured and discarded by the
+underlying code.
+</p><p>With this we can write higher level interfaces that encompass the
+possibility of failure.
+</p><h3 id="Optional+weather">Optional weather<a href="#Optional+weather" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s make the weather interface from the previous section a little
+more resilient.
+</p><pre><code class="prettyprint lang-scala">case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+def weatherXml(loc: Location) =
+  Http(weatherSvc(loc) OK as.xml.Elem).option
+</code></pre><p>Now any connection, status, or parsing error will produce a <code>None</code>.
+</p><h3 id="Optional+temperature">Optional temperature<a href="#Optional+temperature" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll make a slight change to the extraction method.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption
+}
+</code></pre><p>Instead of calling <code>head</code> which throws an exception if there are no
+matching elements, we call <code>headOption</code>. This meshes with a revised
+temperature method.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlOpt &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlOpt
+      t &lt;- extractTemp(xml)
+    } yield t
+</code></pre><p>This returns the future of some temperature value, or <code>None</code> if an
+error occurs at any point.
+</p><h3 id="Optional+hotness">Optional hotness<a href="#Optional+hotness" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And with that, we can rewrite <code>hottest</code> to provide the highest
+successful result, or <code>None</code>.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tOpt &lt;- temperature(loc))
+        yield for (t &lt;- tOpt)
+          yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = ts.flatten
+    for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }
+  }
+}
+</code></pre><p>If the nested for-expressions throw you for a loop, keep in mind that
+futures are not themselves Iterable. You’re dealing with unrelated
+types, even if they share some philosophical opinions. They can’t be
+haphazardly mixed in the same for-expression.
+</p><p>But as the <em>for</em>s unroll we end up with a future of some city name,
+or <code>None</code>—exactly what we want. Give it a try with some real and fake
+city names.
+</p><h3 id="Unknown+error">Unknown error<a href="#Unknown+error" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>This version of temperature ranking is much more resilient than the
+last, but it still leaves something to be desired. We don’t know from
+the result value which cities, if any, were excluded from
+consideration, and we don’t know why.
+</p><p>In the next section we’ll explore <code>Either</code>, a favorite type of those
+who plan for both failure and success.
+</p><h2 id="Either+type+will+do">Either type will do<a href="#Either+type+will+do" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p><code>Either</code> is a container of fixed size like <code>Option</code>, but which always
+contains a value of one of two types. As an abstract type either
+refers to its two possible typed values as “left” and “right”.
+</p><h3 id="Either+an+error+or+success">Either an error or success<a href="#Either+an+error+or+success" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In the particular and common case of error handling, the either’s
+<em>left</em> should always be used for failure information. This can be
+anything from an error message to an application-specific error
+object. It’s the either’s type <em>A</em>.
+</p><p>The either’s <em>right</em> value of type <em>B</em> is for its content on
+success. Thus, any given either used for error handling should tell
+you the desired result, or the reason it has failed.
+</p><h3 id="Average+or+failure">Average or failure<a href="#Average+or+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As a trivial example, let’s implement a method to return the average
+of some integers.
+</p><pre><code class="prettyprint lang-scala">def average(nums: Traversable[Int]) = {
+  if (nums.isEmpty) Left(&quot;Can't average emptiness&quot;)
+  else Right(nums.sum / nums.size)
+}
+</code></pre><p>This method produces an error message when given an empty collection
+of integers to average, otherwise the average integer.
+</p><h3 id="Top+of+the+class">Top of the class<a href="#Top+of+the+class" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can use this failure-aware average method as part of a larger
+calculation.
+</p><pre><code class="prettyprint lang-scala">val johnny = List(85, 60, 90)
+val sarah  = List(88, 65, 85)
+val billy  = List.empty[Int]
+
+for {
+  j &lt;- average(johnny).right
+  s &lt;- average(sarah).right
+  b &lt;- average(billy).right
+} yield List(j, s, b).max
+</code></pre><p>The for-expression above requires successful averages (a <em>right</em>
+projection on each either) in order to yield a right result. Since
+Billy’s average results in a <em>left</em>, the entire expression evaluates
+to that error.
+</p><pre><code>res0: Either[java.lang.String,Int] = Left(Can't average emptiness)
+</code></pre><h3 id="Why+not+eject%3F">Why not eject?<a href="#Why+not+eject%3F" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Of course, exceptions have the same ability demonstrated here: you can
+embed information in them and act on it when they’re
+caught. Exceptions are easy to handle when you have a straightforward
+thread of computation. In asynchronous programming, you don’t.
+</p><p>Think of exceptions as an ejection seat. They allow you to escape from
+failure without planning ahead. On the downside, somebody’s got to
+perform the rescue operation to get you home, which could range in
+difficulty from easy to impossible. With asynchronous callbacks it’s
+as if you’re flying over enemy territory, or into orbit. The cost and
+complexity of recovering an ejected body becomes prohibitive.
+</p><p>But the use of <em>either</em> for error handling is like having a plan to
+fly home no matter what goes wrong. You may not be carrying a
+successful payload but at least you’ll return safely with information.
+</p><h3 id="Understanding+either">Understanding either<a href="#Understanding+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you don’t understand <code>Either</code>, seek out some more explanations and
+examples before continuing. Dispatch’s richest forms of error handling
+use this type directly and imitate it in important ways.
+</p><h2 id="Either+Future">Either Future<a href="#Either+Future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Now that you understand <em>either</em>, you can use it within a Dispatch
+future to fully control and represent error conditions.
+</p><h3 id="Future%23either">Future#either<a href="#Future%23either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Much like <code>Future#option</code>, the either method returns a future that
+catches any exception that occurs in performing the request and
+handling its response. But unlike option, either holds on to its
+captured exception.
+</p><h3 id="Weather+with+either">Weather with either<a href="#Weather+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s take up our weather service one more time and write an app that
+can not only fail gracefully but tell you what went wrong. First we
+define the service endpoint, as before.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><h3 id="Projections+on+futures">Projections on futures<a href="#Projections+on+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>A future of either doesn’t know whether it’s a <em>left</em> or <em>right</em>
+until it is completed, so it can’t have methods like <code>isLeft</code> and
+<code>isRight</code>.
+</p><p>What you can do is project against eventual leftness and rightness.
+All futures of either have methods <code>left</code> and <code>right</code> which act much
+the same as those methods on either itself. They return a projection
+which you then use to transform one side of the either.
+</p><p>The example below uses a left projection. Bulky type annotations are
+included in this text for clarity.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location):
+  Future[Either[String, xml.Elem]] = {
+  val res: Future[Either[Throwable, xml.Elem]] =
+    Http(weatherSvc(loc) OK as.xml.Elem).either
+  for (exc &lt;- res.left)
+    yield &quot;Can't connect to weather service: \n&quot; +
+      exc.getMessage
+}
+</code></pre><p>In this updated <code>weatherXml</code> method, we get a future of either as
+<code>res</code>. Then, we act on a left projection of that future to transform
+any exception into a string error message.
+</p><h3 id="Handling+missing+input">Handling missing input<a href="#Handling+missing+input" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Next, we’ll issue a useful error message if we fail to find the
+expected temperature element.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem):
+  Either[String,Float] = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption.toRight {
+    &quot;Temperature missing in service response&quot;
+  }
+}
+</code></pre><p>This uses the handy <code>Option#toRight</code> method which bridges the gap
+between options and eithers.
+</p><h3 id="Composing+with+either">Composing with either<a href="#Composing+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Finally, we can write a smarter <code>temperature</code> method that composes the
+smarter low-level methods.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlEither &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlEither.right
+      t &lt;- extractTemp(xml).right
+    } yield t
+</code></pre><p>This is fairly similar to the version created with option. You’ll
+recall that we can’t haphazardly mix futures with other types in for
+expressions, because a future <em>is not</em> an Iterable or an
+either. However, if you want to be a little bit fancy you can condense
+these operations by making everything a future.
+</p><h3 id="Composing+futures+of+either">Composing futures of either<a href="#Composing+futures+of+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>When everything is a future of either, you can compose with a single
+for expression. We can’t make futures into their contained type
+without blocking, but we can go the other way: anything can be made
+into a future of itself with <code>Future#apply</code>.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location):
+Future[Either[String,Float]] = {
+  for {
+    xml &lt;- weatherXml(loc).right
+    t &lt;- Future.successful(extractTemp(xml)).right
+  } yield t
+}
+</code></pre><p>Composing with a single for-expression is <em>awesome</em>, but don’t get too
+stuck on the idea. Sometimes it’s just not possible or worth the
+trouble. But in this case, it provides the nicest error handling yet.
+</p><h3 id="Testing+the+error+handling">Testing the error handling<a href="#Testing+the+error+handling" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can try out the new method to see how it behaves with valid and
+invalid input.
+</p><pre><code>scala&gt; temperature(Location(&quot;New York&quot;,&quot;NY&quot;))()
+res8: Either[String,Float] = Right(11.9)
+
+scala&gt; temperature(Location(&quot;nowhere&quot;,&quot;NO&quot;))()
+res5: Either[String,Float] =
+  Left(Temperature missing in service response)
+</code></pre><p>For an unknown city name, we got back a response without a usable
+temperature element. Good to know!
+</p><h3 id="Hottness+to+the+max">Hottness to the max<a href="#Hottness+to+the+max" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Now we’ll bring it all together with an error-aware hotness method.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tEither &lt;- temperature(loc))
+        yield (loc, tEither)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = for ((loc, Right(t)) &lt;- ts)
+      yield (t, loc)
+    val max = for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }._2
+    val errors = for ((loc, Left(err)) &lt;- ts)
+      yield (loc, err)
+    (max, errors)
+  }
+}
+</code></pre><p>This method returns a future of a 2-tuple, including an option of the
+max and Iterable of any errors. With this you can know which city was
+the hottest, as well as which inputs failed and why.
+</p><h3 id="Testing+the+hottest">Testing the hottest<a href="#Testing+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To make sure this all works, give it some valid and invalid cities.
+</p><pre><code>scala&gt; hottest(Location(&quot;New York&quot;,&quot;NY&quot;),
+               Location(&quot;Chicago&quot;, &quot;IL&quot;),
+               Location(&quot;nowhere&quot;, &quot;NO&quot;),
+               Location(&quot;Los Angeles&quot;, &quot;CA&quot;))()
+res6: (Option[Location], Seq[(Location, String)]) = 
+(Some(Location(Los Angeles,CA)),
+ArrayBuffer((Location(nowhere,NO),
+            Temperature missing in service response)))
+</code></pre><p>In real applications, string is not usually a rich enough error
+type; you may want the app to behave differently for different kinds
+of errors. For that you can bubble up case classes and objects that
+represent the kind of error and retain any useful data.
+</p><h2 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Dispatch requests are defined using the <a href="http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html">RequestBuilder</a> class of
+the underlying library. Everything that can be expressed with
+Dispatch’s builders and “verbs” can be performed directly on that
+lower level interface.
+</p><h3 id="Domains+and+paths">Domains and paths<a href="#Domains+and+paths" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Request definitions are initialized with a URL or domain name.
+</p><h4 id="Free-form+URLs">Free-form URLs<a href="#Free-form+URLs" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>The function <code>url</code> belongs to the <code>dispatch</code> package. It is typically
+imported by wildcard. If it becomes shadowed by a local <code>url</code> value,
+you can always refer to it as <code>dispatch.url</code>.
+</p><pre><code class="prettyprint lang-scala">val myRequest = url(&quot;http://example.com/some/path&quot;)
+</code></pre><p>With this builder it is up to the application to construct valid URLs.
+</p><h4 id="Explicit+host+builder">Explicit host builder<a href="#Explicit+host+builder" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>To dynamically build up requests, Dispatch provides a number of
+builders and verbs (symbolic methods). First, you need a host.
+</p><pre><code class="prettyprint lang-scala">val myHost = host(&quot;example.com&quot;)
+</code></pre><p>A port can be specified as a second parameter.
+</p><pre><code class="prettyprint lang-scala">val myHost = host(&quot;example.com&quot;, 8888)
+</code></pre><p>When no port is specified, the protocol default is used.
+</p><h4 id="Using+HTTPS">Using HTTPS<a href="#Using+HTTPS" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>When using the host builder, the <code>secure</code> method specifies that the
+HTTPS must be used for the request.
+</p><pre><code class="prettyprint lang-scala">val mySecureHost = host(&quot;example.com&quot;).secure
+</code></pre><h4 id="Appending+path+elements">Appending path elements<a href="#Appending+path+elements" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>Path elements may be added to requests with the <code>/</code> method.
+</p><pre><code class="prettyprint lang-scala">val myRequest = myHost / &quot;some&quot; / &quot;path&quot;
+</code></pre><p>Each added element is URL-encoded, so that spaces and non-ASCII
+letters may be added freely. A forward-slash will also be encoded such
+that it does not serve as a path-separator; the <code>/</code> method is for
+appending <em>single</em> path elements.
+</p><h2 id="HTTP+methods+and+parameters">HTTP methods and parameters<a href="#HTTP+methods+and+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Having defined a request endpoint using either <code>url</code>, or <code>host</code> and
+the path-appending verb, you may now wish to change the HTTP method
+from its default of GET.
+</p><h3 id="HTTP+methods">HTTP methods<a href="#HTTP+methods" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Methods may be specified with correspondingly named request-building
+methods.
+</p><pre><code class="prettyprint lang-scala">def myPost = myRequest.POST
+</code></pre><p>Other HTTP methods can be specified in the same way.
+</p><pre><code class="prettyprint lang-scala">HEAD
+GET
+POST
+PUT
+DELETE
+PATCH
+TRACE
+OPTIONS
+</code></pre><h3 id="POST+parameters">POST parameters<a href="#POST+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To add form-encoded parameters to the request body, you can use
+<code>RequestBuilder#addParameter</code> method.
+</p><pre><code class="prettyprint lang-scala">def myPostWithParams = myPost.addParameter(&quot;key&quot;, &quot;value&quot;)
+</code></pre><h3 id="POST+verb">POST verb<a href="#POST+verb" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>The <code>&lt;&lt;</code> verb sets the request method to POST and adds form-encoded
+parameters to the body at once:
+</p><pre><code class="prettyprint lang-scala">def myPostWithParams = myRequest &lt;&lt; Map(&quot;key&quot; -&gt; &quot;value&quot;)
+</code></pre><p>You can also POST an arbitrary string. Be sure to set MIME media type
+and character encoding:
+</p><pre><code class="prettyprint lang-scala">def myRequestAsJson = myRequest.setContentType(&quot;application/json&quot;, &quot;UTF-8&quot;)
+def myPostWithBody = myRequestAsJson &lt;&lt; &quot;&quot;&quot;{&quot;key&quot;: &quot;value&quot;}&quot;&quot;&quot;
+</code></pre><h3 id="Query+parameters">Query parameters<a href="#Query+parameters" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Query parameters can be appended to request paths regardless of the
+method. These should be added after all path elements.
+</p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest.addQueryParameter(&quot;key&quot;, &quot;value&quot;)
+</code></pre><p>You can also add query parameters with the <code>&lt;&lt;?</code> verb.
+</p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest &lt;&lt;? Map(&quot;key&quot; -&gt; &quot;value&quot;)
+</code></pre><h3 id="PUT+a+file">PUT a file<a href="#PUT+a+file" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Similar to the POST verb, Dispatch supplies a <code>&lt;&lt;&lt;</code> verb to apply the
+PUT method and set a <code>java.io.File</code> as the request body.
+</p><pre><code class="prettyprint lang-scala">def myPut = myRequest &lt;&lt;&lt; myFile
+</code></pre><p>If you wish to supply a string instead of a file, use a <code>setBody</code>
+method of the <a href="http://asynchttpclient.github.com/async-http-client/apidocs/com/ning/http/client/RequestBuilder.html">RequestBuilder</a> class. Its variants support a
+number of input types and do not imply a particular HTTP method.
+</p><h2 id="Unraveling+for-expressions">Unraveling for-expressions<a href="#Unraveling+for-expressions" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>So far, this documentation has relied exclusively on for-expressions
+for transforming futures, composing futures, and deferring side
+effects. These provide a compact syntax that smooths the rough edges
+of dense, nested function literals. Dispatch is mostly coded, tested,
+and documented with for-expressions to ensure that everything can be
+expressed neatly.
+</p><p>On the flip side, for-expressions <strong>can seem like black magic</strong>. They’re
+extremely powerful and incorporate features of the Scala language and
+standard library. What’s <em>really happening</em> won’t be at all apparent
+to beginners.  If it compiles it tends to work, but when it doesn’t
+compile the type errors can be a great mystery.
+</p><h3 id="Read+about+for-expressions">Read about for-expressions<a href="#Read+about+for-expressions" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>It’s never too early or too late to learn more about
+for-expressions. Chapter 10 of <a href="http://www.scala-lang.org/sites/default/files/linuxsoft_archives/docu/files/ScalaByExample.pdf">Scala by Example</a> provides an
+explanation that is both gentle and comprehensive. You can’t read it
+enough.
+</p><h4 id="What+are+for-comprehensions%3F">What are for-comprehensions?<a href="#What+are+for-comprehensions%3F" class="header-link"><span class="header-link-content">&nbsp;</span></a></h4><p>For-expressions and for-comprehensions are the same thing. The
+preferred term these days is for-comprehensions.
+</p><h3 id="Break+apart+complex+problems">Break apart complex problems<a href="#Break+apart+complex+problems" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>For non-trivial future operations, especially when trying to mix with
+Iterables, it may be easier to start with the lower level map,
+flatMap, foreach, and many other methods that for-expressions
+translate into.
+</p><p>Once you get things working with these, you can probably translate it
+into a for-expression. Maybe by rereading Chapter 10 of <em>Scala by
+Example</em>. Or you can leave it using the lower level methods. There are
+no for-expression police to hunt you down.
+</p><h3 id="For-expression+%28in%29completeness">For-expression (in)completeness<a href="#For-expression+%28in%29completeness" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>For-expressions can do so many different things that Dispatch futures
+and projections don’t support them all. If your cool for-expression
+doesn’t work for this reason, feel free to contribute the missing
+methods to Disptach.
+</p>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Combined Pages
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

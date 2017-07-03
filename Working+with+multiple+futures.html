@@ -1,0 +1,130 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Working with multiple futures</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Abstraction+over+future+information.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Arbitrarily+many+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Working+with+multiple+futures">Working with multiple futures<a href="#Working+with+multiple+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>If we want to compare the future temperature in New York to Madrid,
+we might apply both futures to compare the eventual values. We
+certainly can’t make a good comparison if only one or zero of the
+values are available right now.
+</p><p>But if taking one hostage is bad, taking <em>n</em> hostages is worse. Higher
+demands take longer to be met and the cost of monitoring each
+prisoner, or applied future, increases.
+</p><h3 id="Independent+futures">Independent futures<a href="#Independent+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, we don’t have to apply futures to work with their values. We
+can stage operations to occur as soon as those values are
+available—even with more than one future.
+</p><p>First, we’ll assign some future temperatures using the methods
+defined on the last page.
+</p><pre><code class="prettyprint lang-scala">val nycTemp = temperature(nyc)
+val laTemp = temperature(la)
+</code></pre><p>Dispatch is already working to fulfill both futures. But assuming as
+we must that their values are not available, we can still lay out work
+for them to do:
+</p><pre><code class="prettyprint lang-scala">for {
+  n &lt;- nycTemp
+  m &lt;- laTemp
+} {
+  if (n &gt; m) println(&quot;It's hotter in New York&quot;)
+  else  println(&quot;It's at least as hot in L.A.&quot;)
+}
+</code></pre><p>Like all for-expressions used with futures, this one doesn’t block on
+I/O at any point. We’re effectively chaining callbacks for the time
+when both futures say they are available.
+</p><h3 id="Yielding+combined+results">Yielding combined results<a href="#Yielding+combined+results" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But this isn’t a very flexible procedure. Let’s generalize it by
+yielding a future value.
+</p><pre><code class="prettyprint lang-scala">def tempCompare(locA: Location, locB: Location) = {
+  val pa = temperature(locA)
+  val pb = temperature(locB)
+  for {
+    a &lt;- pa
+    b &lt;- pb
+  } yield a.compare(b)
+}
+</code></pre><p>Now we have a method for the future of an integer indicating the
+relative temperatures of places <em>a</em> and <em>b</em>.
+</p><h3 id="Dependent+futures+and+concurrency">Dependent futures and concurrency<a href="#Dependent+futures+and+concurrency" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You might be tempted to refactor the comparison method into a shorter
+expression.
+</p><pre><code class="prettyprint lang-scala">def sequentialTempCompare(locA: Location, locB: Location) =
+  for {
+    a &lt;- temperature(locA)
+    b &lt;- temperature(locB)
+  } yield a.compare(b)
+</code></pre><p>It’s still non-blocking, but it <em>doesn’t perform the two requests in
+parallel</em>. To understand why, think about the bindings of the values
+<em>a</em> and <em>b</em>. They both represent future values.
+</p><p>Although the above expression <code>temperature(locB)</code> doesn’t reference
+the value of <em>a</em>, <strong>it could</strong>. Since <em>a</em> is known we must be in the
+future: we must be in deferred code.
+</p><p>And that’s exactly the case. Each clause of the for-expression on a
+future represents a future callback. This is necessary for cases
+where one future value depends on another. Independent futures
+should be assigned outside for-expressions to maximize concurrency.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Arbitrarily+many+futures.html"> Arbitrarily many futures </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div class="current">Working with multiple futures</div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Working with multiple futures
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

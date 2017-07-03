@@ -1,0 +1,110 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html manifest="pamflet.manifest">
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Arbitrarily many futures</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Working+with+multiple+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="A+future+of+success+and+failure.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Arbitrarily+many+futures">Arbitrarily many futures<a href="#Arbitrarily+many+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>The last page dealt with fixed numbers of futures. In the real world,
+we often have to work with unknown quantities.
+</p><h3 id="Iterables+of+futures">Iterables of futures<a href="#Iterables+of+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Once again using the <code>temperature</code> method defined before, we’ll create
+a higher-level method to work with its future values. First, we can
+work with Scala collections in familiar ways.
+</p><pre><code class="prettyprint lang-scala">val locs = List(Location(&quot;New York&quot;, &quot;NY&quot;),
+                Location(&quot;Los Angeles&quot;, &quot;CA&quot;),
+                Location(&quot;Chicago&quot;, &quot;IL&quot;))
+val temps =
+  for(loc &lt;- locs)
+    yield for (t &lt;- temperature(loc))
+      yield (t -&gt; loc)
+</code></pre><p>Now we have a list of future city names and temperatures:
+<code>List[Future[(Float, Location)]]</code>. But if we want to compare them
+together, again without blocking, we want a combined future of all
+temps.
+</p><h3 id="Future.sequence">Future.sequence<a href="#Future.sequence" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">val hottest =
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }
+hottest()
+</code></pre><p>The value <code>ts</code> is a future of <code>List[(Float, Location)]</code>; it is not
+available until all the component futures have completed. In the body
+of the for expression we’re using <code>maxBy</code> to find the highest
+temperature, the first element of the tuple.
+</p><h3 id="A+future+of+the+hottest">A future of the hottest<a href="#A+future+of+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can generalize this now into a single method which futures to
+return the name of the hottest city that you give it.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (t &lt;- temperature(loc))
+       yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps))
+    yield ts.maxBy { _._1 }._2
+}
+</code></pre><p>When everything goes as expected, that future is fulfilled. The next
+section is for when things don’t go as expected.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="A+future+of+success+and+failure.html"> A future of success and failure </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div class="current">Arbitrarily many futures</div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Arbitrarily many futures
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — A future of success and failure</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Arbitrarily+many+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Success+as+the+only+option.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="A+future+of+success+and+failure">A future of success and failure<a href="#A+future+of+success+and+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>So far we’ve made a lot of futures depending on network operations
+that might fail, and remote services that may not care for our
+input. If things don’t go as planned, the futures will fail.
+</p><h3 id="Failed+futures">Failed futures<a href="#Failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Failed futures are messy. You may have already seen the mess created
+in playing around with the previous examples. Here we’ll make a big
+mess to see what happens, and how bad it can get.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http(host(&quot;example.com&quot;) OK as.String)
+</code></pre><p>So far, so good? We’ve made a request that will fail the <em>OK</em> test
+with a redirect status code, but this failure hasn’t happened yet
+from the software’s perspective.
+</p><h3 id="Future%23print+for+failed+futures">Future#print for failed futures<a href="#Future%23print+for+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If we have the console print its string representation a moment later,
+we’ll see the problem:
+</p><pre><code>scala&gt; str.print
+res0: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Applying+failed+futures">Applying failed futures<a href="#Applying+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>But we’re still holding have a future of string. What happens if we
+demand the string?
+</p><pre><code>scala&gt; str()
+dispatch.StatusCode: Unexpected response status: 302
+    at dispatch.OkHandler$class.onStatusReceived(handlers.scala:37)
+    at dispatch.OkFunctionHandler.onStatusReceived(handlers.scala:29)
+    ...
+</code></pre><p>The exception was thrown in the thread that demanded the value, since
+there is no way to supply it.
+</p><h3 id="Transforming+broken+futures">Transforming broken futures<a href="#Transforming+broken+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Broken futures carry their exceptions through transformations:
+</p><pre><code>val length = for (s &lt;- str) yield s.length
+length.print
+</code></pre><p>Printing yields the same result as before.
+</p><pre><code>res54: String = Future(!Unexpected response status: 302!)
+</code></pre><h3 id="Deferred+failed+futures">Deferred failed futures<a href="#Deferred+failed+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And if you ask for operations on the completed future, nothing
+happens.
+</p><pre><code>scala&gt; for (s &lt;- str) println(s)
+</code></pre><p>How can we safely build on futures that depend on uncertain network
+operations?
+</p><h3 id="Planning+for+failure">Planning for failure<a href="#Planning+for+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>The solution is to avoid breaking futures and throwing exceptions by
+planning for failure. In the next pages we’ll see very simple and very
+rich ways of doing that.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Success+as+the+only+option.html"> Success as the only option </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div class="current">A future of success and failure</div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — A future of success and failure
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

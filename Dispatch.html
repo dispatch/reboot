@@ -1,0 +1,119 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Dispatch</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Unraveling+for-expressions.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Bargaining+with+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
+ a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
+ release version is <a href="https://github.com/dispatch/reboot/releases/tag/v0.13.0"><strong>0.13.0</strong></a>.
+</p><blockquote><p>This documentation walks through basic functionality of the
+library. You may also want to refer to its
+<a href="http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0">scaladocs</a>.
+And for information on Dispatch 0.8.x, see <a href="http://dispatch-classic.databinder.net/">dispatch-classic</a>.
+</p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you have <a href="https://github.com/harrah/xsbt/wiki/">sbt</a> installed, Dispatch is two steps away. Open a
+shell and change to an empty or unimportant directory, then paste:
+</p><pre><code>echo 'libraryDependencies += 
+  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot; % &quot;0.13.0&quot;
+  
+  libraryDependencies += 
+  &quot;ch.qos.logback&quot; % &quot;logback-classic&quot; % &quot;1.1.2&quot;' &gt; build.sbt
+sbt console
+</code></pre><p>After “the internet” has downloaded, you’re good to go.
+</p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val svc = url(&quot;http://api.hostip.info/country.php&quot;)
+val country = Http(svc OK as.String)
+</code></pre><p>The above defines and initiates a request to the given host where 2xx
+responses are handled as a string. Since Dispatch is fully
+asynchronous, <code>country</code> represents a <em>future</em> of the string rather
+than the string itself.
+</p><h3 id="Deferring+action">Deferring action<a href="#Deferring+action" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can act on the response once it’s available with a
+<em>for-expression</em>.
+</p><pre><code class="prettyprint lang-scala">for (c &lt;- country)
+  println(c)
+</code></pre><p>This for-expression applies to any <em>successful</em> response that is
+eventually produced. If no successful response is produced, nothing is
+printed. This is how for-expressions work in general. Consider a more
+familiar example:
+</p><pre><code class="prettyprint lang-scala">val opt: Option[String] = None
+for (o &lt;- opt)
+  println(o)
+</code></pre><p>An <em>option</em> may or may not contain a value, just like a future may or
+may not produce a successful response. But while any given option
+already knows what it is, a future may not. So the future behaves
+asynchronously in for-expressions, to avoid holding up operations
+subsequent that do not depend on its value.
+</p><h3 id="Demanding+answers">Demanding answers<a href="#Demanding+answers" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As with options, you can require that a future value be available at
+any time:
+</p><pre><code class="prettyprint lang-scala">val c = country()
+</code></pre><p>But the wise use of futures defers this operation as long as is
+practical, or doesn’t perform it at all. To see how, keep reading.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Bargaining+with+futures.html"> Bargaining with futures </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div class="current">Dispatch</div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> 
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

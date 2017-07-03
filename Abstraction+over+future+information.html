@@ -1,0 +1,133 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Abstraction over future information</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Bargaining+with+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Working+with+multiple+futures.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Abstraction+over+future+information">Abstraction over future information<a href="#Abstraction+over+future+information" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Often, you can extend the utility of futures with simple
+abstraction. In this example we’ll leverage a web service to write an
+internal API that will tell us the temperature in a US city.
+</p><h3 id="Palling+around+with+Weather+Underground">Palling around with Weather Underground<a href="#Palling+around+with+Weather+Underground" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In one method we’ll contain the construction of the request. In this
+case it’s an endpoint with all of the parameters in path elements.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+
+case class Location(city: String, state: String)
+
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><blockquote><p><strong>Note:</strong> Yes, that’s an API key. Use it sparingly to learn
+  Dispatch in the Scala console, but
+  <a href="http://www.wunderground.com/weather/api/">get your own key</a> if you
+  are building some kind of actual weather application. We may reset
+  this key at any time.
+</p></blockquote><p>With this method we can bind to a handler that prints out the response
+in the usual way:
+</p><pre><code class="prettyprint lang-scala">val nyc = Location(&quot;New York&quot;, &quot;NY&quot;)
+for (str &lt;- Http(weatherSvc(nyc) OK as.String))
+  println(str)
+</code></pre><p>If you’re pasting along in the Scala console, you’ll see a bunch of
+raw XML.
+</p><h3 id="Parsing+XML">Parsing XML<a href="#Parsing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, dispatch has another built-in handler for services that
+respond in this format.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location) =
+  Http(weatherSvc(loc) OK as.xml.Elem)
+</code></pre><p>This method returns a future <code>scala.xml.Elem</code>. Note that Dispatch
+handlers, like <code>as.String</code> and <code>as.xml.Elem</code>, mimic the name of the
+type they produce. They’re all under the package <code>dispatch.as</code> where
+you can access them without additional imports.
+</p><h3 id="Traversing+XML">Traversing XML<a href="#Traversing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>At this stage we’re working with a higher abstraction. The <code>Http</code>
+instance used to perform the request has become an implementation
+detail that <code>weatherXml</code> callers need not concern themselves with. We
+can use our new method to print a nicely formatted response.
+</p><pre><code class="prettyprint lang-scala">def printer = new scala.xml.PrettyPrinter(90, 2)
+for (xml &lt;- weatherXml(nyc))
+  println(printer.format(xml))
+</code></pre><p>Looking at the structure of the document, we can extract the
+temperature of the location in degrees Celsius by searching for the
+element “temp_c” using the <code>\\</code> method of <code>xml.Elem</code>.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.head
+}
+</code></pre><h3 id="Temperature+of+the+future">Temperature of the future<a href="#Temperature+of+the+future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>With this we can create another high-level access method:
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xml &lt;- weatherXml(loc))
+    yield extractTemp(xml)
+</code></pre><p>And now we have at hand the future temperature of any location
+understood by the service:
+</p><pre><code class="prettyprint lang-scala">val la = Location(&quot;Los Angeles&quot;, &quot;CA&quot;)
+for (t &lt;- temperature(la)) println(t)
+</code></pre><p>The information gathering is now fully abstracted without blocking,
+but what happens if we want to compare several temperatures?
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Working+with+multiple+futures.html"> Working with multiple futures </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div class="current">Abstraction over future information</div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Abstraction over future information
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html manifest="pamflet.manifest">
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Either type will do</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Success+as+the+only+option.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Either+Future.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Either+type+will+do">Either type will do<a href="#Either+type+will+do" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p><code>Either</code> is a container of fixed size like <code>Option</code>, but which always
+contains a value of one of two types. As an abstract type either
+refers to its two possible typed values as “left” and “right”.
+</p><h3 id="Either+an+error+or+success">Either an error or success<a href="#Either+an+error+or+success" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>In the particular and common case of error handling, the either’s
+<em>left</em> should always be used for failure information. This can be
+anything from an error message to an application-specific error
+object. It’s the either’s type <em>A</em>.
+</p><p>The either’s <em>right</em> value of type <em>B</em> is for its content on
+success. Thus, any given either used for error handling should tell
+you the desired result, or the reason it has failed.
+</p><h3 id="Average+or+failure">Average or failure<a href="#Average+or+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As a trivial example, let’s implement a method to return the average
+of some integers.
+</p><pre><code class="prettyprint lang-scala">def average(nums: Traversable[Int]) = {
+  if (nums.isEmpty) Left(&quot;Can't average emptiness&quot;)
+  else Right(nums.sum / nums.size)
+}
+</code></pre><p>This method produces an error message when given an empty collection
+of integers to average, otherwise the average integer.
+</p><h3 id="Top+of+the+class">Top of the class<a href="#Top+of+the+class" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We can use this failure-aware average method as part of a larger
+calculation.
+</p><pre><code class="prettyprint lang-scala">val johnny = List(85, 60, 90)
+val sarah  = List(88, 65, 85)
+val billy  = List.empty[Int]
+
+for {
+  j &lt;- average(johnny).right
+  s &lt;- average(sarah).right
+  b &lt;- average(billy).right
+} yield List(j, s, b).max
+</code></pre><p>The for-expression above requires successful averages (a <em>right</em>
+projection on each either) in order to yield a right result. Since
+Billy’s average results in a <em>left</em>, the entire expression evaluates
+to that error.
+</p><pre><code>res0: Either[java.lang.String,Int] = Left(Can't average emptiness)
+</code></pre><h3 id="Why+not+eject%3F">Why not eject?<a href="#Why+not+eject%3F" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Of course, exceptions have the same ability demonstrated here: you can
+embed information in them and act on it when they’re
+caught. Exceptions are easy to handle when you have a straightforward
+thread of computation. In asynchronous programming, you don’t.
+</p><p>Think of exceptions as an ejection seat. They allow you to escape from
+failure without planning ahead. On the downside, somebody’s got to
+perform the rescue operation to get you home, which could range in
+difficulty from easy to impossible. With asynchronous callbacks it’s
+as if you’re flying over enemy territory, or into orbit. The cost and
+complexity of recovering an ejected body becomes prohibitive.
+</p><p>But the use of <em>either</em> for error handling is like having a plan to
+fly home no matter what goes wrong. You may not be carrying a
+successful payload but at least you’ll return safely with information.
+</p><h3 id="Understanding+either">Understanding either<a href="#Understanding+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you don’t understand <code>Either</code>, seek out some more explanations and
+examples before continuing. Dispatch’s richest forms of error handling
+use this type directly and imitate it in important ways.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Either+Future.html"> Either Future </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div class="current">Either type will do</div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Either type will do
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

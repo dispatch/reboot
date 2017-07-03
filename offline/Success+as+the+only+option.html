@@ -1,0 +1,145 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html manifest="pamflet.manifest">
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Success as the only option</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="A+future+of+success+and+failure.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Either+type+will+do.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Success+as+the+only+option">Success as the only option<a href="#Success+as+the+only+option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Earlier we compared futures to options. The network operation at the
+center of things may or may not have completed: that’s the temporal
+uncertainty and it can be thought of an option, and even transformed
+into one with the <code>completeOption</code> method.
+</p><p>Beyond that we don’t know if a completed future will produce an error
+or a useful response. We can also think of that uncertainty, and model
+it in code, as an option. By transferring the uncertainty from the
+future to a contained option, we make a future that will never fail.
+</p><h3 id="Future%23option">Future#option<a href="#Future%23option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+val str = Http(host(&quot;example.com&quot;) OK as.String).option
+</code></pre><p>The type assigned is <code>str: Future[Option[String]]</code>. When the future
+completes, its value will be a future of <code>None</code> since the request
+will fail. The failure exception is captured and discarded by the
+underlying code.
+</p><p>With this we can write higher level interfaces that encompass the
+possibility of failure.
+</p><h3 id="Optional+weather">Optional weather<a href="#Optional+weather" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s make the weather interface from the previous section a little
+more resilient.
+</p><pre><code class="prettyprint lang-scala">case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+def weatherXml(loc: Location) =
+  Http(weatherSvc(loc) OK as.xml.Elem).option
+</code></pre><p>Now any connection, status, or parsing error will produce a <code>None</code>.
+</p><h3 id="Optional+temperature">Optional temperature<a href="#Optional+temperature" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll make a slight change to the extraction method.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption
+}
+</code></pre><p>Instead of calling <code>head</code> which throws an exception if there are no
+matching elements, we call <code>headOption</code>. This meshes with a revised
+temperature method.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlOpt &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlOpt
+      t &lt;- extractTemp(xml)
+    } yield t
+</code></pre><p>This returns the future of some temperature value, or <code>None</code> if an
+error occurs at any point.
+</p><h3 id="Optional+hotness">Optional hotness<a href="#Optional+hotness" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>And with that, we can rewrite <code>hottest</code> to provide the highest
+successful result, or <code>None</code>.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tOpt &lt;- temperature(loc))
+        yield for (t &lt;- tOpt)
+          yield (t -&gt; loc)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = ts.flatten
+    for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }
+  }
+}
+</code></pre><p>If the nested for-expressions throw you for a loop, keep in mind that
+futures are not themselves Iterable. You’re dealing with unrelated
+types, even if they share some philosophical opinions. They can’t be
+haphazardly mixed in the same for-expression.
+</p><p>But as the <em>for</em>s unroll we end up with a future of some city name,
+or <code>None</code>—exactly what we want. Give it a try with some real and fake
+city names.
+</p><h3 id="Unknown+error">Unknown error<a href="#Unknown+error" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>This version of temperature ranking is much more resilient than the
+last, but it still leaves something to be desired. We don’t know from
+the result value which cities, if any, were excluded from
+consideration, and we don’t know why.
+</p><p>In the next section we’ll explore <code>Either</code>, a favorite type of those
+who plan for both failure and success.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Either+type+will+do.html"> Either type will do </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div class="current">Success as the only option</div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Success as the only option
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>

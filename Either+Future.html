@@ -1,0 +1,191 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Dispatch — Either Future</title>
+        
+        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/dispatch.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-redmond">
+        <a class="page prev nav" href="Either+type+will+do.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip arrow">&gt;</span>
+          </a><a class="page next nav" href="Defining+requests.html">
+            <span class="space">&nbsp;</span>
+            <span class="arrow">&gt;</span>
+          </a>
+        <div class="container contentswrapper">
+          <div class="span-16 prepend-1 append-1 contents">
+            <h2 id="Either+Future">Either Future<a href="#Either+Future" class="header-link"><span class="header-link-content">&nbsp;</span></a></h2><p>Now that you understand <em>either</em>, you can use it within a Dispatch
+future to fully control and represent error conditions.
+</p><h3 id="Future%23either">Future#either<a href="#Future%23either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Much like <code>Future#option</code>, the either method returns a future that
+catches any exception that occurs in performing the request and
+handling its response. But unlike option, either holds on to its
+captured exception.
+</p><h3 id="Weather+with+either">Weather with either<a href="#Weather+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Let’s take up our weather service one more time and write an app that
+can not only fail gracefully but tell you what went wrong. First we
+define the service endpoint, as before.
+</p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
+case class Location(city: String, state: String)
+def weatherSvc(loc: Location) = {
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+    &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
+}
+</code></pre><h3 id="Projections+on+futures">Projections on futures<a href="#Projections+on+futures" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>A future of either doesn’t know whether it’s a <em>left</em> or <em>right</em>
+until it is completed, so it can’t have methods like <code>isLeft</code> and
+<code>isRight</code>.
+</p><p>What you can do is project against eventual leftness and rightness.
+All futures of either have methods <code>left</code> and <code>right</code> which act much
+the same as those methods on either itself. They return a projection
+which you then use to transform one side of the either.
+</p><p>The example below uses a left projection. Bulky type annotations are
+included in this text for clarity.
+</p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location):
+  Future[Either[String, xml.Elem]] = {
+  val res: Future[Either[Throwable, xml.Elem]] =
+    Http(weatherSvc(loc) OK as.xml.Elem).either
+  for (exc &lt;- res.left)
+    yield &quot;Can't connect to weather service: \n&quot; +
+      exc.getMessage
+}
+</code></pre><p>In this updated <code>weatherXml</code> method, we get a future of either as
+<code>res</code>. Then, we act on a left projection of that future to transform
+any exception into a string error message.
+</p><h3 id="Handling+missing+input">Handling missing input<a href="#Handling+missing+input" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Next, we’ll issue a useful error message if we fail to find the
+expected temperature element.
+</p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem):
+  Either[String,Float] = {
+  val seq = for {
+    elem &lt;- xml \\ &quot;temp_c&quot;
+  } yield elem.text.toFloat
+  seq.headOption.toRight {
+    &quot;Temperature missing in service response&quot;
+  }
+}
+</code></pre><p>This uses the handy <code>Option#toRight</code> method which bridges the gap
+between options and eithers.
+</p><h3 id="Composing+with+either">Composing with either<a href="#Composing+with+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Finally, we can write a smarter <code>temperature</code> method that composes the
+smarter low-level methods.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location) =
+  for (xmlEither &lt;- weatherXml(loc))
+    yield for {
+      xml &lt;- xmlEither.right
+      t &lt;- extractTemp(xml).right
+    } yield t
+</code></pre><p>This is fairly similar to the version created with option. You’ll
+recall that we can’t haphazardly mix futures with other types in for
+expressions, because a future <em>is not</em> an Iterable or an
+either. However, if you want to be a little bit fancy you can condense
+these operations by making everything a future.
+</p><h3 id="Composing+futures+of+either">Composing futures of either<a href="#Composing+futures+of+either" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>When everything is a future of either, you can compose with a single
+for expression. We can’t make futures into their contained type
+without blocking, but we can go the other way: anything can be made
+into a future of itself with <code>Future#apply</code>.
+</p><pre><code class="prettyprint lang-scala">def temperature(loc: Location):
+Future[Either[String,Float]] = {
+  for {
+    xml &lt;- weatherXml(loc).right
+    t &lt;- Future.successful(extractTemp(xml)).right
+  } yield t
+}
+</code></pre><p>Composing with a single for-expression is <em>awesome</em>, but don’t get too
+stuck on the idea. Sometimes it’s just not possible or worth the
+trouble. But in this case, it provides the nicest error handling yet.
+</p><h3 id="Testing+the+error+handling">Testing the error handling<a href="#Testing+the+error+handling" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>You can try out the new method to see how it behaves with valid and
+invalid input.
+</p><pre><code>scala&gt; temperature(Location(&quot;New York&quot;,&quot;NY&quot;))()
+res8: Either[String,Float] = Right(11.9)
+
+scala&gt; temperature(Location(&quot;nowhere&quot;,&quot;NO&quot;))()
+res5: Either[String,Float] =
+  Left(Temperature missing in service response)
+</code></pre><p>For an unknown city name, we got back a response without a usable
+temperature element. Good to know!
+</p><h3 id="Hottness+to+the+max">Hottness to the max<a href="#Hottness+to+the+max" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Now we’ll bring it all together with an error-aware hotness method.
+</p><pre><code class="prettyprint lang-scala">def hottest(locs: Location*) = {
+  val temps =
+    for(loc &lt;- locs)
+      yield for (tEither &lt;- temperature(loc))
+        yield (loc, tEither)
+  for (ts &lt;- Future.sequence(temps)) yield {
+    val valid = for ((loc, Right(t)) &lt;- ts)
+      yield (t, loc)
+    val max = for (_ &lt;- valid.headOption)
+      yield valid.maxBy { _._1 }._2
+    val errors = for ((loc, Left(err)) &lt;- ts)
+      yield (loc, err)
+    (max, errors)
+  }
+}
+</code></pre><p>This method returns a future of a 2-tuple, including an option of the
+max and Iterable of any errors. With this you can know which city was
+the hottest, as well as which inputs failed and why.
+</p><h3 id="Testing+the+hottest">Testing the hottest<a href="#Testing+the+hottest" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To make sure this all works, give it some valid and invalid cities.
+</p><pre><code>scala&gt; hottest(Location(&quot;New York&quot;,&quot;NY&quot;),
+               Location(&quot;Chicago&quot;, &quot;IL&quot;),
+               Location(&quot;nowhere&quot;, &quot;NO&quot;),
+               Location(&quot;Los Angeles&quot;, &quot;CA&quot;))()
+res6: (Option[Location], Seq[(Location, String)]) = 
+(Some(Location(Los Angeles,CA)),
+ArrayBuffer((Location(nowhere,NO),
+            Temperature missing in service response)))
+</code></pre><p>In real applications, string is not usually a rich enough error
+type; you may want the app to behave differently for different kinds
+of errors. For that you can bubble up case classes and objects that
+represent the kind of error and retain any useful data.
+</p><div class="bottom nav span-16">
+                        <em>Next Page</em>
+                        <span class="arrow">&gt;</span>
+                        <a href="Defining+requests.html"> Defining requests </a>                        
+                        
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div class="current">Either Future</div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        <div class="header">
+          <div class="container">
+        <div class="span-16 prepend-1 append-1">
+          <div class="span-16 top nav">
+            <div class="span-16 title">
+              <span>Dispatch</span> — Either Future
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        <a href="http://github.com/dispatch/reboot" class="fork nav"><img src="img/fork.png" alt="Fork me on GitHub"/></a>
+        
+      </body>
+    </html>
