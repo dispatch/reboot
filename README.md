@@ -60,8 +60,8 @@ their current support status:
 |Version           | AHC Version  |Scala Versions |Support       |Branch
 |------------------|--------------|---------------|--------------|---------------------------------|
 |0.10.0            |1.7.11        |2.9.3,2.10     |None          |                                 |
-|0.11.2            |1.8.10        |2.9.3,2.10,2.11|Critical only |                                 |
-|0.11.3            |1.9.11        |2.10,2.11      |Critical only |                                 |
+|0.11.2            |1.8.10        |2.9.3,2.10,2.11|None          |                                 |
+|0.11.4            |1.9.40        |2.10,2.11      |Critical only |                                 |
 |0.12.2            |1.9.40        |2.11,2.12      |Full support  |0.12.x                           |
 |0.13.0            |2.0.32        |2.11,2.12      |Full support  |0.13.x                           |
 |0.14.0-SNAPSHOT   |2.0.32        |2.11,2.12      |Development   |master                           |
