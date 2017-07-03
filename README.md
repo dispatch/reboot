@@ -26,9 +26,8 @@ libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.13.0"
 ### Snapshot releases
 
 We're also currently publishing snapshot releases for 0.14.x-SNAPSHOT to Sonatype snapshots.
-Currently, the 0.14.x series tracks the API for 0.13.x exactly, with the difference that it is
-built on the early alphas of AHC 2.1. If you'd like to test your code with AHC 2.1 before it's
-final, taking one of these snapshots out for a spin is the way to do it.
+If you'd like to test your code with AHC 2.1 before it's final, taking one of these snapshots
+out for a spin is the way to do it.
 
 The following instructions will get you your snapshot:
 
@@ -66,10 +65,6 @@ their current support status:
 |0.13.0            |2.0.32        |2.11,2.12      |Full support  |0.13.x                           |
 |0.14.0-SNAPSHOT   |2.0.32        |2.11,2.12      |Development   |master                           |
 |0.14.0-SNAPSHOT   |2.1.x-alpha   |2.11,2.12      |Development   |master_with_ahc2.1               |
-
-[012branch]: (https://github.com/dispatch/reboot/tree/0.12.x)
-[masterbranch]: (https://github.com/dispatch/reboot/tree/master)
-[masterahc21]: (https://github.com/dispatch/reboot/tree/master_with_ahc2.1)
 
 ## Getting Help and Contributing
 
