@@ -60,7 +60,7 @@ sbt console
 </p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
 </p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
 val svc = url(&quot;http://api.hostip.info/country.php&quot;)
-val country = Http(svc OK as.String)
+val country = Http.default(svc OK as.String)
 </code></pre><p>The above defines and initiates a request to the given host where 2xx
 responses are handled as a string. Since Dispatch is fully
 asynchronous, <code>country</code> represents a <em>future</em> of the string rather
