@@ -13,7 +13,7 @@ object Common {
   )
 
   val settings: Seq[Setting[_]] = ls.Plugin.lsSettings ++ Seq(
-    version := "0.11.3",
+    version := "0.11.4",
 
     crossScalaVersions := Seq("2.10.4", "2.11.5"),
 
@@ -28,8 +28,8 @@ object Common {
 
     publishTo <<= version { (v: String) =>
       val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT")) 
-        Some("snapshots" at nexus + "content/repositories/snapshots") 
+      if (v.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
