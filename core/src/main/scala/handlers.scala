@@ -1,5 +1,6 @@
 package dispatch
 
+import java.io.Closeable
 import com.ning.http.client
 import client.{
   Response, AsyncCompletionHandler, AsyncHandler,
