@@ -9,7 +9,7 @@ Dispatch reboot is a rewrite of the Dispatch library for HTTP interaction in Sca
 
 Dispatch requires that you use Java 8 as AHC requires it.
 
-[docs]: http://dispatch.databinder.net/Dispatch.html
+[docs]: https://dispatch.github.io/reboot/Dispatch.html
 [async]: https://github.com/AsyncHttpClient/async-http-client
 
 ## Getting Dispatch
