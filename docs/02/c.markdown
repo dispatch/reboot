@@ -21,7 +21,7 @@ define the service endpoint, as before.
 import dispatch._, Defaults._
 case class Location(city: String, state: String)
 def weatherSvc(loc: Location) = {
-  host("api.wunderground.com") / "api" / "$wkey$" / 
+  host("api.wunderground.com") / "api" / "$wkey$" /
     "conditions" / "q" / loc.state / (loc.city + ".xml")
 }
 ```
@@ -44,7 +44,7 @@ included in this text for clarity.
 def weatherXml(loc: Location):
   Future[Either[String, xml.Elem]] = {
   val res: Future[Either[Throwable, xml.Elem]] =
-    Http(weatherSvc(loc) OK as.xml.Elem).either
+    Http.default(weatherSvc(loc) OK as.xml.Elem).either
   for (exc <- res.left)
     yield "Can't connect to weather service: \n" +
       exc.getMessage
@@ -166,7 +166,7 @@ To make sure this all works, give it some valid and invalid cities.
                    Location("Chicago", "IL"),
                    Location("nowhere", "NO"),
                    Location("Los Angeles", "CA"))()
-    res6: (Option[Location], Seq[(Location, String)]) = 
+    res6: (Option[Location], Seq[(Location, String)]) =
     (Some(Location(Los Angeles,CA)),
     ArrayBuffer((Location(nowhere,NO),
                 Temperature missing in service response)))

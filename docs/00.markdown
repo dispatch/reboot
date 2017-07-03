@@ -4,7 +4,7 @@ Dispatch
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
  release version is [**$version$**]($version_link$).
- 
+
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
 
 > This documentation walks through basic functionality of the
@@ -19,10 +19,10 @@ shell and change to an empty or unimportant directory, then paste:
 
 [sbt]: https://github.com/harrah/xsbt/wiki/
 
-    echo 'libraryDependencies += 
+    echo 'libraryDependencies +=
       "net.databinder.dispatch" %% "dispatch-core" % "$version$"
-      
-      libraryDependencies += 
+
+      libraryDependencies +=
       "ch.qos.logback" % "logback-classic" % "1.1.2"' > build.sbt
     sbt console
 
@@ -35,7 +35,7 @@ We'll start with a very simple request.
 ```scala
 import dispatch._, Defaults._
 val svc = url("http://api.hostip.info/country.php")
-val country = Http(svc OK as.String)
+val country = Http.default(svc OK as.String)
 ```
 
 The above defines and initiates a request to the given host where 2xx
