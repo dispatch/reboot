@@ -15,16 +15,19 @@ Dispatch
 ### Diving in
 
 If you have [sbt][sbt] installed, Dispatch is two steps away. Open a
-shell and change to an empty or unimportant directory, then paste:
+shell and change to an empty or unimportant directory, then add the following
+content to a file named `build.sbt`:
 
 [sbt]: https://github.com/harrah/xsbt/wiki/
 
-    echo 'libraryDependencies +=
-      "net.databinder.dispatch" %% "dispatch-core" % "0.13.0"
+```
+libraryDependencies ++= Seq(
+  "net.databinder.dispatch" %% "dispatch-core"   % "0.13.0",
+  "ch.qos.logback"          %  "logback-classic" % "1.2.3"
+)
+```
 
-      libraryDependencies +=
-      "ch.qos.logback" % "logback-classic" % "1.1.2"' > build.sbt
-    sbt console
+Then invoke `sbt console` from your shell.
 
 After "the internet" has downloaded, you're good to go.
 

@@ -51,14 +51,14 @@ library. You may also want to refer to its
 <a href="http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0">scaladocs</a>.
 And for information on Dispatch 0.8.x, see <a href="http://dispatch-classic.databinder.net/">dispatch-classic</a>.
 </p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you have <a href="https://github.com/harrah/xsbt/wiki/">sbt</a> installed, Dispatch is two steps away. Open a
-shell and change to an empty or unimportant directory, then paste:
-</p><pre><code>echo 'libraryDependencies +=
-  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot; % &quot;0.13.0&quot;
-
-  libraryDependencies +=
-  &quot;ch.qos.logback&quot; % &quot;logback-classic&quot; % &quot;1.1.2&quot;' &gt; build.sbt
-sbt console
-</code></pre><p>After “the internet” has downloaded, you’re good to go.
+shell and change to an empty or unimportant directory, then add the following
+content to a file named <code>build.sbt</code>:
+</p><pre><code class="">libraryDependencies ++= Seq(
+  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot;   % &quot;0.13.0&quot;,
+  &quot;ch.qos.logback&quot;          %  &quot;logback-classic&quot; % &quot;1.2.3&quot;
+)
+</code></pre><p>Then invoke <code>sbt console</code> from your shell.
+</p><p>After “the internet” has downloaded, you’re good to go.
 </p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
 </p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
 val svc = url(&quot;http://api.hostip.info/country.php&quot;)
