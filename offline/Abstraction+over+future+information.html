@@ -51,7 +51,7 @@ case it’s an endpoint with all of the parameters in path elements.
 case class Location(city: String, state: String)
 
 def weatherSvc(loc: Location) = {
-  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; /
     &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
 }
 </code></pre><blockquote><p><strong>Note:</strong> Yes, that’s an API key. Use it sparingly to learn
@@ -62,19 +62,19 @@ def weatherSvc(loc: Location) = {
 </p></blockquote><p>With this method we can bind to a handler that prints out the response
 in the usual way:
 </p><pre><code class="prettyprint lang-scala">val nyc = Location(&quot;New York&quot;, &quot;NY&quot;)
-for (str &lt;- Http(weatherSvc(nyc) OK as.String))
+for (str &lt;- Http.default(weatherSvc(nyc) OK as.String))
   println(str)
 </code></pre><p>If you’re pasting along in the Scala console, you’ll see a bunch of
 raw XML.
 </p><h3 id="Parsing+XML">Parsing XML<a href="#Parsing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Luckily, dispatch has another built-in handler for services that
 respond in this format.
 </p><pre><code class="prettyprint lang-scala">def weatherXml(loc: Location) =
-  Http(weatherSvc(loc) OK as.xml.Elem)
+  Http.default(weatherSvc(loc) OK as.xml.Elem)
 </code></pre><p>This method returns a future <code>scala.xml.Elem</code>. Note that Dispatch
 handlers, like <code>as.String</code> and <code>as.xml.Elem</code>, mimic the name of the
 type they produce. They’re all under the package <code>dispatch.as</code> where
 you can access them without additional imports.
-</p><h3 id="Traversing+XML">Traversing XML<a href="#Traversing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>At this stage we’re working with a higher abstraction. The <code>Http</code>
+</p><h3 id="Traversing+XML">Traversing XML<a href="#Traversing+XML" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>At this stage we’re working with a higher abstraction. The <code>Http.default</code>
 instance used to perform the request has become an implementation
 detail that <code>weatherXml</code> callers need not concern themselves with. We
 can use our new method to print a nicely formatted response.
@@ -110,7 +110,7 @@ but what happens if we want to compare several temperatures?
       <a name="toc"></a>
       <h4 class="toctitle">Contents</h4>
       <div class="tocbody">
-      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div class="current">Abstraction over future information</div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div class="current">Abstraction over future information</div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
           </div>
         </div>
         <div class="header">

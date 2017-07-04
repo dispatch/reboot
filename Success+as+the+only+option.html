@@ -50,7 +50,7 @@ or a useful response. We can also think of that uncertainty, and model
 it in code, as an option. By transferring the uncertainty from the
 future to a contained option, we make a future that will never fail.
 </p><h3 id="Future%23option">Future#option<a href="#Future%23option" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
-val str = Http(host(&quot;example.com&quot;) OK as.String).option
+val str = Http.default(host(&quot;example.com&quot;) OK as.String).option
 </code></pre><p>The type assigned is <code>str: Future[Option[String]]</code>. When the future
 completes, its value will be a future of <code>None</code> since the request
 will fail. The failure exception is captured and discarded by the
@@ -61,11 +61,11 @@ possibility of failure.
 more resilient.
 </p><pre><code class="prettyprint lang-scala">case class Location(city: String, state: String)
 def weatherSvc(loc: Location) = {
-  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; / 
+  host(&quot;api.wunderground.com&quot;) / &quot;api&quot; / &quot;5a7c66db0ba0323a&quot; /
     &quot;conditions&quot; / &quot;q&quot; / loc.state / (loc.city + &quot;.xml&quot;)
 }
 def weatherXml(loc: Location) =
-  Http(weatherSvc(loc) OK as.xml.Elem).option
+  Http.default(weatherSvc(loc) OK as.xml.Elem).option
 </code></pre><p>Now any connection, status, or parsing error will produce a <code>None</code>.
 </p><h3 id="Optional+temperature">Optional temperature<a href="#Optional+temperature" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll make a slight change to the extraction method.
 </p><pre><code class="prettyprint lang-scala">def extractTemp(xml: scala.xml.Elem) = {
@@ -122,7 +122,7 @@ who plan for both failure and success.
       <a name="toc"></a>
       <h4 class="toctitle">Contents</h4>
       <div class="tocbody">
-      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div class="current">Success as the only option</div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li> </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+      <div><a href="Dispatch.html">Dispatch</a></div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div class="current">Success as the only option</div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
           </div>
         </div>
         <div class="header">
