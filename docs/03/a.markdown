@@ -62,10 +62,30 @@ method. These should be added after all path elements.
 def myRequestWithParams = myRequest.addQueryParameter("key", "value")
 ```
 
+Query parameter names can repeat in case you need provide multiple values
+for a query parameter key.
+
+```scala
+def myRequestWithParams = myRequest
+  .addQueryParameter("key", "value1")
+  .addQueryParameter("key", "value2")
+```
+
 You can also add query parameters with the `<<?` verb.
 
 ```scala
 def myRequestWithParams = myRequest <<? Map("key" -> "value")
+```
+
+The `<<?` verb can consume any kind of `Traversable` that contains a
+`(String, String)`, so if you'd like to use the verb form to add multiple
+query parameters with the same key, you'd just switch to using a `List`:
+
+```scala
+def myRequestWithParams = myRequest <<? List(
+  ("key", "value1"),
+  ("key", "value2")
+)
 ```
 
 ### PUT a file
