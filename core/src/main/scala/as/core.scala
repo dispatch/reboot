@@ -2,8 +2,10 @@ package dispatch.as
 
 import dispatch._
 
-import java.nio.charset.Charset
 import org.asynchttpclient
+import org.asynchttpclient.handler.resumable._
+import java.io._
+import java.nio.charset.Charset
 
 object Response {
   def apply[T](f: asynchttpclient.Response => T) = f
@@ -28,11 +30,16 @@ object Bytes extends (asynchttpclient.Response => Array[Byte]) {
 }
 
 object File extends {
-  def apply(file: java.io.File) =
-    (new asynchttpclient.handler.resumable.ResumableAsyncHandler with OkHandler[asynchttpclient.Response])
-      .setResumableListener(
-        new asynchttpclient.handler.resumable.ResumableRandomAccessFileListener(
-          new java.io.RandomAccessFile(file, "rw")
-        )
-      )
+  def apply(file: java.io.File) = {
+    val fileHandler = new RandomAccessFile(file, "rw")
+
+    val resumableHandler = new ResumableAsyncHandler
+        with OkHandler[asynchttpclient.Response]
+        with CloseResourcesOnThrowableHandler[asynchttpclient.Response] {
+      override lazy val closeable = Seq(fileHandler)
+    }
+
+    resumableHandler
+      .setResumableListener(new ResumableRandomAccessFileListener(fileHandler))
+  }
 }
