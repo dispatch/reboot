@@ -3,13 +3,13 @@ Dispatch
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
- release version is [**0.13.0**](https://github.com/dispatch/reboot/releases/tag/v0.13.0).
+ release version is [**0.13.1**](https://github.com/dispatch/reboot/releases/tag/v0.13.1).
 
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
 
 > This documentation walks through basic functionality of the
 > library. You may also want to refer to its
-> [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0).
+> [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.1).
 
 ### Diving in
 
@@ -32,7 +32,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`net.databinder.dispatch::dispatch-core:0.13.0`
+import $ivy.`net.databinder.dispatch::dispatch-core:0.13.1`
 ```
 
 Your environment now has everything in scope you need to play with dispatch in the console.
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   // debugging output. If you don't want that, simply
   // omit it.
   "ch.qos.logback"          %  "logback-classic" % "1.2.3",
-  "net.databinder.dispatch" %% "dispatch-core"   % "0.13.0"
+  "net.databinder.dispatch" %% "dispatch-core"   % "0.13.1"
 )
 ```
 
@@ -1001,10 +1001,30 @@ method. These should be added after all path elements.
 def myRequestWithParams = myRequest.addQueryParameter("key", "value")
 ```
 
+Query parameter names can repeat in case you need provide multiple values
+for a query parameter key.
+
+```scala
+def myRequestWithParams = myRequest
+  .addQueryParameter("key", "value1")
+  .addQueryParameter("key", "value2")
+```
+
 You can also add query parameters with the `<<?` verb.
 
 ```scala
 def myRequestWithParams = myRequest <<? Map("key" -> "value")
+```
+
+The `<<?` verb can consume any kind of `Traversable` that contains a
+`(String, String)`, so if you'd like to use the verb form to add multiple
+query parameters with the same key, you'd just switch to using a `List`:
+
+```scala
+def myRequestWithParams = myRequest <<? List(
+  ("key", "value1"),
+  ("key", "value2")
+)
 ```
 
 ### PUT a file
