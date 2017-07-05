@@ -44,15 +44,32 @@
 </p><blockquote><p>This documentation walks through basic functionality of the
 library. You may also want to refer to its
 <a href="http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0">scaladocs</a>.
-And for information on Dispatch 0.8.x, see <a href="http://dispatch-classic.databinder.net/">dispatch-classic</a>.
-</p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>If you have <a href="http://www.scala-sbt.org/">sbt</a> installed, Dispatch is two steps away. Open a
+</p></blockquote><h3 id="Diving+in">Diving in<a href="#Diving+in" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To start playing with Dispatch on a console you can use one of two tools. The
+<a href="http://ammonite.io/#Ammonite-REPL">Ammonite REPL</a> or <a href="http://www.scala-sbt.org/">sbt</a>’s console functionality. When you’re ready to include
+Dispatch in an actual project, just follow the instructions for adding the Dispatch dependencies
+to <code>build.sbt</code> below.
+</p><h3 id="Ammonite+REPL">Ammonite REPL<a href="#Ammonite+REPL" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To get started with Dispatch in the Ammonite REPL, execute <code>amm</code> at your shell and then paste in
+the following.
+</p><pre><code class="prettyprint lang-scala"># only include this first line if you want all
+# of the debugging log output, otherwise omit
+import $ivy.`ch.qos.logback:logback-classic:1.2.3`
+
+import $ivy.`net.databinder.dispatch::dispatch-core:0.13.0`
+</code></pre><p>Your environment now has everything in scope you need to play with dispatch in the console.
+</p><h3 id="SBT">SBT<a href="#SBT" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Once you have sbt installed, Dispatch is two steps away. Open a
 shell and change to an empty or unimportant directory, then add the following
 content to a file named <code>build.sbt</code>:
 </p><pre><code class="">libraryDependencies ++= Seq(
-  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot;   % &quot;0.13.0&quot;,
-  &quot;ch.qos.logback&quot;          %  &quot;logback-classic&quot; % &quot;1.2.3&quot;
+  // For the console exercise, the logback dependency
+  // is only important if you want to see all the
+  // debugging output. If you don't want that, simply
+  // omit it.
+  &quot;ch.qos.logback&quot;          %  &quot;logback-classic&quot; % &quot;1.2.3&quot;,
+  &quot;net.databinder.dispatch&quot; %% &quot;dispatch-core&quot;   % &quot;0.13.0&quot;
 )
 </code></pre><p>Then invoke <code>sbt console</code> from your shell. After “the internet” has downloaded, you’re good to go.
+the above settings in <code>build.sbt</code> are also the settings you’ll use to add dispatch to your project
+when it comes time to actually use it in a production application.
 </p><h3 id="Defining+requests">Defining requests<a href="#Defining+requests" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>We’ll start with a very simple request.
 </p><pre><code class="prettyprint lang-scala">import dispatch._, Defaults._
 val svc = url(&quot;http://api.hostip.info/country.php&quot;)

@@ -10,24 +10,53 @@ Dispatch
 > This documentation walks through basic functionality of the
 > library. You may also want to refer to its
 > [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.0).
-> And for information on Dispatch 0.8.x, see [dispatch-classic](http://dispatch-classic.databinder.net/).
 
 ### Diving in
 
-If you have [sbt][sbt] installed, Dispatch is two steps away. Open a
-shell and change to an empty or unimportant directory, then add the following
-content to a file named `build.sbt`:
+To start playing with Dispatch on a console you can use one of two tools. The
+[Ammonite REPL][ammrepl] or [sbt][sbt]'s console functionality. When you're ready to include
+Dispatch in an actual project, just follow the instructions for adding the Dispatch dependencies
+to `build.sbt` below.
+
+[ammrepl]: http://ammonite.io/#Ammonite-REPL
 
 [sbt]: http://www.scala-sbt.org/
 
+### Ammonite REPL
+
+To get started with Dispatch in the Ammonite REPL, execute `amm` at your shell and then paste in
+the following.
+
+```scala
+# only include this first line if you want all
+# of the debugging log output, otherwise omit
+import $ivy.`ch.qos.logback:logback-classic:1.2.3`
+
+import $ivy.`net.databinder.dispatch::dispatch-core:0.13.0`
+```
+
+Your environment now has everything in scope you need to play with dispatch in the console.
+
+### SBT
+
+Once you have sbt installed, Dispatch is two steps away. Open a
+shell and change to an empty or unimportant directory, then add the following
+content to a file named `build.sbt`:
+
 ```
 libraryDependencies ++= Seq(
-  "net.databinder.dispatch" %% "dispatch-core"   % "0.13.0",
-  "ch.qos.logback"          %  "logback-classic" % "1.2.3"
+  // For the console exercise, the logback dependency
+  // is only important if you want to see all the
+  // debugging output. If you don't want that, simply
+  // omit it.
+  "ch.qos.logback"          %  "logback-classic" % "1.2.3",
+  "net.databinder.dispatch" %% "dispatch-core"   % "0.13.0"
 )
 ```
 
 Then invoke `sbt console` from your shell. After "the internet" has downloaded, you're good to go.
+the above settings in `build.sbt` are also the settings you'll use to add dispatch to your project
+when it comes time to actually use it in a production application.
 
 ### Defining requests
 
