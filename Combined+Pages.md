@@ -18,7 +18,7 @@ If you have [sbt][sbt] installed, Dispatch is two steps away. Open a
 shell and change to an empty or unimportant directory, then add the following
 content to a file named `build.sbt`:
 
-[sbt]: https://github.com/harrah/xsbt/wiki/
+[sbt]: http://www.scala-sbt.org/
 
 ```
 libraryDependencies ++= Seq(
@@ -27,9 +27,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-Then invoke `sbt console` from your shell.
-
-After "the internet" has downloaded, you're good to go.
+Then invoke `sbt console` from your shell. After "the internet" has downloaded, you're good to go.
 
 ### Defining requests
 
