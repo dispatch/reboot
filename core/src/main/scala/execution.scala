@@ -114,11 +114,11 @@ trait HttpExecutor {
               (implicit executor: ExecutionContext): Future[T] =
     apply(pair._1, pair._2)
 
-  def apply[T]
-  (request: Request, handler: AsyncHandler[T])
-  (implicit executor: ExecutionContext): Future[T] = {
+  def apply[T](request: Request, handler: AsyncHandler[T])
+      (implicit executor: ExecutionContext): Future[T] = {
     val lfut = client.executeRequest(request, handler)
     val promise = scala.concurrent.Promise[T]()
+
     lfut.addListener(
       () => promise.complete(Try(lfut.get())),
       new juc.Executor {
@@ -127,7 +127,11 @@ trait HttpExecutor {
         }
       }
     )
-    promise.future
+
+    promise.future.recoverWith {
+      case executionEx: juc.ExecutionException if executionEx.getCause() != null =>
+        Future.failed(executionEx.getCause())
+    }
   }
 
   def shutdown() = {
