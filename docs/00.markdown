@@ -10,7 +10,6 @@ Dispatch
 > This documentation walks through basic functionality of the
 > library. You may also want to refer to its
 > [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/$version$).
-> And for information on Dispatch 0.8.x, see [dispatch-classic](http://dispatch-classic.databinder.net/).
 
 ### Diving in
 
