@@ -14,19 +14,30 @@ Dispatch
 
 ### Diving in
 
+We recommend experimenting with Dispatch using [Ammonite REPL][ammrepl]. If you don't
+already have Ammonite installed, follow the instructions at that link to install it, then
+start it up by typing `amm` at your shell. Once Ammonite is loaded, simply paste in the following
+to get started:
+
+```scala
+import $ivy.`ch.qos.logback:logback-classic:$lbversion$`
+import $ivy.`net.databinder.dispatch::dispatch-core:$version$`
+```
+
 If you have [sbt][sbt] installed, Dispatch is two steps away. Open a
-shell and change to an empty or unimportant directory, then paste:
+shell and change to an empty or unimportant directory, then add the following
+content to a file named `build.sbt`:
 
-[sbt]: https://github.com/harrah/xsbt/wiki/
+[sbt]: http://www.scala-sbt.org/
 
-    echo 'libraryDependencies +=
-      "net.databinder.dispatch" %% "dispatch-core" % "$version$"
+```
+libraryDependencies ++= Seq(
+  "net.databinder.dispatch" %% "dispatch-core"   % "$version$",
+  "ch.qos.logback"          %  "logback-classic" % "$lbversion$"
+)
+```
 
-      libraryDependencies +=
-      "ch.qos.logback" % "logback-classic" % "1.1.2"' > build.sbt
-    sbt console
-
-After "the internet" has downloaded, you're good to go.
+Then invoke `sbt console` from your shell. After "the internet" has downloaded, you're good to go.
 
 ### Defining requests
 
