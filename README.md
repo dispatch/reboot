@@ -63,7 +63,7 @@ their current support status:
 |0.11.4            |1.9.40        |2.10,2.11      |Critical only |                                 |
 |0.12.2            |1.9.40        |2.11,2.12      |Full support  |0.12.x                           |
 |0.13.0            |2.0.32        |2.11,2.12      |Full support  |0.13.x                           |
-|0.14.0-SNAPSHOT   |2.0.32        |2.11,2.12      |Development   |master                           |
+|0.14.0-SNAPSHOT   |2.0.33        |2.11,2.12      |Development   |master                           |
 |0.14.0-SNAPSHOT   |2.1.x-alpha   |2.11,2.12      |Development   |master_with_ahc2.1               |
 
 ## Getting Help and Contributing
