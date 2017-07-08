@@ -19,7 +19,7 @@ goes for futures.
 ```scala
 import dispatch._, Defaults._
 val svc = url("http://api.hostip.info/country.php")
-val country = Http(svc OK as.String)
+val country = Http.default(svc OK as.String)
 val length = for (c <- country) yield c.length
 ```
 The `length` value is a future of integer.
@@ -41,7 +41,7 @@ Not too helpful right? The `print` method makes a nicer string:
 
 If the future value isn't available, `print` won't wait:
 
-    scala> Http(svc OK as.String).print
+    scala> Http.default(svc OK as.String).print
     res1: String = Future(-incomplete-)
 
 > **Note:** `print` and some other `Future` methods in this documentation

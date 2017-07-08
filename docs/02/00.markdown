@@ -13,7 +13,7 @@ mess to see what happens, and how bad it can get.
 
 ```scala
 import dispatch._, Defaults._
-val str = Http(host("example.com") OK as.String)
+val str = Http.default(host("example.com") OK as.String)
 ```
 
 So far, so good? We've made a request that will fail the *OK* test

@@ -9,7 +9,7 @@ Dispatch reboot is a rewrite of the Dispatch library for HTTP interaction in Sca
 
 Dispatch requires that you use Java 8 as AHC requires it.
 
-[docs]: http://dispatch.databinder.net/Dispatch.html
+[docs]: https://dispatch.github.io/reboot/Dispatch.html
 [async]: https://github.com/AsyncHttpClient/async-http-client
 
 ## Getting Dispatch
@@ -17,18 +17,18 @@ Dispatch requires that you use Java 8 as AHC requires it.
 Stable releases of Dispatch are published to Maven Central. As such, you can pull in the current
 stable release by simply adding a library dependency to your project for the correct version.
 
-In SBT you can add the following one-liner to get Dispatch 0.13.0 into your project:
+In SBT you can add the following one-liner to get Dispatch 0.13.1, the latest release, into your
+project:
 
 ```scala
-libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.13.0"
+libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.13.1"
 ```
 
 ### Snapshot releases
 
 We're also currently publishing snapshot releases for 0.14.x-SNAPSHOT to Sonatype snapshots.
-Currently, the 0.14.x series tracks the API for 0.13.x exactly, with the difference that it is
-built on the early alphas of AHC 2.1. If you'd like to test your code with AHC 2.1 before it's
-final, taking one of these snapshots out for a spin is the way to do it.
+If you'd like to test your code with AHC 2.1 before it's final, taking one of these snapshots
+out for a spin is the way to do it.
 
 The following instructions will get you your snapshot:
 
@@ -60,15 +60,12 @@ their current support status:
 |Version           | AHC Version  |Scala Versions |Support       |Branch
 |------------------|--------------|---------------|--------------|---------------------------------|
 |0.10.0            |1.7.11        |2.9.3,2.10     |None          |                                 |
-|0.11.2            |1.8.10        |2.9.3,2.10,2.11|Critical only |                                 |
-|0.11.3            |1.9.11        |2.10,2.11      |Critical only |                                 |
-|0.12.2            |1.9.40        |2.11,2.12      |Full support  |[0.12.x][012branch]              |
-|0.13.0            |2.0.32        |2.11,2.12      |Full support  |[master][masterbranch]           |
-|0.14.0-SNAPSHOT   |2.1.x-alpha   |2.11,2.12      |Pre-release   |[master_with_ahc2.1][masterahc21]|
-
-[012branch]: (https://github.com/dispatch/reboot/tree/0.12.x)
-[masterbranch]: (https://github.com/dispatch/reboot/tree/master)
-[masterahc21]: (https://github.com/dispatch/reboot/tree/master_with_ahc2.1)
+|0.11.2            |1.8.10        |2.9.3,2.10,2.11|None          |                                 |
+|0.11.4            |1.9.40        |2.10,2.11      |Critical only |                                 |
+|0.12.3            |1.9.40        |2.11,2.12      |Full support  |0.12.x                           |
+|0.13.1            |2.0.33        |2.11,2.12      |Full support  |0.13.x                           |
+|0.14.0-SNAPSHOT   |2.0.33        |2.11,2.12      |Development   |master                           |
+|0.14.0-SNAPSHOT   |2.1.x-alpha   |2.11,2.12      |Development   |master_with_ahc2.1               |
 
 ## Getting Help and Contributing
 

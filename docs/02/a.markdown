@@ -15,7 +15,7 @@ future to a contained option, we make a future that will never fail.
 
 ```scala
 import dispatch._, Defaults._
-val str = Http(host("example.com") OK as.String).option
+val str = Http.default(host("example.com") OK as.String).option
 ```
 
 The type assigned is `str: Future[Option[String]]`. When the future
@@ -34,11 +34,11 @@ more resilient.
 ```scala
 case class Location(city: String, state: String)
 def weatherSvc(loc: Location) = {
-  host("api.wunderground.com") / "api" / "$wkey$" / 
+  host("api.wunderground.com") / "api" / "$wkey$" /
     "conditions" / "q" / loc.state / (loc.city + ".xml")
 }
 def weatherXml(loc: Location) =
-  Http(weatherSvc(loc) OK as.xml.Elem).option
+  Http.default(weatherSvc(loc) OK as.xml.Elem).option
 ```
 
 Now any connection, status, or parsing error will produce a `None`.

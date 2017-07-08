@@ -16,7 +16,7 @@ import dispatch._, Defaults._
 case class Location(city: String, state: String)
 
 def weatherSvc(loc: Location) = {
-  host("api.wunderground.com") / "api" / "$wkey$" / 
+  host("api.wunderground.com") / "api" / "$wkey$" /
     "conditions" / "q" / loc.state / (loc.city + ".xml")
 }
 ```
@@ -32,7 +32,7 @@ in the usual way:
 
 ```scala
 val nyc = Location("New York", "NY")
-for (str <- Http(weatherSvc(nyc) OK as.String))
+for (str <- Http.default(weatherSvc(nyc) OK as.String))
   println(str)
 ```
 
@@ -46,7 +46,7 @@ respond in this format.
 
 ```scala
 def weatherXml(loc: Location) =
-  Http(weatherSvc(loc) OK as.xml.Elem)
+  Http.default(weatherSvc(loc) OK as.xml.Elem)
 ```
 
 This method returns a future `scala.xml.Elem`. Note that Dispatch
@@ -56,7 +56,7 @@ you can access them without additional imports.
 
 ### Traversing XML
 
-At this stage we're working with a higher abstraction. The `Http`
+At this stage we're working with a higher abstraction. The `Http.default`
 instance used to perform the request has become an implementation
 detail that `weatherXml` callers need not concern themselves with. We
 can use our new method to print a nicely formatted response.
