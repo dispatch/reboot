@@ -36,7 +36,7 @@ The following instructions will get you your snapshot:
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.14.0-SNAPSHOT"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "0.14.0-SNAPSHOT"
 ```
 
 ## Versioning and Support
