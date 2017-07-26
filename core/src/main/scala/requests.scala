@@ -470,7 +470,4 @@ trait RequestBuilderVerbs extends RequestVerbs {
   def setRealm(realm: Realm) = {
     subject.underlying(_.setRealm(realm))
   }
-
-  @deprecated("Use `toRequest`", since="0.11.0")
-  def build() = subject.toRequest
 }
