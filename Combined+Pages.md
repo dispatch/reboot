@@ -9,7 +9,7 @@ Dispatch
 
 > This documentation walks through basic functionality of the
 > library. You may also want to refer to its
-> [scaladocs](http://www.javadoc.io/doc/net.databinder.dispatch/dispatch-core_2.11/0.13.1).
+> [scaladocs](/Scaladoc+Index.html)
 
 ### Diving in
 
