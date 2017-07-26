@@ -15,15 +15,23 @@ case class Req(
   run: RequestBuilder => RequestBuilder,
   props: Req.Properties = Req.Properties()
 ) extends MethodVerbs with UrlVerbs with ParamVerbs
-with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
+    with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
+
   def subject = this
-  def underlying(next: RequestBuilder => RequestBuilder) =
-    Req(run andThen next, props)
-  def underlying(nextReq: RequestBuilder => RequestBuilder, nextProps: Req.Properties => Req.Properties) =
+
+  def underlying(next: RequestBuilder => RequestBuilder) = {
+    Req(run.andThen(next), props)
+  }
+
+  def underlying(
+    nextReq: RequestBuilder => RequestBuilder,
+    nextProps: Req.Properties => Req.Properties
+  ) = {
     Req(run andThen nextReq, nextProps(props))
+  }
 
   def toRequestBuilder = {
-    def requestBuilder = run(new RequestBuilder)
+    def requestBuilder = run(new RequestBuilder())
     //Body set from String and with no Content-Type will get a default of 'text/plain; charset=UTF-8'
     if(props.bodyType == Req.StringBody && !requestBuilder.build.getHeaders.contains("Content-Type")) {
       setContentType("text/plain", Charset.forName("UTF-8")).run(new RequestBuilder)
@@ -31,7 +39,10 @@ with AuthVerbs with HeaderVerbs with RequestBuilderVerbs {
       requestBuilder
     }
   }
-  def toRequest = toRequestBuilder.build
+
+  def toRequest = {
+    toRequestBuilder.build
+  }
 }
 
 object Req {
@@ -114,37 +125,43 @@ trait HeaderVerbs extends RequestVerbs {
 }
 
 trait ParamVerbs extends RequestVerbs {
-  private def defaultMethod(method: String): Req = {
-    if (subject.toRequest.getMethod.toUpperCase == "GET")
-      subject.setMethod(method)
-    else subject
-  }
-
-  /** Adds `params` to the request body. Sets request method
-   *  to POST if it is currently GET. */
+  /**
+   * Adds `params` to the request body.
+   * Sets request method to POST unless it has been explicitly set.
+   */
   def << (params: Traversable[(String,String)]) = {
-    (defaultMethod("POST") /: params) {
+    (subject.implyMethod("POST") /: params) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
     }
   }
-  /** Set request body to a given string,
-   *  - set method to POST if currently GET,
-   *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified. */
+
+  /**
+   * Set request body to a given string,
+   *  - set method to POST unless explicitly set otherwise
+   *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified.
+   */
   def << (body: String) = {
-    defaultMethod("POST").setBody(body)
+    subject.implyMethod("POST").setBody(body)
   }
-  /** Set a file as the request body and set method to PUT if it's
-    * currently GET. */
+
+  /**
+   * Set a file as the request body and set method to PUT if it's
+   * not explicitly set.
+   */
   def <<< (file: java.io.File) = {
-    defaultMethod("PUT").setBody(file)
+    subject.implyMethod("PUT").setBody(file)
   }
-  /** Adds `params` as query parameters */
-  def <<? (params: Traversable[(String,String)]) =
+
+  /**
+   * Adds `params` as query parameters
+   */
+  def <<? (params: Traversable[(String,String)]) = {
     (subject /: params) {
       case (s, (key, value)) =>
         s.addQueryParameter(key, value)
     }
+  }
 }
 
 trait AuthVerbs extends RequestVerbs {
@@ -166,59 +183,118 @@ trait RequestBuilderVerbs extends RequestVerbs {
 
   import scala.collection.JavaConverters._
 
-  def addBodyPart(part: Part) =
-    subject.underlying { _.addBodyPart(part) }
-  def addCookie(cookie: Cookie) =
-    subject.underlying { _.addCookie(cookie) }
-  def addHeader(name: String, value: String) =
-    subject.underlying { _.addHeader(name, value) }
-  def addParameter(key: String, value: String) =
-    subject.underlying { _.addFormParam(key, value) }
-  def addQueryParameter(name: String, value: String) =
-    subject.underlying { _.addQueryParam(name, value) }
-  def setQueryParameters(params: Map[String, Seq[String]]) =
-    subject.underlying { _.setQueryParams(params.mapValues(_.toList.asJava).asJava) }
-  def setBody(data: Array[Byte]) =
+  def addBodyPart(part: Part) = {
+    subject.underlying(_.addBodyPart(part))
+  }
+
+  def addCookie(cookie: Cookie) = {
+    subject.underlying(_.addCookie(cookie))
+  }
+
+  def addHeader(name: String, value: String) = {
+    subject.underlying(_.addHeader(name, value))
+  }
+
+  def addParameter(key: String, value: String) = {
+    subject.underlying(_.addFormParam(key, value))
+  }
+
+  def addQueryParameter(name: String, value: String) = {
+    subject.underlying(_.addQueryParam(name, value))
+  }
+
+  def setQueryParameters(params: Map[String, Seq[String]]) = {
+    subject.underlying(_.setQueryParams(params.mapValues(_.toList.asJava).asJava))
+  }
+
+  def setBody(data: Array[Byte]) = {
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.ByteArrayBody))
-  def setBody(dataWriter: BodyGenerator, length: Long) =
+  }
+
+  def setBody(dataWriter: BodyGenerator, length: Long) = {
     subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
-  def setBody(dataWriter: BodyGenerator) =
+  }
+
+  def setBody(dataWriter: BodyGenerator) = {
     subject.underlying(rb => rb.setBody(dataWriter), p => p.copy(bodyType = Req.EntityWriterBody))
-  def setBody(data: String) =
+  }
+
+  def setBody(data: String) = {
     subject.underlying(rb => rb.setBody(data), p => p.copy(bodyType = Req.StringBody))
-  def setBody(file: java.io.File) =
+  }
+
+  def setBody(file: java.io.File) = {
     subject.underlying(rb => rb.setBody(file), p => p.copy(bodyType = Req.FileBody))
-  def setBodyEncoding(charset: Charset) =
-    subject.underlying { _.setCharset(charset) }
-  def setContentType(mediaType: String, charset: Charset) =
+  }
+
+  def setBodyEncoding(charset: Charset) = {
+    subject.underlying(_.setCharset(charset))
+  }
+
+  def setContentType(mediaType: String, charset: Charset) = {
     subject.underlying {
       _.setHeader("Content-Type", mediaType + "; charset=" + charset).
       setCharset(charset)
     }
-  def setHeader(name: String, value: String) =
-    subject.underlying { _.setHeader(name, value) }
-  def setHeaders(headers: Map[String, Seq[String]]) =
+  }
+
+  def setHeader(name: String, value: String) = {
+    subject.underlying(_.setHeader(name, value))
+  }
+
+  def setHeaders(headers: Map[String, Seq[String]]) = {
     subject.underlying { _.setHeaders(
       headers.mapValues { _.asJava: Collection[String] }.asJava
     ) }
-  def setParameters(parameters: Map[String, Seq[String]]) =
+  }
+
+  def setParameters(parameters: Map[String, Seq[String]]) = {
     subject.underlying { _.setFormParams(
       parameters.mapValues { _.asJava: java.util.List[String] }.asJava
     ) }
-  def setMethod(method: String) =
-    subject.underlying { _.setMethod(method) }
-  def setUrl(url: String) =
-    subject.underlying { _.setUrl(url) }
-  def setProxyServer(proxyServer: ProxyServer) =
-    subject.underlying { _.setProxyServer(proxyServer) }
-  def setVirtualHost(virtualHost: String) =
-    subject.underlying { _.setVirtualHost(virtualHost) }
-  def setFollowRedirects(followRedirects: Boolean) =
-    subject.underlying { _.setFollowRedirect(followRedirects) }
-  def addOrReplaceCookie(cookie: Cookie) =
-    subject.underlying { _.addOrReplaceCookie(cookie) }
-  def setRealm(realm: Realm) =
-    subject.underlying { _.setRealm(realm) }
+  }
+
+  private[this] var methodExplicitlySet: Boolean = false
+
+  def setMethod(method: String) = {
+    methodExplicitlySet = true
+    subject.underlying(_.setMethod(method))
+  }
+
+  /**
+   * Set method unless method has been explicitly set using [[setMethod]].
+   */
+  def implyMethod(method: String) = {
+    if (! methodExplicitlySet) {
+      subject.underlying(_.setMethod(method))
+    } else {
+      subject
+    }
+  }
+
+  def setUrl(url: String) = {
+    subject.underlying(_.setUrl(url))
+  }
+
+  def setProxyServer(proxyServer: ProxyServer) = {
+    subject.underlying(_.setProxyServer(proxyServer))
+  }
+
+  def setVirtualHost(virtualHost: String) = {
+    subject.underlying(_.setVirtualHost(virtualHost))
+  }
+
+  def setFollowRedirects(followRedirects: Boolean) = {
+    subject.underlying(_.setFollowRedirect(followRedirects))
+  }
+
+  def addOrReplaceCookie(cookie: Cookie) = {
+    subject.underlying(_.addOrReplaceCookie(cookie))
+  }
+
+  def setRealm(realm: Realm) = {
+    subject.underlying(_.setRealm(realm))
+  }
 
   @deprecated("Use `toRequest`", since="0.11.0")
   def build() = subject.toRequest
