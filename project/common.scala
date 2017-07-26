@@ -42,10 +42,10 @@ object Common {
       )
     },
 
-    organization := "net.databinder.dispatch",
+    organization := "org.dispatchhttp",
 
     homepage :=
-      Some(new java.net.URL("http://dispatch.databinder.net/")),
+      Some(new java.net.URL("https://dispatchhttp.org/")),
 
     publishMavenStyle := true,
 
