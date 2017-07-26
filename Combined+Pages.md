@@ -1090,3 +1090,17 @@ For-expressions can do so many different things that Dispatch futures
 and projections don't support them all. If your cool for-expression
 doesn't work for this reason, feel free to contribute the missing
 methods to Disptach.
+
+## Scaladoc Index
+
+The following is an index of the available Dispatch Scaladocs by
+Dispatch release series and module.
+
+### Dispatch 0.13.x
+
+* [dispatch-core](/scaladocs/0.13/core)
+* [dispatch-json4sjackson](/scaladocs/0.13/json4sjackson)
+* [dispatch-json4snative](/scaladocs/0.13/json4snative)
+* [dispatch-jsoup](/scaladocs/0.13/jsoup)
+* [dispatch-liftjson](/scaladocs/0.13/liftjson)
+* [dispatch-tagsoup](/scaladocs/0.13/tagsoup)
