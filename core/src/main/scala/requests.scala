@@ -125,37 +125,43 @@ trait HeaderVerbs extends RequestVerbs {
 }
 
 trait ParamVerbs extends RequestVerbs {
-  private def defaultMethod(method: String): Req = {
-    if (subject.toRequest.getMethod.toUpperCase == "GET")
-      subject.setMethod(method)
-    else subject
-  }
-
-  /** Adds `params` to the request body. Sets request method
-   *  to POST if it is currently GET. */
+  /**
+   * Adds `params` to the request body.
+   * Sets request method to POST unless it has been explicitly set.
+   */
   def << (params: Traversable[(String,String)]) = {
-    (defaultMethod("POST") /: params) {
+    (subject.implyMethod("POST") /: params) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
     }
   }
-  /** Set request body to a given string,
-   *  - set method to POST if currently GET,
-   *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified. */
+
+  /**
+   * Set request body to a given string,
+   *  - set method to POST unless explicitly set otherwise
+   *  - set HTTP Content-Type to "text/plain; charset=UTF-8" if unspecified.
+   */
   def << (body: String) = {
-    defaultMethod("POST").setBody(body)
+    subject.implyMethod("POST").setBody(body)
   }
-  /** Set a file as the request body and set method to PUT if it's
-    * currently GET. */
+
+  /**
+   * Set a file as the request body and set method to PUT if it's
+   * not explicitly set.
+   */
   def <<< (file: java.io.File) = {
-    defaultMethod("PUT").setBody(file)
+    subject.implyMethod("PUT").setBody(file)
   }
-  /** Adds `params` as query parameters */
-  def <<? (params: Traversable[(String,String)]) =
+
+  /**
+   * Adds `params` as query parameters
+   */
+  def <<? (params: Traversable[(String,String)]) = {
     (subject /: params) {
       case (s, (key, value)) =>
         s.addQueryParameter(key, value)
     }
+  }
 }
 
 trait AuthVerbs extends RequestVerbs {
@@ -248,8 +254,22 @@ trait RequestBuilderVerbs extends RequestVerbs {
     ) }
   }
 
+  private[this] var methodExplicitlySet: Boolean = false
+
   def setMethod(method: String) = {
+    methodExplicitlySet = true
     subject.underlying(_.setMethod(method))
+  }
+
+  /**
+   * Set method unless method has been explicitly set using [[setMethod]].
+   */
+  def implyMethod(method: String) = {
+    if (! methodExplicitlySet) {
+      subject.underlying(_.setMethod(method))
+    } else {
+      subject
+    }
   }
 
   def setUrl(url: String) = {
