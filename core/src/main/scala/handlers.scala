@@ -22,6 +22,7 @@ class RequestHandlerTupleBuilder(req: Req) {
 case class StatusCode(code: Int)
 extends Exception("Unexpected response status: %d".format(code))
 
+/** This class is not thread safe. A new instance should be used for each callback */
 class FunctionHandler[T](f: Response => T) extends AsyncCompletionHandler[T] {
   def onCompleted(response: Response) = f(response)
 }
