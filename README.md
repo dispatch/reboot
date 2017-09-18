@@ -17,11 +17,11 @@ Dispatch requires that you use Java 8 as AHC requires it.
 Stable releases of Dispatch are published to Maven Central. As such, you can pull in the current
 stable release by simply adding a library dependency to your project for the correct version.
 
-In SBT you can add the following one-liner to get Dispatch 0.13.1, the latest release, into your
+In SBT you can add the following one-liner to get Dispatch 0.13.2, the latest release, into your
 project:
 
 ```scala
-libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.13.1"
+libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.13.2"
 ```
 
 ### Snapshot releases
