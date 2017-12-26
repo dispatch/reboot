@@ -8,9 +8,7 @@ libraryDependencies +=
 
 Seq(lsSettings :_*)
 
-Seq(buildInfoSettings:_*)
-
-sourceGenerators in Compile += buildInfo.taskValue
+enablePlugins(BuildInfoPlugin)
 
 buildInfoKeys := Seq[BuildInfoKey](version)
 
