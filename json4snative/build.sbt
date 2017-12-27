@@ -3,8 +3,6 @@ name := "dispatch-json4s-native"
 description :=
   "Dispatch module providing json4s native support"
 
-Seq(lsSettings :_*)
-
 val json4sVersion = "3.5.1"
 
 libraryDependencies ++= Seq(

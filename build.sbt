@@ -2,7 +2,6 @@
 lazy val root = Project(
   "dispatch-all", file("."), settings =
     Defaults.coreDefaultSettings ++ Common.settings ++ Seq(
-      ls.Plugin.LsKeys.skipWrite := true,
       publish := { }
     )
 ).aggregate(
