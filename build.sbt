@@ -1,9 +1,9 @@
 /** Aggregates tasks for all projects */
 lazy val root = Project(
-  "dispatch-all", file("."), settings =
-    Defaults.coreDefaultSettings ++ Common.settings ++ Seq(
-      publish := { }
-    )
+  "dispatch-all", file(".")
+).settings(
+  Common.settings,
+  publish := { }
 ).aggregate(
   core,
   jsoup,
@@ -15,12 +15,12 @@ lazy val root = Project(
 
 def module(name: String, settings: Seq[Def.Setting[_]] = Seq.empty) =
   Project(name,
-    file(name.replace("-", "")),
-    settings = Defaults.coreDefaultSettings ++
-      Common.settings ++
-      Common.testSettings ++
-      settings)
-    .dependsOn(ufcheck % "test->test")
+    file(name.replace("-", ""))
+  ).settings(
+    Common.settings,
+    Common.testSettings,
+    settings
+  ).dependsOn(ufcheck % "test->test")
 
 lazy val core = module("core", xmlDependency)
 
