@@ -19,7 +19,7 @@ trait Strings[T] extends AsyncHandler[T] {
   def onHeadersReceived(headers: HttpHeaders) = {
     for {
       ct <- Option(headers.get(CONTENT_TYPE))
-      cs <- Option(HttpUtils.parseCharset(ct))
+      cs <- Option(HttpUtils.extractCharset(ct))
     } charset = cs
     state
   }
@@ -52,4 +52,3 @@ trait StringsBy[T] extends Strings[T] {
 trait StringsByLine[T] extends StringsBy[T] {
   def divider = "[\n\r]+"
 }
-
