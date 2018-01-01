@@ -1,16 +1,14 @@
 package dispatch
 
 import io.netty.util.{TimerTask, Timeout, Timer}
-import scala.concurrent.{ExecutionContext}
 import scala.concurrent.duration.Duration
 
 object SleepFuture {
   def apply[T](d: Duration)(todo: => T)
-              (implicit timer: Timer,
-               executor: ExecutionContext) = {
+              (implicit timer: Timer) = {
     val promise = scala.concurrent.Promise[T]()
 
-    val sleepTimeout = timer.newTimeout(new TimerTask {
+    timer.newTimeout(new TimerTask {
       def run(timeout: Timeout) = {
         promise.complete(util.Try(todo))
         ()
