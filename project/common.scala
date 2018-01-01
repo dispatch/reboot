@@ -72,6 +72,11 @@ object Common {
           <name>Nathan Hamblen</name>
           <url>http://twitter.com/n8han</url>
         </developer>
+        <developer>
+          <id>farmdawgnation</id>
+          <name>Matt Farmer</name>
+          <url>https://farmdawgnation.com</url>
+        </developer>
       </developers>
   )
 }
