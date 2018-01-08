@@ -48,7 +48,10 @@ lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %%
 
 /** Util module for using unfiltered with scalacheck */
 lazy val ufcheck = project.in(file("ufcheck")).settings(
-  scalaVersion := Common.defaultScalaVersion
+  Common.settings,
+  publishArtifact := false,
+  publish := {},
+  publishLocal := {}
 )
 
 scalacOptions ++= Seq( "-unchecked", "-deprecation" )
