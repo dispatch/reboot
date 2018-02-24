@@ -4,7 +4,7 @@ import dispatch._
 import io.netty.handler.codec.http.HttpHeaderNames
 import org.asynchttpclient._
 import org.asynchttpclient.oauth._
-import org.asynchttpclient.util.Base64
+import java.util.Base64
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +42,7 @@ trait Exchange {
 
   def generateNonce = nonceBuffer.synchronized {
     random.nextBytes(nonceBuffer)
-    Base64.encode(nonceBuffer)
+    Base64.getEncoder().encodeToString(nonceBuffer)
   }
 
   def message[A](promised: Future[A], ctx: String)
