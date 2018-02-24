@@ -9,6 +9,6 @@ scala:
 jdk:
   - oraclejdk8
 script:
-  - sbt 'set dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.1.2"' test
-  - sbt 'set dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.2.1"' test
-  - sbt 'set dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.3.0"' test
+  - sbt 'set core/dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.1.2"' test
+  - sbt 'set core/dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.2.1"' test
+  - sbt 'set core/dependencyOverrides += "org.asynchttpclient" % "async-http-client" % "2.3.0"' test
