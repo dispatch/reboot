@@ -32,7 +32,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`net.databinder.dispatch::dispatch-core:0.14.0`
+import $ivy.`org.dispatchhttp::dispatch-core:0.14.0`
 ```
 
 Your environment now has everything in scope you need to play with dispatch in the console.
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   // debugging output. If you don't want that, simply
   // omit it.
   "ch.qos.logback"          %  "logback-classic" % "1.2.3",
-  "net.databinder.dispatch" %% "dispatch-core"   % "0.14.0"
+  "org.dispatchhttp"        %% "dispatch-core"   % "0.14.0"
 )
 ```
 
