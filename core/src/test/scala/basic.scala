@@ -10,12 +10,13 @@ with DispatchCleanup {
   import java.net.{URLEncoder,URLDecoder}
   import Prop.{forAll,AnyOperators}
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
     object Echo extends Params.Extract("echo", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case req @ Path("/echo") & Params(Echo(echo)) =>
         PlainTextContent ~> ResponseString(req.method + echo)
       case req @ Path(Seg("echopath" :: echo :: _)) =>
@@ -36,7 +37,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  val localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", port)
 
   // a shim until we can update scalacheck to a version that non-alpha strings that don't break Java
   val syms = "&#$@%"
@@ -115,7 +116,7 @@ with DispatchCleanup {
   }
 
   property("GET with encoded path as url") = forAll(Gen.alphaStr) { (sample: String) =>
-    val requesturl = "http://127.0.0.1:%d/echopath/%s".format(server.port, URLEncoder.encode(sample + syms, "utf-8"))
+    val requesturl = "http://127.0.0.1:%d/echopath/%s".format(port, URLEncoder.encode(sample + syms, "utf-8"))
     val res = Http.default(url(requesturl) / sample OK as.String)
     res() == ("GET" + sample + syms)
   }
@@ -162,7 +163,7 @@ with DispatchCleanup {
     )).suchThat(_.nonEmpty)) { (sample : Map[String, String]) =>
       val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
       val req = localhost.setBody("").setContentType("text/plain", Charset.forName("UTF-8")) <<? sample
-      req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
+      req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(port, expectedParams.mkString("&"))
     }
   }
 }

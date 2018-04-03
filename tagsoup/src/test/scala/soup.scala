@@ -7,12 +7,13 @@ extends Properties("Basic")
 with DispatchCleanup {
   import Prop.forAll
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
     object Echo extends Params.Extract("echo", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Path("/echo") & Params(Echo(echo)) =>
         Html(<html><head></head><body><div id="echo">{echo}</div></body></html>)
     }).start()
@@ -20,7 +21,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  def localhost = host("127.0.0.1", port)
 
   property("handle documents") = forAll(Gen.alphaStr) { (sample: String) =>
     val doc = Http.default(

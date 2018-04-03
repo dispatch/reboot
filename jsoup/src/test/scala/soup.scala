@@ -17,12 +17,13 @@ with DispatchCleanup {
   val PageWithRelativeLink =
     """<html><head></head><body><p><a href="/category">%s</a></p></body></html>"""
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
     object Echo extends Params.Extract("echo", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Path("/echo") & Params(Echo(echo)) =>
         Html(<html><head></head><body><div id="echo">{echo}</div></body></html>)
       case Path("/unclean") & Params(Echo(echo)) =>
@@ -34,7 +35,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  def localhost = host("127.0.0.1", port)
 
   property("handle Documents") = forAll(Gen.alphaStr) { (sample: String) =>
     val doc = Http.default(

@@ -22,21 +22,21 @@ with DispatchCleanup {
       new ComposeResponse(JsContent ~> ResponseString("%s(%s)" format(cb, jsonToString(json))))
   }
 
-
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
 
     object In extends Params.Extract("in", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Params(In(in)) => Json(("out" -> in))
     }).start()
   }
 
   import dispatch._
 
-  def localhost = host("127.0.0.1", server.port)
+  def localhost = host("127.0.0.1", port)
 
   property("parse json") = forAll(Gen.alphaStr) { (sample: String) =>
     val res = Http.default(

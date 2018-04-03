@@ -8,11 +8,12 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Path("/foo") =>
         PlainTextContent ~> ResponseString("bar")
     }).start()
@@ -20,7 +21,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  val localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", port)
 
   property("yield a Left on not found") = forAll(
     Gen.alphaStr.suchThat { _ != "foo"}
