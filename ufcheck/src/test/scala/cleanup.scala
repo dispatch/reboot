@@ -2,19 +2,19 @@ package unfiltered.spec
 
 trait Cleanup {
   Cleanup.dirties += this
-  def cleanup()
+  def cleanup(): Unit
 }
 
 trait ServerCleanup extends Cleanup {
   def server: unfiltered.util.StartableServer
-  def cleanup() { server.stop() }
+  def cleanup(): Unit = { server.stop() }
 }
 
 object Cleanup {
   import scala.collection.mutable.{HashSet,SynchronizedSet}
   private val dirties = new HashSet[Cleanup] with SynchronizedSet[Cleanup]
 
-  def cleanup() {
+  def cleanup(): Unit = {
     try {
       dirties.foreach { _.cleanup() }
     } catch {
