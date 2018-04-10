@@ -8,6 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
@@ -15,7 +16,7 @@ with DispatchCleanup {
     object Num extends Params.Extract("num", { seq =>
       Some(seq.flatMap { str => Params.long(Some(str)) } )
     })
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case req @ Path("/sum") & Params(Num(nums)) =>
         PlainTextContent ~> ResponseString(nums.sum.toString)
     }).start()
@@ -23,7 +24,7 @@ with DispatchCleanup {
 
   import dispatch._
 
-  val localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", port)
 
   def sum(nums: Iterable[String]) =
     Http.default(localhost / "sum" << nums.map { "num" -> _ } > as.String)

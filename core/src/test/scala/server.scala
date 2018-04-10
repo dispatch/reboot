@@ -9,6 +9,7 @@ with DispatchCleanup {
 
   import dispatch._
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
@@ -16,7 +17,7 @@ with DispatchCleanup {
     object Echo extends Params.Extract("echo", Params.first)
     object What extends Params.Extract("what", Params.first)
     object EchoHeader extends StringHeader("echo")
-    netty.Http.anylocal.handler(netty.async.Planify {
+    netty.Server.local(port).handler(netty.async.Planify {
       case req @ Path("/echo") & Params(Echo(echo)) =>
         req.respond(PlainTextContent ~> ResponseString(echo))
       case req @ Path("/ask") & Params(Echo(echo) & What(what)) =>
@@ -44,7 +45,7 @@ with DispatchCleanup {
     }).start()
   }
 
-  lazy val localhost: Req = host("127.0.0.1", server.port)
+  lazy val localhost: Req = host("127.0.0.1", port)
 
   property("Server receieves same answer (from param) from itself") =
     forAll(Gen.alphaStr) { sample =>

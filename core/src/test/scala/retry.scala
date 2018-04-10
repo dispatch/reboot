@@ -8,12 +8,13 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
     import unfiltered.request._
     object Echo extends Params.Extract("echo", Params.first)
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Params(Echo(echo)) =>
         PlainTextContent ~> ResponseString(echo)
     }).start()
@@ -30,7 +31,7 @@ with DispatchCleanup {
   implicit val timer: Timer =
     new HashedWheelTimer(1, TimeUnit.MILLISECONDS)
 
-  val localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", port)
 
   // wrapping num in Option because scalacheck is
   // determined to test 0 if the type is int

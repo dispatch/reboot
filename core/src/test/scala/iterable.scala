@@ -8,6 +8,7 @@ with DispatchCleanup {
   import Prop.{forAll,AnyOperators}
   import Gen._
 
+  private val port = unfiltered.util.Port.any
   val server = {
     import unfiltered.netty
     import unfiltered.response._
@@ -15,7 +16,7 @@ with DispatchCleanup {
     object Str extends Params.Extract("str", Params.first)
     object Chr extends Params.Extract("chr", Params.first ~> {
       _.flatMap{ _.toList.headOption } } )
-    netty.Http.anylocal.handler(netty.cycle.Planify {
+    netty.Server.local(port).handler(netty.cycle.Planify {
       case Path("/split") & Params(Str(str)) =>
         PlainTextContent ~> ResponseString(str.mkString("",",",","))
       case Path("/value") & Params(Chr(chr)) =>
@@ -26,7 +27,7 @@ with DispatchCleanup {
   import dispatch._
   import scala.concurrent.Future
 
-  val localhost = host("127.0.0.1", server.port)
+  val localhost = host("127.0.0.1", port)
 
   def split(str: String): Future[Seq[String]] =
     for (csv <- Http.default(localhost / "split" << Seq("str" -> str) > as.String))
