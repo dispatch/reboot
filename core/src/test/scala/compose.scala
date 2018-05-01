@@ -36,7 +36,7 @@ with DispatchCleanup {
   }
 
   property("sum in fold") = forAll(numList) { (sample: List[Long]) =>
-    val res = (Future.successful("0") /: sample) { (p, num) =>
+    val res = sample.foldLeft(Future.successful("0")) { (p, num) =>
       p.flatMap { cur => sum(Seq(cur, num.toString)) }
     }
     res() ?= sample.sum.toString
