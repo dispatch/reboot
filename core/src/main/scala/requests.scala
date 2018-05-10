@@ -187,7 +187,7 @@ trait HeaderVerbs extends RequestVerbs {
    * on the request.
    */
   def <:< (hs: Traversable[(String,String)]) = {
-    (subject /: hs) {
+    hs.foldLeft(subject) {
       case (s, (key, value)) =>
         s.addHeader(key, value)
     }
@@ -207,7 +207,7 @@ trait ParamVerbs extends RequestVerbs {
    * Sets request method to POST unless it has been explicitly set.
    */
   def << (params: Traversable[(String,String)]) = {
-    (subject.implyMethod("POST") /: params) {
+    params.foldLeft(subject.implyMethod("POST")) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
     }
@@ -256,7 +256,7 @@ trait ParamVerbs extends RequestVerbs {
    * Adds `params` as query parameters
    */
   def <<? (params: Traversable[(String,String)]) = {
-    (subject /: params) {
+    params.foldLeft(subject) {
       case (s, (key, value)) =>
         s.addQueryParameter(key, value)
     }

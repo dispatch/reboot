@@ -94,7 +94,7 @@ object FutureRightIterable {
 
   private def flatRight[L,R](eithers: Iterable[Either[L,R]]) = {
     val start: Either[L,Seq[R]] = Right(Seq.empty)
-    (start /: eithers) { (a, e) =>
+    eithers.foldLeft(start) { (a, e) =>
       for {
         seq <- a.right
         cur <- e.right
