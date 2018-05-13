@@ -22,7 +22,7 @@ As a trivial example, let's implement a method to return the average
 of some integers.
 
 ```scala
-def average(nums: Traversable[Int]) = {
+def average(nums: Iterable[Int]) = {
   if (nums.isEmpty) Left("Can't average emptiness")
   else Right(nums.sum / nums.size)
 }

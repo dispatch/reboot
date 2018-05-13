@@ -186,7 +186,7 @@ trait HeaderVerbs extends RequestVerbs {
    * Append a collecton of headers to the headers already
    * on the request.
    */
-  def <:< (hs: Traversable[(String,String)]) = {
+  def <:< (hs: Iterable[(String,String)]) = {
     hs.foldLeft(subject) {
       case (s, (key, value)) =>
         s.addHeader(key, value)
@@ -197,7 +197,7 @@ trait HeaderVerbs extends RequestVerbs {
    * Append a collecton of headers to the headers already
    * on the request.
    */
-  def appendHeaders (hs: Traversable[(String, String)]) =
+  def appendHeaders (hs: Iterable[(String, String)]) =
     <:<(hs)
 }
 
@@ -206,7 +206,7 @@ trait ParamVerbs extends RequestVerbs {
    * Adds `params` to the request body.
    * Sets request method to POST unless it has been explicitly set.
    */
-  def << (params: Traversable[(String,String)]) = {
+  def << (params: Iterable[(String,String)]) = {
     params.foldLeft(subject.implyMethod("POST")) {
       case (s, (key, value)) =>
         s.addParameter(key, value)
@@ -217,7 +217,7 @@ trait ParamVerbs extends RequestVerbs {
    * Adds `params` to the request body.
    * Sets request method to POST unless it has been explicitly set.
    */
-  def appendBodyParams(params: Traversable[(String, String)]) =
+  def appendBodyParams(params: Iterable[(String, String)]) =
     <<(params)
 
   /**
@@ -255,7 +255,7 @@ trait ParamVerbs extends RequestVerbs {
   /**
    * Adds `params` as query parameters
    */
-  def <<? (params: Traversable[(String,String)]) = {
+  def <<? (params: Iterable[(String,String)]) = {
     params.foldLeft(subject) {
       case (s, (key, value)) =>
         s.addQueryParameter(key, value)
@@ -265,7 +265,7 @@ trait ParamVerbs extends RequestVerbs {
   /**
    * Adds `params` as query parameters
    */
-  def appendQueryParams(params: Traversable[(String, String)]) = {
+  def appendQueryParams(params: Iterable[(String, String)]) = {
     <<?(params)
   }
 }
