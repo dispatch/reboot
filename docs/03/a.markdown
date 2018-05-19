@@ -77,7 +77,7 @@ You can also add query parameters with the `<<?` verb.
 def myRequestWithParams = myRequest <<? Map("key" -> "value")
 ```
 
-The `<<?` verb can consume any kind of `Traversable` that contains a
+The `<<?` verb can consume any kind of `Iterable` that contains a
 `(String, String)`, so if you'd like to use the verb form to add multiple
 query parameters with the same key, you'd just switch to using a `List`:
 
