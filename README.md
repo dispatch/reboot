@@ -70,7 +70,12 @@ their current support status:
 |0.12.3            |1.9.40        |2.11,2.12      |Critical only |0.12.x                           |
 |0.13.3            |2.0.38        |2.11,2.12      |Full support  |0.13.x                           |
 |0.14.0            |2.1.2         |2.11,2.12      |Full support  |0.14.x                           |
-|1.0.0-SNAPSHOT    |2.1.2         |2.11,2.12      |Development   |master                           |
+|1.0.0-SNAPSHOT    |2.4.7         |2.11,2.12      |Development   |master                           |
+
+Because the AsyncHttpClient does not adhere to semantic versioning, and its versions can increment
+quite quickly at times, beginning with 0.14 Dispatch will only use the latest (major, minor) AHC
+version that's available at the time its being developed. You may not be able to find a Dispatch
+version for every version of AHC if AHC went through a quick release clip.
 
 ## Getting Help and Contributing
 
