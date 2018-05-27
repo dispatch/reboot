@@ -19,7 +19,7 @@ trait Strings[T] extends AsyncHandler[T] {
   def onHeadersReceived(headers: HttpHeaders) = {
     for {
       ct <- Option(headers.get(CONTENT_TYPE))
-      cs <- Option(HttpUtils.extractCharset(ct))
+      cs <- Option(HttpUtils.extractContentTypeCharsetAttribute(ct))
     } charset = cs
     state
   }
