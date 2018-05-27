@@ -22,6 +22,9 @@ issue representing the work you'd like to do and that [@farmdawgnation][fdn] has
 do the work. This is largely to ensure that your work isn't a) something that someone else is
 already working on and b) is in line with the long term plans for Dispatch.
 
+By making a contribution you agree to license that contribution to us, and everyone else under
+the terms of the LGPL Version 3.
+
 ### Ownership of Contribution
 
 A condition of contributing to Dispatch is that you own your contribution. If you do not own your
