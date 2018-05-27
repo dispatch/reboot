@@ -15,11 +15,6 @@ case class Http(
 
   lazy val client = new DefaultAsyncHttpClient(clientBuilder.build)
 
-  private[this] def unsafeConfigure(withBuilder: Builder => Builder): Http = {
-    val newBuilder = new Builder(this.clientBuilder.build)
-    copy(clientBuilder = withBuilder(newBuilder))
-  }
-
   /**
    * Returns a new instance replacing the underlying `clientBuilder` with a new instance that is
    * configured using the `withBuilder` provided. The underlying client for this instance is closed
@@ -27,7 +22,8 @@ case class Http(
    */
   def closeAndConfigure(withBuilder: Builder => Builder): Http = {
     client.close()
-    unsafeConfigure(withBuilder)
+    val newBuilder = new Builder(this.clientBuilder.build)
+    copy(clientBuilder = withBuilder(newBuilder))
   }
 }
 
