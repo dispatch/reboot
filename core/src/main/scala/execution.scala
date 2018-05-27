@@ -15,23 +15,6 @@ case class Http(
 
   lazy val client = new DefaultAsyncHttpClient(clientBuilder.build)
 
-  /**
-   * Returns a new instance replacing the underlying `clientBuilder` with a new instance that is configured
-   * using the `withBuilder` provided. The current client config is the builder's prototype.
-   *
-   * This method may cause a resource link if you've used the Http client instance you're
-   * invoking `configure` on. For that reason it's recommended to use `closeAndConfigure` instead
-   * if you need to reconfigure an existing Http instance.
-   *
-   * If you need to preserve this behavior, it is recommended that you invoke `.copy` on the
-   * `Http` instance in ''your'' code so that it's obvious that you have created another copy of
-   * the executor and that the old one should still be maintained.
-   */
-  @deprecated("This method is deprecated and will be removed in a future version of dispatch. Please use Http.withConfiguration or closeAndConfigure. Or, optionally, directly invoke .copy on the executor and mutate the Builder yourself.", "0.13.0")
-  def configure(withBuilder: Builder => Builder): Http = {
-    unsafeConfigure(withBuilder)
-  }
-
   private[this] def unsafeConfigure(withBuilder: Builder => Builder): Http = {
     val newBuilder = new Builder(this.clientBuilder.build)
     copy(clientBuilder = withBuilder(newBuilder))
@@ -87,19 +70,6 @@ object Http {
     val newBuilder = new Builder(defaultClientBuilder.build)
     Http(withBuilder(newBuilder))
   }
-
-  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
-  def apply(req: Req)
-           (implicit executor: ExecutionContext): Future[Response] = default.apply(req)
-
-  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
-  def apply[T](pair: (Request, AsyncHandler[T]))
-              (implicit executor: ExecutionContext): Future[T] = default.apply(pair)
-
-  @deprecated("Using the Http singleton directly is deprecated and will be removed in a future version of dispatch. Please switch to invoking Http.default for using a globally accessible default Http client.", "0.12.2")
-  def apply[T]
-    (request: Request, handler: AsyncHandler[T])
-    (implicit executor: ExecutionContext): Future[T] = default.apply(request, handler)
 }
 
 trait HttpExecutor {
