@@ -22,21 +22,6 @@ issue representing the work you'd like to do and that [@farmdawgnation][fdn] has
 do the work. This is largely to ensure that your work isn't a) something that someone else is
 already working on and b) is in line with the long term plans for Dispatch.
 
-Before we accept your contribution, you'll need to sign the CLA that's appropriate for your
-situation. Please read and execute the appropreate CLA for your situation. The link to sign
-the CLA can be found at the bottom of the document:
-
-* Please use the [Individual CLA](https://github.com/dispatch/reboot/blob/master/cla/individual-cla.md)
-  if you're contributing on your own behalf.
-* Please use the [Entity CLA](https://github.com/dispatch/reboot/blob/master/cla/entity-cla.md)
-  if you're contributing on your employer's behalf or using their resources.
-* Or, if you want to contribute in both capacities, just sign both!
-
-You'll note that the CLA permits us to license your contributions under the terms of the Apache
-License 2.0 _or_ the current LGPL 3.0 license. We're in the process of making the transition to
-the Apache 2.0 license, and this CLA permits us to continue licensing your work under the LGPL in
-the meantime.
-
 ### Ownership of Contribution
 
 A condition of contributing to Dispatch is that you own your contribution. If you do not own your
