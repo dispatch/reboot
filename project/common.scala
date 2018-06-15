@@ -27,12 +27,20 @@ object Common {
       "-language:implicitConversions",
       // "-Xfatal-warnings",
       "-Xlint",
-      "-Yno-adapted-args",
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard",
       "-Xfuture"
     ),
+
+    scalacOptions in (Compile) ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, v)) if v <= 12 =>
+          Seq("-Yno-adapted-args")
+        case _ =>
+          Nil
+      }
+    },
 
     scalacOptions in (Test) ~= { (opts: Seq[String]) =>
       opts.diff(
