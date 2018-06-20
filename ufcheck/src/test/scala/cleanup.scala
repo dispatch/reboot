@@ -1,7 +1,7 @@
 package unfiltered.spec
 
 trait Cleanup {
-  Cleanup.dirties += this
+  Cleanup.dirties += (this -> (()))
   def cleanup(): Unit
 }
 
@@ -11,12 +11,12 @@ trait ServerCleanup extends Cleanup {
 }
 
 object Cleanup {
-  import scala.collection.mutable.{HashSet,SynchronizedSet}
-  private val dirties = new HashSet[Cleanup] with SynchronizedSet[Cleanup]
+  import scala.collection.concurrent.TrieMap
+  private val dirties = TrieMap.empty[Cleanup, Unit]
 
   def cleanup(): Unit = {
     try {
-      dirties.foreach { _.cleanup() }
+      dirties.foreach { _._1.cleanup() }
     } catch {
       case e: Exception =>
         println("Error on cleanup")
