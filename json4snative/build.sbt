@@ -3,7 +3,7 @@ name := "dispatch-json4s-native"
 description :=
   "Dispatch module providing json4s native support"
 
-val json4sVersion = "3.6.0"
+val json4sVersion = "3.6.1"
 
 libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-core" % json4sVersion,
