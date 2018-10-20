@@ -76,7 +76,7 @@ for a query parameter key.
   .addQueryParameter(&quot;key&quot;, &quot;value2&quot;)
 </code></pre><p>You can also add query parameters with the <code>&lt;&lt;?</code> verb.
 </p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest &lt;&lt;? Map(&quot;key&quot; -&gt; &quot;value&quot;)
-</code></pre><p>The <code>&lt;&lt;?</code> verb can consume any kind of <code>Traversable</code> that contains a
+</code></pre><p>The <code>&lt;&lt;?</code> verb can consume any kind of <code>Iterable</code> that contains a
 <code>(String, String)</code>, so if you’d like to use the verb form to add multiple
 query parameters with the same key, you’d just switch to using a <code>List</code>:
 </p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest &lt;&lt;? List(

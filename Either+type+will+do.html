@@ -53,7 +53,7 @@ success. Thus, any given either used for error handling should tell
 you the desired result, or the reason it has failed.
 </p><h3 id="Average+or+failure">Average or failure<a href="#Average+or+failure" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>As a trivial example, let’s implement a method to return the average
 of some integers.
-</p><pre><code class="prettyprint lang-scala">def average(nums: Traversable[Int]) = {
+</p><pre><code class="prettyprint lang-scala">def average(nums: Iterable[Int]) = {
   if (nums.isEmpty) Left(&quot;Can't average emptiness&quot;)
   else Right(nums.sum / nums.size)
 }

@@ -3,7 +3,7 @@ Dispatch
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
- release version is [**0.14.0**](https://github.com/dispatch/reboot/releases/tag/v0.14.0).
+ release version is [**1.0.0**](https://github.com/dispatch/reboot/releases/tag/v1.0.0).
 
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
 
@@ -32,7 +32,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`org.dispatchhttp::dispatch-core:0.14.0`
+import $ivy.`org.dispatchhttp::dispatch-core:1.0.0`
 ```
 
 Your environment now has everything in scope you need to play with dispatch in the console.
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   // debugging output. If you don't want that, simply
   // omit it.
   "ch.qos.logback"          %  "logback-classic" % "1.2.3",
-  "org.dispatchhttp"        %% "dispatch-core"   % "0.14.0"
+  "org.dispatchhttp"        %% "dispatch-core"   % "1.0.0"
 )
 ```
 
@@ -636,7 +636,7 @@ As a trivial example, let's implement a method to return the average
 of some integers.
 
 ```scala
-def average(nums: Traversable[Int]) = {
+def average(nums: Iterable[Int]) = {
   if (nums.isEmpty) Left("Can't average emptiness")
   else Right(nums.sum / nums.size)
 }
@@ -1016,7 +1016,7 @@ You can also add query parameters with the `<<?` verb.
 def myRequestWithParams = myRequest <<? Map("key" -> "value")
 ```
 
-The `<<?` verb can consume any kind of `Traversable` that contains a
+The `<<?` verb can consume any kind of `Iterable` that contains a
 `(String, String)`, so if you'd like to use the verb form to add multiple
 query parameters with the same key, you'd just switch to using a `List`:
 
