@@ -8,3 +8,7 @@ scala:
   - 2.12.6
 jdk:
   - oraclejdk8
+matrix:
+  include:
+  - jdk: openjdk11
+    scala: 2.12.7
