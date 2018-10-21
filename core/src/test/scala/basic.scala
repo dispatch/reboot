@@ -2,7 +2,10 @@ package dispatch.spec
 
 import java.nio.charset.Charset
 
+import org.asynchttpclient.Realm
+import org.asynchttpclient.Realm.AuthScheme
 import org.scalacheck._
+import org.scalacheck.Prop._
 
 object BasicSpecification
 extends Properties("Basic")
@@ -163,6 +166,21 @@ with DispatchCleanup {
       val expectedParams = sample.map { case (key, value) => "%s=%s".format(key, value) }
       val req = localhost.setBody("").setContentType("text/plain", Charset.forName("UTF-8")) <<? sample
       req.toRequest.getUrl ?= "http://127.0.0.1:%d/?%s".format(server.port, expectedParams.mkString("&"))
+    }
+  }
+
+  property("Building a Realm without a scheme should throw NPE") = {
+    forAll(Gen.zip(Gen.alphaNumStr, Gen.alphaNumStr)) { case (user, password) =>
+      throws(classOf[NullPointerException])(new Realm.Builder(user, password).build())
+    }
+  }
+
+  property("Build a Realm using as") = {
+    forAll(Gen.zip(Gen.alphaNumStr, Gen.alphaNumStr, Gen.oneOf(AuthScheme.values()))) { case (user, password, scheme) =>
+      val realm = localhost.as(user, password, scheme).toRequest.getRealm
+      realm.getScheme ?= scheme
+      realm.getPrincipal ?= user
+      realm.getPassword ?= password
     }
   }
 }
