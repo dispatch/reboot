@@ -271,8 +271,8 @@ trait ParamVerbs extends RequestVerbs {
 }
 
 trait AuthVerbs extends RequestVerbs {
-  def as(user: String, password: String): Req =
-    this.as(new Realm.Builder(user, password).build())
+  def as(user: String, password: String, scheme: AuthScheme): Req =
+    this.as(new Realm.Builder(user, password).setScheme(scheme).build())
 
   /** Basic auth, use with care. */
   def as_!(user: String, password: String): Req =
