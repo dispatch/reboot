@@ -18,16 +18,16 @@ Travis.
 Stable releases of Dispatch are published to Maven Central. As such, you can pull in the current
 stable release by simply adding a library dependency to your project for the correct version.
 
-To get the latest stable release, 1.0, simply add the following to your `build.sbt`:
+To get the latest stable release, 1.0.0, simply add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.0"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.0.0"
 ```
 
 If Gradle is more your style, you could also use this style:
 
 ```scala
-compile "org.dispatchhttp:dispatch-core_2.12:1.0"
+compile "org.dispatchhttp:dispatch-core_2.12:1.0.0"
 ```
 
 ### Snapshot releases
