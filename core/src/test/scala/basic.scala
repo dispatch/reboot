@@ -170,13 +170,13 @@ with DispatchCleanup {
   }
 
   property("Building a Realm without a scheme should throw NPE") = {
-    forAll(Gen.zip(Gen.alphaNumStr, Gen.alphaNumStr)) { case (user, password) =>
+    forAll(Gen.zip(Gen.alphaStr, Gen.alphaStr)) { case (user, password) =>
       throws(classOf[NullPointerException])(new Realm.Builder(user, password).build())
     }
   }
 
   property("Build a Realm using as") = {
-    forAll(Gen.zip(Gen.alphaNumStr, Gen.alphaNumStr, Gen.oneOf(AuthScheme.values()))) { case (user, password, scheme) =>
+    forAll(Gen.zip(Gen.alphaStr, Gen.alphaStr, Gen.oneOf(AuthScheme.values()))) { case (user, password, scheme) =>
       val realm = localhost.as(user, password, scheme).toRequest.getRealm
       realm.getScheme ?= scheme
       realm.getPrincipal ?= user
