@@ -3,7 +3,19 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.12.7"
+  val defaultScalaVersion     = "2.12.8"
+  val projectVersion          = "1.1.0-SNAPSHOT"
+
+  val asyncHttpVersion        = "2.6.0"
+  val json4sVersion           = "3.6.2"
+  val jsoupVersion            = "1.11.3"
+  val liftVersion             = "3.3.0"
+  val mockitoVersion          = "2.23.4"
+  val unfilteredNettyVersion  = "0.10.0-M2" // "0.9.1"
+  val scalacheckVersion       = "1.14.0"
+  val scalaXmlVersion         = "1.1.1"
+  val slf4jVersion            = "1.7.22"
+  val tagsoupVersion          = "1.2.1"
 
   val testSettings:Seq[Setting[_]] = Seq(
     testOptions in Test += Tests.Cleanup { loader =>
@@ -13,9 +25,9 @@ object Common {
   )
 
   val settings: Seq[Setting[_]] = Seq(
-    version := "1.1.0-SNAPSHOT",
+    version := Common.projectVersion,
 
-    crossScalaVersions := Seq("2.11.12", "2.12.7"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-M5"),
 
     scalaVersion := defaultScalaVersion,
 
