@@ -12,3 +12,8 @@ matrix:
   include:
   - jdk: openjdk11
     scala: 2.12.8
+  - scala: 2.13.0
+    script:
+    # TODO lift-json for Scala 2.13
+    - sbt "++ ${TRAVIS_SCALA_VERSION}!"
+      "all json4s-jackson/test json4s-native/test jsoup/test core/test tagsoup/test"
