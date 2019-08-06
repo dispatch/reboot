@@ -15,7 +15,7 @@ object Common {
   val settings: Seq[Setting[_]] = Seq(
     version := "1.1.0-SNAPSHOT",
 
-    crossScalaVersions := Seq("2.11.12", "2.12.8"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
 
     scalaVersion := defaultScalaVersion,
 
@@ -29,14 +29,13 @@ object Common {
       "-Xlint",
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard",
-      "-Xfuture"
+      "-Ywarn-value-discard"
     ),
 
     scalacOptions in (Compile) ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
-          Seq("-Yno-adapted-args")
+          Seq("-Yno-adapted-args", "-Xfuture")
         case _ =>
           Nil
       }

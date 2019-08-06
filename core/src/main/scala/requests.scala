@@ -327,7 +327,7 @@ trait RequestBuilderVerbs extends RequestVerbs {
    * Set query parameters, overwriting any pre-existing query parameters.
    */
   def setQueryParameters(params: Map[String, Seq[String]]) = {
-    subject.underlying(_.setQueryParams(params.mapValues(_.toList.asJava).asJava))
+    subject.underlying(_.setQueryParams(params.mapValues(_.toList.asJava).toMap.asJava))
   }
 
   /**
@@ -405,7 +405,7 @@ trait RequestBuilderVerbs extends RequestVerbs {
    */
   def setParameters(parameters: Map[String, Seq[String]]) = {
     subject.underlying { _.setFormParams(
-      parameters.mapValues { _.asJava: java.util.List[String] }.asJava
+      parameters.mapValues { _.asJava: java.util.List[String] }.toMap.asJava
     ) }
   }
 
