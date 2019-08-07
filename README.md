@@ -18,16 +18,16 @@ Travis.
 Stable releases of Dispatch are published to Maven Central. As such, you can pull in the current
 stable release by simply adding a library dependency to your project for the correct version.
 
-To get the latest stable release, 1.0.0, simply add the following to your `build.sbt`:
+To get the latest stable release, 1.1.0, simply add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.0.0"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.1.0"
 ```
 
 If Gradle is more your style, you could also use this style:
 
 ```scala
-compile "org.dispatchhttp:dispatch-core_2.12:1.0.0"
+compile "org.dispatchhttp:dispatch-core_2.12:1.1.0"
 ```
 
 ### Snapshot releases
@@ -39,7 +39,7 @@ to add the snapshots repository to your project and pull the relevant snapshot:
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "0.14.0-SNAPSHOT"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.2.0-SNAPSHOT"
 ```
 
 ## Versioning and Support
@@ -68,10 +68,11 @@ their current support status:
 |0.11.2            |1.8.10        |2.9.3,2.10,2.11|None          |                                 |
 |0.11.4            |1.9.40        |2.10,2.11      |None          |                                 |
 |0.12.3            |1.9.40        |2.11,2.12      |None          |                                 |
-|0.13.3            |2.0.38        |2.11,2.12      |Critical only |0.13.x                           |
-|0.14.0            |2.1.2         |2.11,2.12      |Full support  |0.14.x                           |
+|0.13.3            |2.0.38        |2.11,2.12      |None          |                                 |
+|0.14.0            |2.1.2         |2.11,2.12      |Critical only |0.14.x                           |
 |1.0.0             |2.5.4         |2.11,2.12      |Full support  |1.0.x                            |
-|1.1.0-SNAPSHOT    |2.10.1        |2.12,2.13      |Development   |master                           |
+|1.1.0             |2.10.1        |2.12,2.13      |Full support  |1.1.x                            |
+|1.2.0-SNAPSHOT    |2.10.1        |2.12,2.13      |Development   |master                           |
 
 Because the AsyncHttpClient does not adhere to semantic versioning, and its versions can increment
 quite quickly at times, beginning with 0.14 Dispatch will only use the latest (major, minor) AHC
