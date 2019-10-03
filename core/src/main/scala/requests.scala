@@ -63,7 +63,7 @@ case class Req(
 }
 
 object Req {
-  final case class Properties(bodyType: BodyType = NoBody)
+  final case class Properties(bodyType: BodyType = NoBody, methodExplicitlySet: Boolean = false)
 
   trait BodyType
   final case object NoBody extends BodyType
@@ -409,21 +409,18 @@ trait RequestBuilderVerbs extends RequestVerbs {
     ) }
   }
 
-  private[this] var methodExplicitlySet: Boolean = false
-
   /**
    * Explicitly set the method of the request.
    */
   def setMethod(method: String) = {
-    methodExplicitlySet = true
-    subject.underlying(_.setMethod(method))
+    subject.underlying(_.setMethod(method), _.copy(methodExplicitlySet = true))
   }
 
   /**
    * Set method unless method has been explicitly set using [[setMethod]].
    */
   def implyMethod(method: String) = {
-    if (! methodExplicitlySet) {
+    if (!subject.props.methodExplicitlySet) {
       subject.underlying(_.setMethod(method))
     } else {
       subject
