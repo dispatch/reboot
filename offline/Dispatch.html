@@ -5,12 +5,7 @@
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <title>Dispatch — Dispatch</title>
         
-        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
-        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
-        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
-        <!--[if lt IE 8]>
-          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
-        <![endif]-->
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
         <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
         <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
@@ -18,8 +13,8 @@
         <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
-        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.bundle.min.js"></script>
         <script type="text/javascript" src="js/pamflet.js"></script>
         <script type="text/javascript">
           Pamflet.page.language = 'en';
@@ -31,14 +26,21 @@
         
         
       </head>
-      <body class="color_scheme-redmond">
-        <a class="page next nav" href="Bargaining+with+futures.html">
-            <span class="space">&nbsp;</span>
-            <span class="arrow">&gt;</span>
-          </a>
-        <div class="container contentswrapper">
-          <div class="span-16 prepend-1 append-1 contents">
-            <h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
+      <body class="color_scheme-github">
+        <div class="container-fluid contentswrapper h-100">
+          <div class="row minh-100">
+          <div class="col-md-4 col-xl-3 toccolumn leftcolumn">
+                  <div class="lefttocwrapper">
+      <div class="tocwrapper">
+        
+        <div class="tocbody show" id="toc">
+        
+        <div class="current">Dispatch</div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Scaladoc+Index.html">Scaladoc Index</a></div><ol class="toc">  </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div>
+      </div>
+      </div>
+                </div><div class="col-md-8 col-xs-9">
+                  <div class="rightcolumn contents">
+                  <h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
  release version is <a href="https://github.com/dispatch/reboot/releases/tag/v1.1.1"><strong>1.1.1</strong></a>.
 </p><blockquote><p>This documentation walks through basic functionality of the
@@ -99,24 +101,33 @@ any time:
 </p><pre><code class="prettyprint lang-scala">val c = country()
 </code></pre><p>But the wise use of futures defers this operation as long as is
 practical, or doesn’t perform it at all. To see how, keep reading.
-</p><div class="bottom nav span-16">
-                        <em>Next Page</em>
+</p><div class="bottom nav">
+                <div class="row">
+                  <div class="col-md-auto">
+                    <a href="Bargaining+with+futures.html">
+                      <div class="arrowitem">
                         <span class="arrow">&gt;</span>
-                        <a href="Bargaining+with+futures.html"> Bargaining with futures </a>                        
-                        
-                      </div><div class="tocwrapper show">
-      <a class="tochead nav" style="display: none" href="#toc">❦</a>
-      <a name="toc"></a>
-      <h4 class="toctitle">Contents</h4>
-      <div class="tocbody">
-      <div class="current">Dispatch</div><ol class="toc"> <li><div><a href="Bargaining+with+futures.html">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="Abstraction+over+future+information.html">Abstraction over future information</a></div></li><li><div><a href="Working+with+multiple+futures.html">Working with multiple futures</a></div></li><li><div><a href="Arbitrarily+many+futures.html">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="A+future+of+success+and+failure.html">A future of success and failure</a></div><ol class="toc"> <li><div><a href="Success+as+the+only+option.html">Success as the only option</a></div></li><li><div><a href="Either+type+will+do.html">Either type will do</a></div></li><li><div><a href="Either+Future.html">Either Future</a></div></li> </ol></li><li><div><a href="Defining+requests.html">Defining requests</a></div><ol class="toc"> <li><div><a href="HTTP+methods+and+parameters.html">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="Unraveling+for-expressions.html">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="Scaladoc+Index.html">Scaladoc Index</a></div><ol class="toc">  </ol></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
-          </div>
+                      </div>
+
+                      <div class="arrowitem">
+                        <em>Next page</em><br/>
+                        Bargaining with futures
+                      </div>
+
+                    </a>
+                  </div>
+                </div>
+                
+              </div>
+                  </div>
+                </div>
+          </div> <!-- row -->
         </div>
         <div class="header">
-          <div class="container">
-        <div class="span-16 prepend-1 append-1">
-          <div class="span-16 top nav">
-            <div class="span-16 title">
+          <div class="container-fluid top nav">
+        <div class="row justify-content-md-center w-100">
+          <div class="col-md-auto">
+            <div class="title">
               <span>Dispatch</span> 
             </div>
           </div>

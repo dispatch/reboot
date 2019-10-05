@@ -5,12 +5,7 @@
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <title>Dispatch — Combined Pages</title>
         
-        <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection"/>
-        <link rel="stylesheet" href="css/blueprint/grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
-        <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print"/> 
-        <!--[if lt IE 8]>
-          <link rel="stylesheet" href={ relativeBase + "css/blueprint/ie.css" } type="text/css" media="screen, projection"/>
-        <![endif]-->
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
         <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
         <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
@@ -18,8 +13,8 @@
         <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
         <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
-        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-        <script type="text/javascript" src="js/jquery.collapse.js"></script>
+        <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.bundle.min.js"></script>
         <script type="text/javascript" src="js/pamflet.js"></script>
         <script type="text/javascript">
           Pamflet.page.language = 'en';
@@ -31,19 +26,17 @@
         
         
       </head>
-      <body class="color_scheme-redmond">
-        <a class="page prev nav" href="Contents+in+Depth.html">
-            <span class="space">&nbsp;</span>
-            <span class="flip arrow">&gt;</span>
-          </a>
-        <div class="container contentswrapper">
-          <div class="span-16 prepend-1 append-1 contents">
-            <div class="tocwrapper show">
-      <a class="tochead nav" style="display: none" href="#toc">❦</a>
-      <a name="toc"></a>
-      <h4 class="toctitle">Contents</h4>
-      <div class="tocbody">
-      <div><a href="#Dispatch">Dispatch</a></div><ol class="toc"> <li><div><a href="#Bargaining+with+futures">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="#Abstraction+over+future+information">Abstraction over future information</a></div></li><li><div><a href="#Working+with+multiple+futures">Working with multiple futures</a></div></li><li><div><a href="#Arbitrarily+many+futures">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="#A+future+of+success+and+failure">A future of success and failure</a></div><ol class="toc"> <li><div><a href="#Success+as+the+only+option">Success as the only option</a></div></li><li><div><a href="#Either+type+will+do">Either type will do</a></div></li><li><div><a href="#Either+Future">Either Future</a></div></li> </ol></li><li><div><a href="#Defining+requests">Defining requests</a></div><ol class="toc"> <li><div><a href="#HTTP+methods+and+parameters">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="#Unraveling+for-expressions">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="#Scaladoc+Index">Scaladoc Index</a></div><ol class="toc">  </ol></li> </ol></div></div><h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
+      <body class="color_scheme-github">
+        <div class="container-fluid contentswrapper h-100">
+          <div class="row minh-100">
+          <div class="col-md-4 col-xl-3 leftcolumn">&nbsp;</div><div class="col-md-8 col-xs-9">
+                  <div class="rightcolmn contents">
+                    <div class="tocwrapper">
+        
+        <div class="tocbody show" id="toc">
+        <h4 class="toctitle">Contents</h4>
+        <div><a href="#Dispatch">Dispatch</a></div><ol class="toc"> <li><div><a href="#Bargaining+with+futures">Bargaining with futures</a></div><ol class="toc"> <li><div><a href="#Abstraction+over+future+information">Abstraction over future information</a></div></li><li><div><a href="#Working+with+multiple+futures">Working with multiple futures</a></div></li><li><div><a href="#Arbitrarily+many+futures">Arbitrarily many futures</a></div></li> </ol></li><li><div><a href="#A+future+of+success+and+failure">A future of success and failure</a></div><ol class="toc"> <li><div><a href="#Success+as+the+only+option">Success as the only option</a></div></li><li><div><a href="#Either+type+will+do">Either type will do</a></div></li><li><div><a href="#Either+Future">Either Future</a></div></li> </ol></li><li><div><a href="#Defining+requests">Defining requests</a></div><ol class="toc"> <li><div><a href="#HTTP+methods+and+parameters">HTTP methods and parameters</a></div></li> </ol></li><li><div><a href="#Unraveling+for-expressions">Unraveling for-expressions</a></div><ol class="toc">  </ol></li><li><div><a href="#Scaladoc+Index">Scaladoc Index</a></div><ol class="toc">  </ol></li> </ol></div>
+      </div><h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
  release version is <a href="https://github.com/dispatch/reboot/releases/tag/v1.1.1"><strong>1.1.1</strong></a>.
 </p><blockquote><p>This documentation walks through basic functionality of the
@@ -677,13 +670,15 @@ Dispatch release series and module.
 </li><li><a href="/scaladocs/0.13/liftjson">dispatch-liftjson</a>
 </li><li><a href="/scaladocs/0.13/tagsoup">dispatch-tagsoup</a>
 </li></ul>
-          </div>
+                  </div>
+                </div>
+          </div> <!-- row -->
         </div>
         <div class="header">
-          <div class="container">
-        <div class="span-16 prepend-1 append-1">
-          <div class="span-16 top nav">
-            <div class="span-16 title">
+          <div class="container-fluid top nav">
+        <div class="row justify-content-md-center w-100">
+          <div class="col-md-auto">
+            <div class="title">
               <span>Dispatch</span> — Combined Pages
             </div>
           </div>
