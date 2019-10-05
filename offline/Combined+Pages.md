@@ -3,7 +3,7 @@ Dispatch
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
- release version is [**1.1.0**](https://github.com/dispatch/reboot/releases/tag/v1.1.0).
+ release version is [**1.1.1**](https://github.com/dispatch/reboot/releases/tag/v1.1.1).
 
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
 
@@ -32,7 +32,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`org.dispatchhttp::dispatch-core:1.1.0`
+import $ivy.`org.dispatchhttp::dispatch-core:1.1.1`
 ```
 
 Your environment now has everything in scope you need to play with dispatch in the console.
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   // debugging output. If you don't want that, simply
   // omit it.
   "ch.qos.logback"          %  "logback-classic" % "1.2.3",
-  "org.dispatchhttp"        %% "dispatch-core"   % "1.1.0"
+  "org.dispatchhttp"        %% "dispatch-core"   % "1.1.1"
 )
 ```
 
