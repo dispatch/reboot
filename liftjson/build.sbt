@@ -6,6 +6,6 @@ description :=
 scalacOptions += "-Xfatal-warnings"
 
 libraryDependencies ++= Seq(
-  "net.liftweb" %% "lift-json" % "3.3.0",
-  "org.mockito" % "mockito-core" % "3.0.0" % "test"
+  "net.liftweb" %% "lift-json" % "3.4.0",
+  "org.mockito" % "mockito-core" % "3.1.0" % "test"
 )

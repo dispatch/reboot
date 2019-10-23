@@ -8,5 +8,5 @@ val json4sVersion = "3.6.7"
 libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-core" % json4sVersion,
   "org.json4s" %% "json4s-native" % json4sVersion,
-  "ws.unfiltered" %% "unfiltered-netty-server" % "0.10.0-M4" % "test"
+  "ws.unfiltered" %% "unfiltered-netty-server" % "0.10.0-M5" % "test"
 )
