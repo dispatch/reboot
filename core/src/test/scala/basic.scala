@@ -184,6 +184,11 @@ with DispatchCleanup {
     }
   }
 
+  property("Add query params with just the key") = forAll(Gen.const("unused")) { (sample: String) =>
+    val req = (localhost / "path").addQueryParameter("key")
+    req.toRequest.getUrl ?= "http://127.0.0.1:%d/path?key".format(port)
+  }
+
   property("Building a Realm without a scheme should throw NPE") = {
     forAll(Gen.zip(Gen.alphaNumStr, Gen.alphaNumStr)) { case (user, password) =>
       throws(classOf[NullPointerException])(new Realm.Builder(user, password).build())

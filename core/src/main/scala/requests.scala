@@ -324,11 +324,11 @@ trait RequestBuilderVerbs extends RequestVerbs {
   }
 
   /**
-   * Add a new query parameter to the request. Supports an optionally empty
-   * value.
+   * Add a new query parameter to the request without a value. This is useful
+   * for some APIs that require adding just the key to the query parameters
    */
-  def addQueryParameter(name: String, value: Option[String]) {
-    subject.underlying(_.addQueryParam(name, value.getOrElse(null)))
+  def addQueryParameter(name: String) = {
+    subject.underlying(_.addQueryParam(name, null))
   }
 
   /**
