@@ -333,9 +333,23 @@ trait RequestBuilderVerbs extends RequestVerbs {
 
   /**
    * Set query parameters, overwriting any pre-existing query parameters.
+   *
+   * If an empty Seq is provided for a key, we will treat that as intending
+   * for the key to be speified without _any_ values.
    */
   def setQueryParameters(params: Map[String, Seq[String]]) = {
-    subject.underlying(_.setQueryParams(params.mapValues(_.toList.asJava).toMap.asJava))
+    subject.underlying { ahcReqBuilder =>
+      ahcReqBuilder.setQueryParams(params.mapValues({ paramValue =>
+        paramValue match {
+          case Seq() =>
+            // Treat this as requesting a key with no values
+            Seq[String](null).toList.asJava
+
+          case _ =>
+            paramValue.toList.asJava
+        }
+      }).toMap.asJava)
+    }
   }
 
   /**
