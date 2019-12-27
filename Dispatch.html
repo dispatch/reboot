@@ -42,7 +42,7 @@
                   <div class="rightcolumn contents">
                   <h1 id="Dispatch">Dispatch<a href="#Dispatch" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p><em>Dispatch</em> is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java’s <a href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>. The latest
- release version is <a href="https://github.com/dispatch/reboot/releases/tag/v1.1.2"><strong>1.1.2</strong></a>.
+ release version is <a href="https://github.com/dispatch/reboot/releases/tag/v1.1.3"><strong>1.1.3</strong></a>.
 </p><blockquote><p>This documentation walks through basic functionality of the
 library. You may also want to refer to its
 <a href="/Scaladoc+Index.html">scaladocs</a>
@@ -56,7 +56,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`org.dispatchhttp::dispatch-core:1.1.2`
+import $ivy.`org.dispatchhttp::dispatch-core:1.1.3`
 </code></pre><p>Your environment now has everything in scope you need to play with dispatch in the console.
 </p><h3 id="SBT">SBT<a href="#SBT" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Once you have sbt installed, Dispatch is two steps away. Open a
 shell and change to an empty or unimportant directory, then add the following
@@ -67,7 +67,7 @@ content to a file named <code>build.sbt</code>:
   // debugging output. If you don't want that, simply
   // omit it.
   &quot;ch.qos.logback&quot;          %  &quot;logback-classic&quot; % &quot;1.2.3&quot;,
-  &quot;org.dispatchhttp&quot;        %% &quot;dispatch-core&quot;   % &quot;1.1.2&quot;
+  &quot;org.dispatchhttp&quot;        %% &quot;dispatch-core&quot;   % &quot;1.1.3&quot;
 )
 </code></pre><p>Then invoke <code>sbt console</code> from your shell. After “the internet” has downloaded, you’re good to go.
 the above settings in <code>build.sbt</code> are also the settings you’ll use to add dispatch to your project
