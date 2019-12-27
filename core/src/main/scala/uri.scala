@@ -50,30 +50,33 @@ object UriEncode {
   def pchar = unreserved ++ (
     ':' :: '@' :: '&' :: '=' :: '+' :: '$' :: ',' :: Nil
   )
-  val segmentValid = (';' +: pchar).toSet
+  val segmentValid: Set[Char] = (';' +: pchar).toSet
 
-  private val validMarkers = (0 to segmentValid.max.toInt).map(i => segmentValid(i.toChar)).toArray
-  private def isValidChar(ch: Char) = (ch < validMarkers.length) && validMarkers(ch.toInt)
+  // There are likely more optimal ways of doing this calculation, however
+  // it seems unlikely that long path segments are often on the hot path
+  // of a request in such a way that they can't be cached. If that proves
+  // not to be true, then we can revisit.
+  private def isValidChar(b: Byte) = {
+    segmentValid.contains(b.toChar)
+  }
 
   def path(pathSegment: String, encoding: String = "UTF-8") = {
-    if (pathSegment.forall(isValidChar)) {
+    val pathBytes = pathSegment.getBytes(encoding)
+
+    if (pathBytes.forall(isValidChar)) {
       pathSegment
-    }
-    else {
+    } else {
       val sb = new StringBuilder(pathSegment.length << 1)
 
-      pathSegment foreach { ch =>
-        if (isValidChar(ch)) {
-          sb.append(ch)
-        }
-        else {
-          ch.toString.getBytes(encoding) foreach { b =>
-            val hi = (b >>> 4) & 0xf
-            val lo = b & 0xf
-            sb.append('%')
-              .append((if (hi > 9) hi + '7' else hi + '0').toChar)
-              .append((if (lo > 9) lo + '7' else lo + '0').toChar)
-          }
+      pathBytes.foreach { b =>
+        if (isValidChar(b)) {
+          sb.append(b.toChar)
+        } else {
+          val hi = (b >>> 4) & 0xf
+          val lo = b & 0xf
+          sb.append('%')
+            .append((if (hi > 9) hi + '7' else hi + '0').toChar)
+            .append((if (lo > 9) lo + '7' else lo + '0').toChar)
         }
       }
 
