@@ -9,7 +9,8 @@ object Common {
     testOptions in Test += Tests.Cleanup { loader =>
       val c = loader.loadClass("unfiltered.spec.Cleanup$")
       c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
-    }
+    },
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-verbosity", "3")
   )
 
   val settings: Seq[Setting[_]] = Seq(
