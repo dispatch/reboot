@@ -3,7 +3,7 @@ Dispatch
 
 *Dispatch* is a library for asynchronous HTTP interaction. It provides
  a Scala vocabulary for Java's [async-http-client][ahc]. The latest
- release version is [**1.1.3**](https://github.com/dispatch/reboot/releases/tag/v1.1.3).
+ release version is [**1.2.0**](https://github.com/dispatch/reboot/releases/tag/v1.2.0).
 
 [ahc]: https://github.com/AsyncHttpClient/async-http-client
 
@@ -32,7 +32,7 @@ the following.
 # of the debugging log output, otherwise omit
 import $ivy.`ch.qos.logback:logback-classic:1.2.3`
 
-import $ivy.`org.dispatchhttp::dispatch-core:1.1.3`
+import $ivy.`org.dispatchhttp::dispatch-core:1.2.0`
 ```
 
 Your environment now has everything in scope you need to play with dispatch in the console.
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   // debugging output. If you don't want that, simply
   // omit it.
   "ch.qos.logback"          %  "logback-classic" % "1.2.3",
-  "org.dispatchhttp"        %% "dispatch-core"   % "1.1.3"
+  "org.dispatchhttp"        %% "dispatch-core"   % "1.2.0"
 )
 ```
 
@@ -1008,6 +1008,14 @@ for a query parameter key.
 def myRequestWithParams = myRequest
   .addQueryParameter("key", "value1")
   .addQueryParameter("key", "value2")
+```
+
+Query parameters can also be added without values to create urls such as
+`http://mydomain.com?param` by just providing the key:
+
+```scala
+def myRequestWithParams = myRequest
+  .addQueryParameter("key")
 ```
 
 You can also add query parameters with the `<<?` verb.

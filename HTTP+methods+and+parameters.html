@@ -73,6 +73,10 @@ for a query parameter key.
 </p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest
   .addQueryParameter(&quot;key&quot;, &quot;value1&quot;)
   .addQueryParameter(&quot;key&quot;, &quot;value2&quot;)
+</code></pre><p>Query parameters can also be added without values to create urls such as
+<code>http://mydomain.com?param</code> by just providing the key:
+</p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest
+  .addQueryParameter(&quot;key&quot;)
 </code></pre><p>You can also add query parameters with the <code>&lt;&lt;?</code> verb.
 </p><pre><code class="prettyprint lang-scala">def myRequestWithParams = myRequest &lt;&lt;? Map(&quot;key&quot; -&gt; &quot;value&quot;)
 </code></pre><p>The <code>&lt;&lt;?</code> verb can consume any kind of <code>Iterable</code> that contains a
