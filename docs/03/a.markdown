@@ -71,6 +71,14 @@ def myRequestWithParams = myRequest
   .addQueryParameter("key", "value2")
 ```
 
+Query parameters can also be added without values to create urls such as
+`http://mydomain.com?param` by just providing the key:
+
+```scala
+def myRequestWithParams = myRequest
+  .addQueryParameter("key")
+```
+
 You can also add query parameters with the `<<?` verb.
 
 ```scala
