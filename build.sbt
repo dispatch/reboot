@@ -8,7 +8,6 @@ lazy val root = Project(
   core,
   jsoup,
   tagsoup,
-  liftjson,
   json4sJackson,
   json4sNative
 )
@@ -23,10 +22,6 @@ def module(name: String, settings: Seq[Def.Setting[_]] = Seq.empty) =
   ).dependsOn(ufcheck % "test->test")
 
 lazy val core = module("core", xmlDependency)
-
-lazy val liftjson = module("lift-json")
-  .dependsOn(core)
-  .dependsOn(core % "test->test")
 
 lazy val json4sJackson = module("json4s-jackson")
   .dependsOn(core)
@@ -44,7 +39,7 @@ lazy val tagsoup = module("tagsoup")
   .dependsOn(core)
   .dependsOn(core % "test->test")
 
-lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %% "scala-xml" % "1.2.0")
+lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %% "scala-xml" % "2.1.0")
 
 /** Util module for using unfiltered with scalacheck */
 lazy val ufcheck = project.in(file("ufcheck")).settings(
