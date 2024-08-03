@@ -4,6 +4,8 @@ import io.netty.util.{HashedWheelTimer, Timer}
 import org.asynchttpclient.DefaultAsyncHttpClientConfig.Builder
 import org.asynchttpclient._
 
+import java.time.Duration
+
 object Defaults {
   implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
 
@@ -26,9 +28,11 @@ private[dispatch] object InternalDefaults {
   private object BasicDefaults extends Defaults {
     lazy val timer = new HashedWheelTimer()
 
+    private val userAgent = "Dispatch/%s" format BuildInfo.version
+    private val infinite = Duration.ofMillis(-1)
     def builder: Builder = new DefaultAsyncHttpClientConfig.Builder()
-      .setUserAgent("Dispatch/%s" format BuildInfo.version)
-      .setRequestTimeout(-1) // don't timeout streaming connections
+      .setUserAgent(userAgent)
+      .setRequestTimeout(infinite) // don't timeout streaming connections
       .setUseProxyProperties(true)
   }
 
