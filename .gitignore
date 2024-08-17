@@ -10,3 +10,4 @@ src_managed
 *.iml
 .vscode
 .metals
+.bsp

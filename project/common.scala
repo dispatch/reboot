@@ -3,14 +3,14 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "2.13.1"
+  val defaultScalaVersion = "2.13.14"
 
   val testSettings:Seq[Setting[_]] = Seq(
-    testOptions in Test += Tests.Cleanup { loader =>
+    Test / testOptions += Tests.Cleanup { loader =>
       val c = loader.loadClass("unfiltered.spec.Cleanup$")
       c.getMethod("cleanup").invoke(c.getField("MODULE$").get(c))
     },
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-verbosity", "3")
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaCheck, "-verbosity", "3")
   )
 
   val settings: Seq[Setting[_]] = Seq(
@@ -20,7 +20,7 @@ object Common {
 
     scalaVersion := defaultScalaVersion,
 
-    scalacOptions in (Compile) ++= Seq(
+    Compile / scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
       "-unchecked",
@@ -33,7 +33,7 @@ object Common {
       "-Ywarn-value-discard"
     ),
 
-    scalacOptions in (Compile) ++= {
+    Compile / scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
           Seq("-Yno-adapted-args", "-Xfuture")
@@ -42,7 +42,7 @@ object Common {
       }
     },
 
-    scalacOptions in (Test) ~= { (opts: Seq[String]) =>
+    Test / scalacOptions ~= { (opts: Seq[String]) =>
       opts.diff(
         Seq(
           "-Xlint"
@@ -65,7 +65,7 @@ object Common {
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
 
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
 
     licenses := Seq("LGPL v3" -> url("http://www.gnu.org/licenses/lgpl.txt")),
 
