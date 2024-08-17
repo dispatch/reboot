@@ -5,6 +5,7 @@ import org.asynchttpclient.{
   Response, AsyncCompletionHandler, AsyncHandler,
   HttpResponseStatus
 }
+import io.netty.handler.codec.http.HttpHeaders
 
 /**
  * Builds tuples of (Request, AsyncHandler) for passing to Http#apply.
@@ -28,7 +29,9 @@ class FunctionHandler[T](f: Response => T) extends AsyncCompletionHandler[T] {
 }
 
 class OkFunctionHandler[T](f: Response => T)
-extends FunctionHandler[T](f) with OkHandler[T]
+extends FunctionHandler[T](f) with OkHandler[T] {
+  override def onTrailingHeadersReceived(headers: HttpHeaders): AsyncHandler.State = super[FunctionHandler].onTrailingHeadersReceived(headers)
+}
 
 trait OkHandler[T] extends AsyncHandler[T] {
   abstract override def onStatusReceived(status: HttpResponseStatus) = {

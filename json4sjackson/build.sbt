@@ -4,6 +4,6 @@ description :=
   "Dispatch module providing json4s support"
 
 libraryDependencies ++= Seq(
-  "org.json4s" %% "json4s-jackson" % "3.6.7",
+  "org.json4s" %% "json4s-jackson" % "4.1.0-M6",
   "ws.unfiltered" %% "unfiltered-netty-server" % "0.13.0-M2" % "test"
 )

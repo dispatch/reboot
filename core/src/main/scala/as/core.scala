@@ -7,6 +7,7 @@ import org.asynchttpclient.handler.resumable._
 import java.io._
 import java.nio.charset.Charset
 import java.io.Closeable
+import io.netty.handler.codec.http.HttpHeaders
 
 object Response {
   def apply[T](f: asynchttpclient.Response => T) = f
@@ -30,7 +31,7 @@ object Bytes extends (asynchttpclient.Response => Array[Byte]) {
   def apply(r: asynchttpclient.Response) = r.getResponseBodyAsBytes
 }
 
-object File extends {
+abstract class FileApply {
   def apply(file: java.io.File) = {
     val fileHandler = new RandomAccessFile(file, "rw")
 
@@ -38,9 +39,12 @@ object File extends {
         with OkHandler[asynchttpclient.Response]
         with CloseResourcesOnThrowableHandler[asynchttpclient.Response] {
       override lazy val closeable: Seq[Closeable] = Seq(fileHandler)
+      override def onTrailingHeadersReceived(headers: HttpHeaders): asynchttpclient.AsyncHandler.State = super[ResumableAsyncHandler].onTrailingHeadersReceived(headers)
     }
 
     resumableHandler
       .setResumableListener(new ResumableRandomAccessFileListener(fileHandler))
   }
 }
+
+object File extends FileApply
