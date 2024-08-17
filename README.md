@@ -52,11 +52,6 @@ Dispatch version numbers loosely follow SemVer. The version number format is:
 
 A distinct (major, minor) combination is called a "release series" or "series" for our purposes.
 
-Two stable series of Dispatch are supported at a time, with one series prior to that receiving
-"Critical" security updates in Dispatch itself or critical security fixes in AHC that have broken
-binary compatibility. All earlier versions of Dispatch are officially unsupported and will not
-receive any fixes or changes.
-
 The next feature release development happens on `master`.
 
 The following chart outlines what versions of Dispatch support what versions of AHC and Scala and
@@ -70,10 +65,10 @@ their current support status:
 |0.12.3            |1.9.40        |2.11,2.12      |None          |                                 |
 |0.13.3            |2.0.38        |2.11,2.12      |None          |                                 |
 |0.14.1            |2.1.2         |2.11,2.12      |None          |                                 |
-|1.0.3             |2.5.4         |2.11,2.12      |Critical only |1.0.x                            |
-|1.1.3             |2.10.4        |2.12,2.13      |Full support  |1.1.x                            |
-|1.2.0             |2.10.4        |2.12,2.13      |Full support  |1.2.x                            |
-|1.3.0-SNAPSHOT    |2.10.4        |2.12,2.13      |Development   |main                             |
+|1.0.3             |2.5.4         |2.11,2.12      |None          |1.0.x                            |
+|1.1.3             |2.10.4        |2.12,2.13      |None          |1.1.x                            |
+|1.2.0             |2.10.4        |2.12,2.13      |Critical      |1.2.x                            |
+|2.0.0-SNAPSHOT    |3.0.0         |2.13           |Development   |main                             |
 
 Because the AsyncHttpClient does not adhere to semantic versioning, and its versions can increment
 quite quickly at times, beginning with 0.14 Dispatch will only use the latest (major, minor) AHC
