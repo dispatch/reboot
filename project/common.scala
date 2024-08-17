@@ -55,7 +55,7 @@ object Common {
     organization := "org.dispatchhttp",
 
     homepage :=
-      Some(new java.net.URL("https://dispatchhttp.org/")),
+      Some(new java.net.URI("https://dispatchhttp.org/").toURL()),
 
     publishMavenStyle := true,
 
