@@ -339,7 +339,7 @@ trait RequestBuilderVerbs extends RequestVerbs {
    */
   def setQueryParameters(params: Map[String, Seq[String]]) = {
     subject.underlying { ahcReqBuilder =>
-      ahcReqBuilder.setQueryParams(params.mapValues({ paramValue =>
+      ahcReqBuilder.setQueryParams(params.view.mapValues({ paramValue =>
         paramValue match {
           case Seq() =>
             // Treat this as requesting a key with no values
@@ -427,7 +427,7 @@ trait RequestBuilderVerbs extends RequestVerbs {
    */
   def setParameters(parameters: Map[String, Seq[String]]) = {
     subject.underlying { _.setFormParams(
-      parameters.mapValues { _.asJava: java.util.List[String] }.toMap.asJava
+      parameters.view.mapValues { _.asJava: java.util.List[String] }.toMap.asJava
     ) }
   }
 
