@@ -6,6 +6,7 @@ import org.asynchttpclient
 import org.asynchttpclient.handler.resumable._
 import java.io._
 import java.nio.charset.Charset
+import java.io.Closeable
 
 object Response {
   def apply[T](f: asynchttpclient.Response => T) = f
@@ -36,7 +37,7 @@ object File extends {
     val resumableHandler = new ResumableAsyncHandler
         with OkHandler[asynchttpclient.Response]
         with CloseResourcesOnThrowableHandler[asynchttpclient.Response] {
-      override lazy val closeable = Seq(fileHandler)
+      override lazy val closeable: Seq[Closeable] = Seq(fileHandler)
     }
 
     resumableHandler

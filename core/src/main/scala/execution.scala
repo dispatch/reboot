@@ -13,7 +13,7 @@ case class Http(
 ) extends HttpExecutor {
   import DefaultAsyncHttpClientConfig.Builder
 
-  lazy val client = new DefaultAsyncHttpClient(clientBuilder.build)
+  lazy val client: AsyncHttpClient = new DefaultAsyncHttpClient(clientBuilder.build)
 
   /**
    * Returns a new instance replacing the underlying `clientBuilder` with a new instance that is

@@ -28,7 +28,7 @@ private[dispatch] object InternalDefaults {
 
   /** Sets a user agent, no timeout for requests  */
   private object BasicDefaults extends Defaults {
-    lazy val timer = new HashedWheelTimer()
+    lazy val timer: Timer = new HashedWheelTimer()
 
     private val userAgent = "Dispatch/%s" format BuildInfo.version
     private val infinite = Duration.ofMillis(-1)

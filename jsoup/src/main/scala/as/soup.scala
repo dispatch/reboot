@@ -13,7 +13,7 @@ object Query {
   import org.jsoup.select.Elements
   def apply(query: String): Response => Elements =
     Document(_).select(query)
-} 
+}
 
 object Clean {
   import org.jsoup.safety.Whitelist

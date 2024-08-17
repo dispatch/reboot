@@ -26,11 +26,11 @@ object Common {
       "-unchecked",
       "-language:higherKinds",
       "-language:implicitConversions",
-      // "-Xfatal-warnings",
       "-Xlint",
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard"
+      "-Ywarn-value-discard",
+      "-Xsource:3"
     ),
 
     Compile / scalacOptions ++= {
