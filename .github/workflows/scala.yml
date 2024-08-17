@@ -7,13 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  java_11_scala_2_13:
+  tests:
+    strategy:
+      matrix:
+        java: [11, 17, 21]
+        scala: ["2.13.14", "3.3.3"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 11
+    - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 11
+        java-version: ${{ matrix.java }}
     - name: Run tests
-      run: sbt ++2.13.14 test
+      run: sbt ++${{ matrix.scala }} test
