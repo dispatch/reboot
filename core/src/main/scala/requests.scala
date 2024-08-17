@@ -10,6 +10,8 @@ import org.asynchttpclient.request.body.generator.BodyGenerator
 import org.asynchttpclient.request.body.multipart.Part
 import org.asynchttpclient.{Realm, RequestBuilder}
 
+import scala.jdk.CollectionConverters._
+
 /**
   * This wrapper provides referential transparency for the
   * underlying RequestBuilder.
@@ -286,8 +288,6 @@ trait AuthVerbs extends RequestVerbs {
 }
 
 trait RequestBuilderVerbs extends RequestVerbs {
-  import scala.collection.JavaConverters._
-
   /**
    * Add a new body part to the request.
    */
