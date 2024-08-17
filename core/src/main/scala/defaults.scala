@@ -4,10 +4,12 @@ import io.netty.util.{HashedWheelTimer, Timer}
 import org.asynchttpclient.DefaultAsyncHttpClientConfig.Builder
 import org.asynchttpclient._
 
+import scala.concurrent.ExecutionContext
+
 import java.time.Duration
 
 object Defaults {
-  implicit def executor = scala.concurrent.ExecutionContext.Implicits.global
+  implicit def executor: ExecutionContext = ExecutionContext.Implicits.global
 
   implicit lazy val timer: Timer = InternalDefaults.timer
 }

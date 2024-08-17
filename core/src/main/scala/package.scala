@@ -4,15 +4,15 @@ package object dispatch {
   /** Type alias for URI, avoid need to import */
   type Uri = java.net.URI
 
-  implicit def implyRequestHandlerTuple(builder: Req) =
+  implicit def implyRequestHandlerTuple(builder: Req): dispatch.RequestHandlerTupleBuilder =
     new RequestHandlerTupleBuilder(builder)
 
 
-  implicit def implyRunnable[U](f: () => U) = new java.lang.Runnable {
+  implicit def implyRunnable[U](f: () => U): Runnable = new java.lang.Runnable {
     def run() = { f(); () }
   }
 
-  implicit def enrichFuture[T](future: Future[T]) =
+  implicit def enrichFuture[T](future: Future[T]): dispatch.EnrichedFuture[T] =
     new EnrichedFuture(future)
 
   /** Type alias to scala.concurrent.Future so you don't have to import */
