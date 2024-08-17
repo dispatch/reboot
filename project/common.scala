@@ -50,6 +50,8 @@ object Common {
       )
     },
 
+    Test / scalacOptions += "-Xsource-features:infer-override",
+
     organization := "org.dispatchhttp",
 
     homepage :=
