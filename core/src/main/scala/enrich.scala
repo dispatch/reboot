@@ -45,13 +45,13 @@ class EnrichedFuture[A](underlying: Future[A]) {
    *  with no exception */
   def option: Future[Option[A]] = {
     implicit val ctx = EnrichedFuture.currentThreadContext
-    either.map { _.right.toOption }
+    either.map { _.toOption }
   }
 
   def apply() = Await.result(underlying, Duration.Inf)
 
   /** Some value if promise is complete, otherwise None */
-  def completeOption = 
+  def completeOption =
     for (tried <- underlying.value) yield tried.get
 
   def print =

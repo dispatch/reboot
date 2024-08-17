@@ -36,11 +36,11 @@ object FutureEither {
 
     def map[Y](f: B => Y): Future[Either[A,Y]] =
       underlying.map {
-        _.right.map(f)
+        _.map(f)
       }
 
     def foreach(f: B => Unit) = {
-      underlying.foreach { _.right.foreach(f) }
+      underlying.foreach { _.foreach(f) }
     }
     def values[A1 >: A, C]
     (implicit ev: RightProjection[A, B] <:<
@@ -96,8 +96,8 @@ object FutureRightIterable {
     val start: Either[L,Seq[R]] = Right(Seq.empty)
     eithers.foldLeft(start) { (a, e) =>
       for {
-        seq <- a.right
-        cur <- e.right
+        seq <- a
+        cur <- e
       } yield (seq :+ cur)
     }
   }
@@ -107,7 +107,7 @@ object FutureRightIterable {
     (f: A => Future[Either[E,Iter[B]]]) =
       underlying.flatMap { iter =>
         Future.sequence(iter.map(f)).map { eths =>
-          flatRight(eths).right.map { _.flatten }
+          flatRight(eths).map { _.flatten }
         }
       }
     def map[Iter[B] <: Iterable[B], B](f: A => Iter[B]) =
@@ -139,5 +139,5 @@ object FutureRightIterable {
     def withFilter(p: A => Boolean) =
       new Values(parent, underlying.map { _.filter(p) }.right)
     def filter(p: A => Boolean) = withFilter(p)
-  } 
+  }
 }
