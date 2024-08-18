@@ -1,6 +1,7 @@
 package dispatch.spec
 
 import org.scalacheck._
+import org.scalacheck.util.Pretty.prettyAny
 
 object BasicSpecification
 extends Properties("Json4s Native Json")
@@ -30,7 +31,7 @@ with DispatchCleanup {
 
     object In extends Params.Extract("in", Params.first)
     netty.Server.local(port).handler(netty.cycle.Planify {
-      case Params(In(in)) => Json(("out" -> in))
+      case Params(In(in)) => Json(("out" -> in)).asInstanceOf[ComposeResponse[io.netty.handler.codec.http.HttpResponse]]
     }).start()
   }
 
@@ -42,6 +43,9 @@ with DispatchCleanup {
     val res = Http.default(
       localhost <:< Map("Accept" -> "application/json") <<? Map("in" -> sample) > as.json4s.Json
     )
-    sample == (for { JObject(fields) <- res(); JField("out", JString(o)) <- fields } yield o).head
+    sample == (for {
+      case JObject(fields) <- res()
+      case JField("out", JString(o)) <- fields
+    } yield o).head
   }
 }

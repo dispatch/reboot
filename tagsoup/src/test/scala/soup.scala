@@ -15,7 +15,7 @@ with DispatchCleanup {
     object Echo extends Params.Extract("echo", Params.first)
     netty.Server.local(port).handler(netty.cycle.Planify {
       case Path("/echo") & Params(Echo(echo)) =>
-        Html(<html><head></head><body><div id="echo">{echo}</div></body></html>)
+        ResponseString(Html(<html><head></head><body><div id="echo">{echo}</div></body></html>).toString())
     }).start()
   }
 

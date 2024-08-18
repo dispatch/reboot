@@ -47,13 +47,14 @@ with DispatchCleanup {
 
   property("iterable future values") = forAll(Gen.alphaStr) {
   (sampleL: String) =>
-    val sample = sampleL.take(10) // n^2 concurrent requests
+    val sample: String = sampleL.take(10) // n^2 concurrent requests
     val values: Future[Iterable[(Int,Int)]] = for {
       chr1 <- split(sample).values.flatten
       chr2 <- split(sample.reverse).values
       c1 <- value(chr1)
       c2 <- value(chr2)
     } yield (c1, c2)
+
     values() ?= (for {
       c1 <- sample
       c2 <- sample.reverse
@@ -67,7 +68,7 @@ with DispatchCleanup {
       chr1 <- split(sample).either.right.values
       c1 <- value(chr1)
     } yield Right(c1)
-    values().right.get ?= (for {
+    values().toOption.get ?= (for {
       c1 <- sample
     } yield c1.toInt)
   }
