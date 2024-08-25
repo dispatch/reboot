@@ -1,12 +1,12 @@
 package dispatch.spec
 
 import org.scalacheck._
+import scala.collection.immutable.ArraySeq
 
 object IterableFutureSpecification
 extends Properties("Iterable Future")
 with DispatchCleanup {
-  import Prop.{forAll,AnyOperators}
-  import Gen._
+  import Prop.{forAll}
 
   private val port = unfiltered.util.Port.any
   val server = {
@@ -31,7 +31,7 @@ with DispatchCleanup {
 
   def split(str: String): Future[Seq[String]] =
     for (csv <- Http.default(localhost / "split" << Seq("str" -> str) > as.String))
-      yield csv.split(",")
+      yield ArraySeq.unsafeWrapArray(csv.split(","))
 
   def value(str: String): Future[Int] =
     for (v <- Http.default(localhost / "value" << Seq("chr" -> str) > as.String))
@@ -42,7 +42,8 @@ with DispatchCleanup {
     val values = split(sample).values.flatMap { chr =>
       value(chr)
     }
-    values() ?= sample.map { _.toInt }
+
+    Prop.?=(values(), sample.map(_.toInt))
   }
 
   property("iterable future values") = forAll(Gen.alphaStr) {
@@ -55,10 +56,12 @@ with DispatchCleanup {
       c2 <- value(chr2)
     } yield (c1, c2)
 
-    values() ?= (for {
+    val expected: Iterable[(Int, Int)] = for {
       c1 <- sample
       c2 <- sample.reverse
-    } yield (c1.toInt, c2.toInt))
+    } yield (c1.toInt, c2.toInt)
+
+    Prop.?=(values(), expected)
   }
 
   property("iterable future values on either") = forAll(Gen.alphaStr) {
@@ -68,9 +71,12 @@ with DispatchCleanup {
       chr1 <- split(sample).either.right.values
       c1 <- value(chr1)
     } yield Right(c1)
-    values().toOption.get ?= (for {
+
+    val expected = (for {
       c1 <- sample
     } yield c1.toInt)
+
+    Prop.?=(values(), Right(expected))
   }
 
 }
