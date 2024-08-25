@@ -14,7 +14,7 @@ object Common {
   )
 
   val settings: Seq[Setting[_]] = Seq(
-    version := "2.0.0",
+    version := "2.0.1-SNAPSHOT",
 
     crossScalaVersions := Seq("2.13.14", "3.3.3"),
 
