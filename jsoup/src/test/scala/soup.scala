@@ -1,7 +1,7 @@
 package dispatch.spec
 
 import org.scalacheck._
-import org.jsoup.safety.Whitelist
+import org.jsoup.safety.Safelist
 
 object JsoupSpecification
 extends Properties("Basic")
@@ -54,7 +54,7 @@ with DispatchCleanup {
   property("handle Cleaning") = forAll(Gen.alphaStr) { (sample: String) =>
     val clean = Http.default(
       localhost / "unclean" <<? Map("echo" -> sample) > as.jsoup.Clean(
-        Whitelist.basic)
+        Safelist.basic)
     )
     clean() == (SafeFormat format sample)
   }

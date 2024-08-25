@@ -16,7 +16,7 @@ object Query {
 }
 
 object Clean {
-  import org.jsoup.safety.Whitelist
-  def apply(wl: Whitelist): Response => String =
+  import org.jsoup.safety.Safelist
+  def apply(wl: Safelist): Response => String =
     { r => Jsoup.clean(dispatch.as.String(r), r.getUri().toString, wl) }
 }
