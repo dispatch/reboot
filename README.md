@@ -7,7 +7,10 @@ Dispatch reboot is a rewrite of the Dispatch library for HTTP interaction in Sca
 [async-http-client][async], commonly called AHC, as its underlying transport. For more info, see the
 [Dispatch documentation site][docs].
 
-Dispatch requires that you use at least Java 11. Our test suite is also run against recent Java LTS versions.
+Minimum requirements:
+
+* Java >= 11 (tested against 11, 17, and 21)
+* Scala 2.13 or >= 3.3.3
 
 [docs]: https://dispatch.github.io/reboot/Dispatch.html
 [async]: https://github.com/AsyncHttpClient/async-http-client
@@ -17,16 +20,16 @@ Dispatch requires that you use at least Java 11. Our test suite is also run agai
 Stable releases of Dispatch are published to Maven Central. As such, you can pull in the current
 stable release by simply adding a library dependency to your project for the correct version.
 
-To get the latest stable release, 1.2.0, simply add the following to your `build.sbt`:
+To get the latest stable release, 2.0.0, simply add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.2.0"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "2.0.0"
 ```
 
 If Gradle is more your style, you could also use this style:
 
 ```scala
-implementation "org.dispatchhttp:dispatch-core_2.12:1.2.0"
+implementation "org.dispatchhttp:dispatch-core_2.13:2.0.0"
 ```
 
 ### Snapshot releases
@@ -38,7 +41,7 @@ to add the snapshots repository to your project and pull the relevant snapshot:
 resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "1.3.0-SNAPSHOT"
+libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "2.1.0-SNAPSHOT"
 ```
 
 ## Versioning and Support
@@ -67,7 +70,8 @@ their current support status:
 |1.0.3             |2.5.4         |2.11,2.12      |None          |1.0.x                            |
 |1.1.3             |2.10.4        |2.12,2.13      |None          |1.1.x                            |
 |1.2.0             |2.10.4        |2.12,2.13      |Critical      |1.2.x                            |
-|2.0.0-SNAPSHOT    |3.0.0         |2.13,3.3.3     |Development   |main                             |
+|2.0.0-SNAPSHOT    |3.0.0         |2.13,3.3.3     |Full          |2.0.x                            |
+|2.1.0-SNAPSHOT    |3.0.0         |2.13,3.3.3     |Development   |main                             |
 
 Because the AsyncHttpClient does not adhere to semantic versioning, and its versions can increment
 quite quickly at times, beginning with 0.14 Dispatch will only use the latest (major, minor) AHC
