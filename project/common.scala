@@ -59,34 +59,29 @@ object Common {
 
     publishMavenStyle := true,
 
+    // Releases are staged locally and then uploaded to the Sonatype Central
+    // Portal with `sonaRelease`. Snapshots go straight to the Central snapshots
+    // repository.
     publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (version.value.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+      if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+      else localStaging.value
     },
+
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/dispatch/reboot"),
+        "scm:git:git@github.com:dispatch/reboot.git"
+      )
+    ),
 
     Test / publishArtifact := false,
 
-    licenses := Seq("LGPL v3" -> url("http://www.gnu.org/licenses/lgpl.txt")),
+    licenses := Seq("LGPL v3" -> url("https://www.gnu.org/licenses/lgpl-3.0.txt")),
 
-    pomExtra :=
-      <scm>
-        <url>git@github.com:dispatch/reboot.git</url>
-        <connection>scm:git:git@github.com:dispatch/reboot.git</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>n8han</id>
-          <name>Nathan Hamblen</name>
-          <url>http://twitter.com/n8han</url>
-        </developer>
-        <developer>
-          <id>farmdawgnation</id>
-          <name>Matt Farmer</name>
-          <url>https://farmdawgnation.com</url>
-        </developer>
-      </developers>
+    developers := List(
+      Developer("n8han", "Nathan Hamblen", "", url("https://github.com/n8han")),
+      Developer("farmdawgnation", "Matt Farmer", "", url("https://farmdawgnation.com"))
+    )
   )
 }

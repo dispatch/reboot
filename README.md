@@ -34,12 +34,13 @@ implementation "org.dispatchhttp:dispatch-core_2.13:2.0.0"
 
 ### Snapshot releases
 
-We irregularly release snapshots to Sonatype snapshots. To use it you'll need
-to add the snapshots repository to your project and pull the relevant snapshot:
+We irregularly release snapshots to the Maven Central snapshots repository. To
+use them you'll need to add the snapshots repository to your project and pull
+the relevant snapshot:
 
 ```scala
 resolvers +=
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  "Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
 
 libraryDependencies += "org.dispatchhttp" %% "dispatch-core" % "2.1.0-SNAPSHOT"
 ```

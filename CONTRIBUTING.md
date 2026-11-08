@@ -32,3 +32,43 @@ contribution you should obtain written permission from the owner of the contribu
 that in an email to [@farmdawgnation][fdn] _before_ signing the CLA.
 
 [fdn]: https://github.com/farmdawgnation
+
+## Publishing a release
+
+Dispatch publishes to Maven Central through the [Sonatype Central
+Portal](https://central.sonatype.com/) using sbt's built-in support. Maintainers
+need a Central Portal user token for the `org.dispatchhttp` namespace and a GPG
+key published to a public keyserver.
+
+Provide the token to sbt either as environment variables:
+
+```
+export SONATYPE_USERNAME=<token username>
+export SONATYPE_PASSWORD=<token password>
+```
+
+or in a credentials file, `~/.sbt/sonatype_central_credentials`:
+
+```
+host=central.sonatype.com
+user=<token username>
+password=<token password>
+```
+
+loaded from `~/.sbt/1.0/credentials.sbt`:
+
+```scala
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype_central_credentials")
+```
+
+Then sign and stage every cross-built module, and upload the bundle:
+
+```
+sbt +publishSigned sonaRelease
+```
+
+`sonaRelease` uploads the staged bundle and publishes it automatically once
+validation passes. Use `sonaUpload` instead to stop after upload and release it
+by hand from the Central Portal. Snapshot versions skip staging and go straight
+to the Central snapshots repository with `sbt +publishSigned`; snapshots must
+be enabled for the namespace in the Central Portal first.

@@ -3,7 +3,7 @@ lazy val root = Project(
   "dispatch-all", file(".")
 ).settings(
   Common.settings,
-  publish := { }
+  publish / skip := true
 ).aggregate(
   core,
   jsoup,
@@ -45,8 +45,7 @@ lazy val xmlDependency = libraryDependencies ++= Seq("org.scala-lang.modules" %%
 lazy val ufcheck = project.in(file("ufcheck")).settings(
   Common.settings,
   publishArtifact := false,
-  publish := {},
-  publishLocal := {}
+  publish / skip := true
 )
 
 scalacOptions ++= Seq( "-unchecked", "-deprecation" )
