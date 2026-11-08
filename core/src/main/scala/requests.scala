@@ -485,6 +485,14 @@ trait RequestBuilderVerbs extends RequestVerbs {
   }
 
   /**
+   * Add a cookie based on its name, if it does not exist yet. Cookies that
+   * are already set will be ignored.
+   */
+  def addCookieIfUnset(cookie: Cookie) = {
+    subject.underlying(_.addCookieIfUnset(cookie))
+  }
+
+  /**
    * Set auth realm
    */
   def setRealm(realm: Realm) = {
