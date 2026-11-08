@@ -40,26 +40,18 @@ Portal](https://central.sonatype.com/) using sbt's built-in support. Maintainers
 need a Central Portal user token for the `org.dispatchhttp` namespace and a GPG
 key published to a public keyserver.
 
-Provide the token to sbt either as environment variables:
+Put the token in `~/.sbt/1.0/.credentials`, which the build loads
+automatically:
 
 ```
-export SONATYPE_USERNAME=<token username>
-export SONATYPE_PASSWORD=<token password>
-```
-
-or in a credentials file, `~/.sbt/sonatype_central_credentials`:
-
-```
+realm=Sonatype Nexus Repository Manager
 host=central.sonatype.com
 user=<token username>
 password=<token password>
 ```
 
-loaded from `~/.sbt/1.0/credentials.sbt`:
-
-```scala
-credentials += Credentials(Path.userHome / ".sbt" / "sonatype_central_credentials")
-```
+Alternatively, sbt also reads the `SONATYPE_USERNAME` and `SONATYPE_PASSWORD`
+environment variables.
 
 Then sign and stage every cross-built module, and upload the bundle:
 

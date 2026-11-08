@@ -68,6 +68,10 @@ object Common {
       else localStaging.value
     },
 
+    credentials += Credentials(
+      BuildPaths.getGlobalSettingsDirectory(state.value, BuildPaths.getGlobalBase(state.value)) / ".credentials"
+    ),
+
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/dispatch/reboot"),
