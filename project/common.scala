@@ -3,7 +3,7 @@ import sbt._
 object Common {
   import Keys._
 
-  val defaultScalaVersion = "3.3.3"
+  val defaultScalaVersion = "3.3.9"
 
   val testSettings:Seq[Setting[_]] = Seq(
     Test / testOptions += Tests.Cleanup { loader =>
