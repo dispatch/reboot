@@ -15,10 +15,14 @@ jobs:
         scala: ["2.13.14", "3.3.3", "3.4.2"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v5
       with:
+        distribution: temurin
         java-version: ${{ matrix.java }}
+        cache: sbt
+    - name: Set up sbt
+      uses: sbt/setup-sbt@v1
     - name: Run tests
       run: sbt ++${{ matrix.scala }} test
