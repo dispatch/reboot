@@ -4,7 +4,7 @@ description :=
   "Core Dispatch module wrapping async-http-client"
 
 libraryDependencies +=
-  "org.asynchttpclient" % "async-http-client" % "3.0.1"
+  "org.asynchttpclient" % "async-http-client" % "3.0.14"
 
 enablePlugins(BuildInfoPlugin)
 
