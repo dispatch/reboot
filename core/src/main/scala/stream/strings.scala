@@ -35,18 +35,45 @@ trait Strings[T] extends AsyncHandler[T] {
   }
 }
 
+/**
+ * Thrown by [[StringsBy]] when a line, the text between two dividers, is
+ * longer than `maxLineLength` characters. Throwing it from the handler fails
+ * the request and closes the connection.
+ */
+case class LineTooLong(maxLineLength: Int)
+extends Exception("Line exceeded the maximum length of %d characters".format(maxLineLength))
+
+object StringsBy {
+  /** The default value of [[StringsBy.maxLineLength]]: 1,048,576 characters. */
+  val DefaultMaxLineLength: Int = 1024 * 1024
+}
+
 trait StringsBy[T] extends Strings[T] {
   @volatile private var buffer = ""
 
   def divider: String
 
+  /**
+   * The longest line, in characters, this handler accepts. A longer line,
+   * including one still waiting for its divider, fails the request with
+   * [[LineTooLong]]. Override to change the limit.
+   */
+  def maxLineLength: Int = StringsBy.DefaultMaxLineLength
+
   def onStringBy(string: String): Unit
 
   def onString(string: String) = {
     val strings = (buffer + string).split(divider, -1)
-    strings.take(strings.length - 1).filter { !_.isEmpty }.foreach(onStringBy)
+    strings.init.foreach { line =>
+      checkLength(line)
+      if (!line.isEmpty) onStringBy(line)
+    }
+    checkLength(strings.last)
     buffer = strings.last
   }
+
+  private def checkLength(line: String): Unit =
+    if (line.length > maxLineLength) throw LineTooLong(maxLineLength)
 }
 
 trait StringsByLine[T] extends StringsBy[T] {

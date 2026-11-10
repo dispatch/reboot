@@ -1,0 +1,34 @@
+### Security
+
+* Clients built from Dispatch's defaults, including `Http.default` and
+  `Http.withConfiguration`, now use async-http-client's default request timeout
+  of 60 seconds. Previously they had no request timeout, so a server that kept
+  sending data within the read timeout could hold a connection, and the
+  `Future` waiting on it, open indefinitely.
+
+* `stream.StringsBy`, and the handlers built on it (`as.stream.Lines` and the
+  json4s `as.json4s.stream.Json` handlers), now limit a single line to
+  `StringsBy.DefaultMaxLineLength` (1,048,576 characters). A longer line fails
+  the request with `stream.LineTooLong` and closes the connection. Previously a
+  server that never sent a divider could grow the line buffer until the heap
+  was exhausted. To change the limit, override `maxLineLength` in your own
+  `StringsBy` handler.
+
+### Upgrading
+
+Streaming requests that stay open longer than 60 seconds now fail with a
+timeout unless you raise or disable the request timeout. You can do that for a
+whole client:
+
+```scala
+import java.time.Duration
+
+val streaming = Http.withConfiguration(_.setRequestTimeout(Duration.ofMillis(-1)))
+```
+
+or for a single request:
+
+```scala
+val req = url("https://example.com/stream")
+  .underlying(_.setRequestTimeout(Duration.ofMillis(-1)))
+```
