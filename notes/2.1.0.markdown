@@ -14,5 +14,5 @@ build your own handler with an explicitly configured parser.
 The DOCTYPE ban relies on a feature specific to Xerces, which includes the JDK's
 built-in parser. If you configure a SAX provider that doesn't recognize that
 feature, `as.xml.Elem` fails outright rather than parse unprotected responses;
-skipping external DTDs remains best-effort. External entities and secure
-processing are disabled without relying on Xerces-specific features.
+skipping external DTDs remains best-effort. Disabling external entities and
+enabling secure processing don't rely on Xerces-specific features.
