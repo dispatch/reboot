@@ -41,4 +41,39 @@ object UriSpecification extends Properties("Uri") {
       (dispatch.host("api.example.com") / "users" / segment).url ?=
         s"http://api.example.com/users/$segment"
     }
+
+  /** A host string must name exactly one host: URL metacharacters must not be
+   *  able to change which authority the request targets (issue #248).
+   */
+  property("Rejects hosts containing URL authority metacharacters") =
+    forAll(Gen.oneOf(
+      "evil.com/.trusted.com",
+      "evil.com#.trusted.com",
+      "trusted.com@evil.com",
+      "evil.com?query",
+      "evil.com:8080@evil.com",
+      "user:pass@host.com",
+      "foo_bar.com",
+      "a b.com",
+      "a%2Fb.com",
+      ""
+    )) { (bad: String) =>
+      Prop.throws(classOf[dispatch.InternationalDomainConversionException])(dispatch.host(bad)) &&
+      Prop.throws(classOf[dispatch.InternationalDomainConversionException])(dispatch.host(bad, 8080)) &&
+      Prop.throws(classOf[dispatch.InternationalDomainConversionException])(dispatch.`:/`(bad))
+    }
+
+  property("Accepts plain, IDN, and IPv4 hosts unchanged") =
+    forAll(Gen.oneOf(
+      "api.example.com" -> "http://api.example.com/",
+      "127.0.0.1" -> "http://127.0.0.1/",
+      "i❤.ws" -> "http://xn--i-7iq.ws/", // emoji domain, see #231
+      "bücher.de" -> "http://xn--bcher-kva.de/"
+    )) { case (input, expected) =>
+      dispatch.host(input).url ?= expected
+    }
+
+  property("Accepts a bracketed IPv6 literal host with port") = {
+    dispatch.host("[::1]", 8080).url ?= "http://[::1]:8080/"
+  }
 }
