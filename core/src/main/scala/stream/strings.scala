@@ -57,7 +57,9 @@ trait StringsBy[T] extends Strings[T] {
   /**
    * The longest line, in characters, this handler accepts. A longer line,
    * including one still waiting for its divider, fails the request with
-   * [[LineTooLong]]. Override to change the limit.
+   * [[LineTooLong]]. A partial divider at the end of a chunk does not count
+   * toward the line, but it is also limited to this many characters. Override
+   * to change the limit.
    */
   def maxLineLength: Int = StringsBy.DefaultMaxLineLength
 
@@ -70,7 +72,14 @@ trait StringsBy[T] extends Strings[T] {
       if (!line.isEmpty) onStringBy(line)
     }
     val pending = strings.last
-    if (pending.length > maxLineLength) checkLength(pendingLineLength(pending))
+    if (pending.length > maxLineLength) {
+      val lineLength = pendingLineLength(pending)
+      checkLength(lineLength)
+      // Bound the trailing partial divider too, so that a divider pattern
+      // with unbounded or zero-width matches cannot grow the buffer past
+      // twice maxLineLength.
+      checkLength(pending.length - lineLength)
+    }
     buffer = pending
   }
 

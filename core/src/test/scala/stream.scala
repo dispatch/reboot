@@ -46,6 +46,11 @@ with DispatchCleanup {
     override def divider = "::"
   }
 
+  /** A [[Recorder]] that splits on `pattern`. */
+  private class PatternRecorder(limit: Int, pattern: String) extends Recorder(limit) {
+    override def divider = pattern
+  }
+
   property("Lines splits a response into lines") = {
     val lines = new ConcurrentLinkedQueue[String]
     val res = Http.default(localhost / "lines" > as.stream.Lines(lines.add))
@@ -94,6 +99,26 @@ with DispatchCleanup {
     handler.onString("abcd:")
     val result = Try(handler.onString("x"))
     (result ?= Failure(LineTooLong(4))) && (handler.received ?= Nil)
+  }
+
+  property("A partial divider of unbounded length is accepted within the limit") = {
+    val handler = new PatternRecorder(4, "\\s*\\n")
+    handler.onString("abcd  ")
+    handler.onString("  \nef\n")
+    handler.received ?= List("abcd", "ef")
+  }
+
+  property("A partial divider of unbounded length cannot grow past the limit") = {
+    val handler = new PatternRecorder(4, "\\s*\\n")
+    val result = Try((1 to 10).foreach(_ => handler.onString("   ")))
+    (result ?= Failure(LineTooLong(4))) && (handler.received ?= Nil)
+  }
+
+  property("A zero-width divider cannot grow a line past the limit") = {
+    val handler = new PatternRecorder(4, "(?=\\{)")
+    handler.onString("{ab}{cd")
+    val result = Try(handler.onString("ef"))
+    (result ?= Failure(LineTooLong(4))) && (handler.received ?= List("{ab}"))
   }
 
   property("A complete line over the limit is rejected") = {
