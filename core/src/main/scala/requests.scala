@@ -128,8 +128,14 @@ trait UrlVerbs extends RequestVerbs {
 
   /**
    * Append a segment to the URL.
+   *
+   * @throws IllegalArgumentException if the segment is the dot-segment "." or
+   *   "..", which would be resolved against the existing path and so could
+   *   target a different path than the one being built.
    */
   def / (segment: String) = {
+    require(segment != "." && segment != "..",
+      s"Path segment must not be a dot-segment: '$segment'")
     val uri = RawUri(url)
     val encodedSegment = UriEncode.path(segment)
     val rawPath = uri.path.orElse(Some("/")).map {

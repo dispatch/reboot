@@ -23,4 +23,22 @@ object UriSpecification extends Properties("Uri") {
     val path = "roma🇮🇹"
     new java.net.URI(dispatch.UriEncode.path(path)).getPath == (path)
   }
+
+  /** A dot-segment would let a single appended segment escape its parent path:
+   *  async-http-client resolves it when the URL is set, so `/ "users" / ".."`
+   *  yields `/`. Every segment-appending verb must refuse one.
+   */
+  property("Rejects dot-segments appended as a path segment") = forAllNoShrink(Gen.oneOf(".", "..")) { (segment: String) =>
+    val users = dispatch.host("api.example.com") / "users"
+    Prop.throws(classOf[IllegalArgumentException])(users / segment) &&
+    Prop.throws(classOf[IllegalArgumentException])(users.appendSegment(segment)) &&
+    Prop.throws(classOf[IllegalArgumentException])(users /? Some(segment)) &&
+    Prop.throws(classOf[IllegalArgumentException])(users.appendOptionalSegment(Some(segment)))
+  }
+
+  property("Accepts segments that contain dots but are not dot-segments") =
+    forAll(Gen.oneOf("...", ".well-known", "..a", "a..", "file.txt", "1.0")) { (segment: String) =>
+      (dispatch.host("api.example.com") / "users" / segment).url ?=
+        s"http://api.example.com/users/$segment"
+    }
 }
