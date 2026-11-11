@@ -1,6 +1,7 @@
 package dispatch.stream
 
 import java.nio.charset.Charset
+import java.util.regex.Pattern
 
 import io.netty.handler.codec.http.HttpHeaders
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
@@ -65,15 +66,32 @@ trait StringsBy[T] extends Strings[T] {
   def onString(string: String) = {
     val strings = (buffer + string).split(divider, -1)
     strings.init.foreach { line =>
-      checkLength(line)
+      checkLength(line.length)
       if (!line.isEmpty) onStringBy(line)
     }
-    checkLength(strings.last)
-    buffer = strings.last
+    val pending = strings.last
+    if (pending.length > maxLineLength) checkLength(pendingLineLength(pending))
+    buffer = pending
   }
 
-  private def checkLength(line: String): Unit =
-    if (line.length > maxLineLength) throw LineTooLong(maxLineLength)
+  private def checkLength(length: Int): Unit =
+    if (length > maxLineLength) throw LineTooLong(maxLineLength)
+
+  /**
+   * The length of the line in `pending`, which holds no complete divider, not
+   * counting a trailing partial divider that the next chunk may complete. That
+   * is the first index at which the divider matches or reaches the end of the
+   * input while matching.
+   */
+  private def pendingLineLength(pending: String): Int = {
+    val matcher = Pattern.compile(divider).matcher(pending)
+      .useTransparentBounds(true)
+      .useAnchoringBounds(false)
+    (0 until pending.length).find { start =>
+      matcher.region(start, pending.length)
+      matcher.lookingAt() || matcher.hitEnd()
+    }.getOrElse(pending.length)
+  }
 }
 
 trait StringsByLine[T] extends StringsBy[T] {

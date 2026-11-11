@@ -41,6 +41,11 @@ with DispatchCleanup {
     def received = lines.asScala.toList
   }
 
+  /** A [[Recorder]] whose divider is two characters long. */
+  private class PairRecorder(limit: Int) extends Recorder(limit) {
+    override def divider = "::"
+  }
+
   property("Lines splits a response into lines") = {
     val lines = new ConcurrentLinkedQueue[String]
     val res = Http.default(localhost / "lines" > as.stream.Lines(lines.add))
@@ -75,6 +80,20 @@ with DispatchCleanup {
     handler.onString("ab\nabc")
     val result = Try(handler.onString("de"))
     (result ?= Failure(LineTooLong(4))) && (handler.received ?= List("ab"))
+  }
+
+  property("A divider split across chunks does not count toward the limit") = {
+    val handler = new PairRecorder(4)
+    handler.onString("abcd:")
+    handler.onString(":ef::")
+    handler.received ?= List("abcd", "ef")
+  }
+
+  property("A partial divider that is not completed counts toward the limit") = {
+    val handler = new PairRecorder(4)
+    handler.onString("abcd:")
+    val result = Try(handler.onString("x"))
+    (result ?= Failure(LineTooLong(4))) && (handler.received ?= Nil)
   }
 
   property("A complete line over the limit is rejected") = {
