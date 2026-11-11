@@ -6,8 +6,6 @@ import org.asynchttpclient._
 
 import scala.concurrent.ExecutionContext
 
-import java.time.Duration
-
 object Defaults {
   implicit def executor: ExecutionContext = ExecutionContext.Implicits.global
 
@@ -26,15 +24,17 @@ private[dispatch] object InternalDefaults {
     def timer: Timer
   }
 
-  /** Sets a user agent, no timeout for requests  */
+  /**
+   * Sets a user agent and keeps AHC's default request timeout. Streaming
+   * clients that need longer-lived requests can raise or disable the timeout
+   * with `Http.withConfiguration` or per request.
+   */
   private object BasicDefaults extends Defaults {
     lazy val timer: Timer = new HashedWheelTimer()
 
     private val userAgent = "Dispatch/%s" format BuildInfo.version
-    private val infinite = Duration.ofMillis(-1)
     def builder: Builder = new DefaultAsyncHttpClientConfig.Builder()
       .setUserAgent(userAgent)
-      .setRequestTimeout(infinite) // don't timeout streaming connections
       .setUseProxyProperties(true)
   }
 
