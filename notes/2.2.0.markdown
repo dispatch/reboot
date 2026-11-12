@@ -1,5 +1,15 @@
 ### Security
 
+* `host(...)` and `:/ (...)` now validate the host string before building the
+  request URL. Previously the IDN-converted string was interpolated into
+  `http://%s/` without `IDN.USE_STD3_ASCII_RULES`, so URL metacharacters in
+  the host string (`/ ? # @ :`) were re-interpreted when the URL was parsed —
+  e.g. `host("trusted.com@evil.com")` connected to `evil.com` with
+  `trusted.com` as userinfo, defeating application-level allowlist checks
+  such as `hostname.endsWith(".trusted.com")` (CWE-918). Such strings now
+  throw `InternationalDomainConversionException`. IDN and emoji domains
+  (e.g. `i❤.ws`) and bracketed IPv6 literals (e.g. `[::1]`) still work.
+
 * Clients built from Dispatch's defaults, including `Http.default` and
   `Http.withConfiguration`, now use async-http-client's default request timeout
   of 60 seconds. Previously they had no request timeout, so a server that kept
