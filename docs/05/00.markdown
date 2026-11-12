@@ -1,13 +1,83 @@
-## Scaladoc Index
+Http executors
+--------------
 
-The following is an index of the available Dispatch Scaladocs by
-Dispatch release series and module.
+Every example so far has sent its requests through `Http.default`.
+That's an *executor*: an instance of `Http` that wraps one
+async-http-client (AHC) client, along with the connection pool and
+threads that client owns.
 
-### Dispatch 0.13.x
+### The default executor
 
-* [dispatch-core](/scaladocs/0.13/core)
-* [dispatch-json4sjackson](/scaladocs/0.13/json4sjackson)
-* [dispatch-json4snative](/scaladocs/0.13/json4snative)
-* [dispatch-jsoup](/scaladocs/0.13/jsoup)
-* [dispatch-liftjson](/scaladocs/0.13/liftjson)
-* [dispatch-tagsoup](/scaladocs/0.13/tagsoup)
+`Http.default` is one executor shared by your whole application. It's
+safe to use from many threads at once, and most applications never
+need another.
+
+### Configuring your own executor
+
+When the defaults don't suit you, `Http.withConfiguration` creates a
+new executor. It hands you AHC's [config builder][builder] to change:
+
+[builder]: https://javadoc.io/doc/org.asynchttpclient/async-http-client/latest/org/asynchttpclient/DefaultAsyncHttpClientConfig.Builder.html
+
+```scala
+val http = Http.withConfiguration(_.setFollowRedirect(true))
+val page = http(svc OK as.String)
+```
+
+Each executor you create has its own client, connection pool, and
+threads, separate from `Http.default` and from every other executor.
+Create it once, keep it, and reuse it. Creating one per request throws
+away its connections and leaves its threads running:
+
+```scala
+// Don't do this: each call starts a new client and new threads
+def fetch(req: Req) =
+  Http.withConfiguration(_.setFollowRedirect(true))(req OK as.String)
+```
+
+If Netty logs `You are creating too many HashedWheelTimer instances`,
+your application is probably doing this. Each executor in use has its
+own timer, and Netty logs this once more than 64 timers exist at the
+same time.
+
+### What an executor costs
+
+An executor doesn't start its client until its first request. After
+that, it keeps:
+
+* one timer thread, for timeouts and cleaning up idle connections
+* I/O threads, started as it opens connections, up to one per
+  available processor
+
+A single request starts two threads. A busy executor on an 8-core
+machine can hold nine. These threads keep running until you shut the
+executor down.
+
+### Shutting down
+
+AHC's threads aren't daemon threads, so an executor that's still
+running keeps the JVM from exiting. When you're done with an executor,
+shut it down to close its connections and stop its threads:
+
+```scala
+http.shutdown()
+```
+
+An executor can't be restarted after it's shut down. Any request sent
+through it afterward fails with an `ExecutionException` caused by
+`IllegalStateException: Closed`.
+
+That applies to `Http.default` too. Everything in the JVM shares it,
+so shut it down only when your application exits, and never from
+library code.
+
+### Changing an executor's configuration
+
+`closeAndConfigure` shuts down an executor and returns a new one with
+the same configuration plus your changes:
+
+```scala
+val newHttp = http.closeAndConfigure(_.setUserAgent("my-app/1.0"))
+```
+
+Use the new executor from then on. The old one is shut down.

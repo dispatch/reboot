@@ -61,6 +61,10 @@ object Http {
   /**
    * Create an Http executor with some custom configuration defined by the `withBuilder` function
    * that will mutate the underlying `Builder` from AHC.
+   *
+   * Each executor this returns gets its own AHC client, connection pool, and threads once it
+   * makes its first request. Create it once and reuse it, and call `shutdown()` when you're done
+   * with it.
    */
   def withConfiguration(withBuilder: Builder => Builder): Http = {
     val newBuilder = new Builder(defaultClientBuilder.build)
