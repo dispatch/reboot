@@ -1,0 +1,14 @@
+# Dependabot keeps the GitHub Actions in .github/workflows up to date,
+# including the commit SHAs they're pinned to. sbt dependencies are handled
+# by Scala Steward (.scala-steward.conf), so they're deliberately left out
+# here to avoid duplicate PRs.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
