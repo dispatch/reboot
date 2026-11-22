@@ -32,19 +32,41 @@ object Bytes extends (asynchttpclient.Response => Array[Byte]) {
 }
 
 abstract class FileApply {
-  def apply(file: java.io.File) = {
-    val fileHandler = new RandomAccessFile(file, "rw")
-
-    val resumableHandler = new ResumableAsyncHandler
+  /**
+   * @return a handler that writes the response body to `file`, replacing any
+   * existing content. The file is opened, and created if needed, only once a
+   * successful status arrives. A non-2xx status fails the request with
+   * [[dispatch.StatusCode]] and leaves the file as it was. A failure while the
+   * body is streaming can leave a partially written file.
+   */
+  def apply(file: java.io.File): ResumableAsyncHandler =
+    new ResumableAsyncHandler
         with OkHandler[asynchttpclient.Response]
         with CloseResourcesOnThrowableHandler[asynchttpclient.Response] {
-      override lazy val closeable: Seq[Closeable] = Seq(fileHandler)
+      @volatile private var fileHandler: Option[RandomAccessFile] = None
+
+      override def closeable: Seq[Closeable] = fileHandler.toSeq
+
+      override def onStatusReceived(status: asynchttpclient.HttpResponseStatus): asynchttpclient.AsyncHandler.State = {
+        val state = super.onStatusReceived(status)
+        if (state == asynchttpclient.AsyncHandler.State.CONTINUE) {
+          // Reuse the file if AHC replays the request through this handler, so
+          // the first descriptor isn't leaked.
+          val raf = fileHandler.getOrElse {
+            val opened = new RandomAccessFile(file, "rw")
+            fileHandler = Some(opened)
+            opened
+          }
+          // The listener always writes at the end of the file, so empty it
+          // first to replace the old content instead of appending to it.
+          raf.setLength(0)
+          setResumableListener(new ResumableRandomAccessFileListener(raf))
+        }
+        state
+      }
+
       override def onTrailingHeadersReceived(headers: HttpHeaders): asynchttpclient.AsyncHandler.State = super[ResumableAsyncHandler].onTrailingHeadersReceived(headers)
     }
-
-    resumableHandler
-      .setResumableListener(new ResumableRandomAccessFileListener(fileHandler))
-  }
 }
 
 object File extends FileApply
